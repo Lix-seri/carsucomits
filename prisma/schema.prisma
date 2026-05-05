@@ -1,0 +1,181 @@
+// CarsuComits — database schema
+// Dev: SQLite (file:./dev.db). SQLite has no enums, so we use String fields
+// constrained at the application layer (see src/lib/types.ts).
+// To deploy on web.com.ph (MySQL), change provider to "mysql" and you can
+// optionally convert these String fields to real enums.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ── Allowed values (enforced in TypeScript, see src/lib/types.ts) ──
+// Role:              STUDENT_EMPLOYEE | COMMISSIONER | ADMIN
+// SkillLevel:        BEGINNER | INTERMEDIATE | ADVANCED | EXPERT
+// Category:          ACADEMIC | TECHNICAL | GENERAL_ERRANDS | ADMINISTRATIVE
+// CommissionStatus:  OPEN | IN_PROGRESS | AWAITING_REVIEW | COMPLETED | CANCELLED | DISPUTED
+// ApplicationStatus: PENDING | ACCEPTED | REJECTED | WITHDRAWN
+// ReportStatus:      PENDING | UNDER_INVESTIGATION | RESOLVED | ESCALATED
+// AccountStatus:     ACTIVE | WARNED | SUSPENDED | BANNED
+
+model User {
+  id            String   @id @default(cuid())
+  fullName      String
+  email         String   @unique
+  passwordHash  String
+  role          String   @default("STUDENT_EMPLOYEE")
+  status        String   @default("ACTIVE")
+  bio           String?
+  avatarUrl     String?
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  skills            Skill[]
+  postedCommissions Commission[]   @relation("commissioner")
+  applications      Application[]
+  receivedRatings   Rating[]       @relation("ratee")
+  givenRatings      Rating[]       @relation("rater")
+  filedReports      Report[]       @relation("reporter")
+  receivedReports   Report[]       @relation("reportee")
+  sentMessages      Message[]      @relation("sender")
+  receivedMessages  Message[]      @relation("recipient")
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+}
+
+model Skill {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  name      String
+  level     String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Commission {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  category       String
+  subcategory    String?
+  requiredLevel  String
+  fareMin        Int
+  fareMax        Int?
+  fareUnit       String?
+  deadline       DateTime?
+  status         String   @default("OPEN")
+  commissioner   User     @relation("commissioner", fields: [commissionerId], references: [id])
+  commissionerId String
+  awardedToId    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  applications Application[]
+  ratings      Rating[]
+  messages     Message[]
+  reports      Report[]
+
+  @@index([category])
+  @@index([status])
+  @@index([commissionerId])
+}
+
+model Application {
+  id           String   @id @default(cuid())
+  commission   Commission @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+  commissionId String
+  applicant    User     @relation(fields: [applicantId], references: [id])
+  applicantId  String
+  coverLetter  String?
+  proposedRate Int?
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+
+  @@unique([commissionId, applicantId])
+  @@index([applicantId])
+}
+
+model Rating {
+  id           String     @id @default(cuid())
+  commission   Commission @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+  commissionId String
+  rater        User       @relation("rater", fields: [raterId], references: [id])
+  raterId      String
+  ratee        User       @relation("ratee", fields: [rateeId], references: [id])
+  rateeId      String
+  stars        Int
+  comment      String?
+  createdAt    DateTime   @default(now())
+
+  @@unique([commissionId, raterId, rateeId])
+  @@index([rateeId])
+}
+
+model Message {
+  id           String      @id @default(cuid())
+  commission   Commission? @relation(fields: [commissionId], references: [id], onDelete: SetNull)
+  commissionId String?
+  sender       User        @relation("sender", fields: [senderId], references: [id])
+  senderId     String
+  recipient    User        @relation("recipient", fields: [recipientId], references: [id])
+  recipientId  String
+  body         String
+  readAt       DateTime?
+  createdAt    DateTime    @default(now())
+
+  @@index([recipientId, readAt])
+  @@index([senderId])
+}
+
+model Report {
+  id            String      @id @default(cuid())
+  reporter      User        @relation("reporter", fields: [reporterId], references: [id])
+  reporterId    String
+  reportee      User        @relation("reportee", fields: [reporteeId], references: [id])
+  reporteeId    String
+  commission    Commission? @relation(fields: [commissionId], references: [id])
+  commissionId  String?
+  reason        String
+  details       String?
+  status        String      @default("PENDING")
+  resolvedById  String?
+  resolvedAt    DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@index([status])
+  @@index([reporteeId])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String
+  title     String
+  body      String?
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, readAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     User     @relation(fields: [actorId], references: [id])
+  actorId   String
+  action    String
+  target    String?
+  meta      String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId])
+}
