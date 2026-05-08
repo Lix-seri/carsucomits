@@ -31,7 +31,7 @@ export default async function DashboardHome() {
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
   const greeting = timeBasedGreeting();
 
-  const [user, skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] = session
+  const data = session
     ? await Promise.all([
         prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } }),
         getUserSkills(session.userId),
@@ -66,6 +66,14 @@ export default async function DashboardHome() {
         }),
       ])
     : [null, [], { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null }, [], [], null, null, 0, 0];
+
+  const [user, skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] = data;
+  const awardedToName = postedTask?.awardedToId
+    ? (await prisma.user.findUnique({
+        where: { id: postedTask.awardedToId },
+        select: { fullName: true },
+      }))?.fullName ?? "the student"
+    : "the student";
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -192,7 +200,7 @@ export default async function DashboardHome() {
                       <MarkCompleteButton
                         commissionId={postedTask.id}
                         commissionTitle={postedTask.title}
-                        awardedToId={postedTask.awardedToId}
+                        awardedToName={awardedToName}
                       />
                     </div>
                   ) : (

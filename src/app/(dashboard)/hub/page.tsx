@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { MarkCompleteButton } from "@/components/mark-complete-button";
+import { RateNowButton } from "@/components/rate-now-button";
 
 const STATUS_PILL: Record<string, string> = {
   OPEN: "bg-emerald-50 text-emerald-700",
@@ -31,7 +33,7 @@ export default async function HubPage() {
     );
   }
 
-  const [doing, posted, applications] = await Promise.all([
+  const [doing, posted, applications, unratedCompleted] = await Promise.all([
     // Tasks I'm doing — commissions awarded to me
     prisma.commission.findMany({
       where: { awardedToId: session.userId, status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
@@ -60,10 +62,22 @@ export default async function HubPage() {
       include: { commission: { select: { id: true, title: true, status: true } } },
       take: 20,
     }),
+    // Legacy: commissions I posted that are COMPLETED but I never rated
+    prisma.commission.findMany({
+      where: {
+        commissionerId: session.userId,
+        status: "COMPLETED",
+        awardedToId: { not: null },
+        ratings: { none: { raterId: session.userId } },
+      },
+    }),
   ]);
 
   // The awardedTo fetch above is best-effort; do a separate lookup to be safe.
-  const awardedIds = posted.map((p) => p.awardedToId).filter(Boolean) as string[];
+  const awardedIds = [
+    ...posted.map((p) => p.awardedToId),
+    ...unratedCompleted.map((p) => p.awardedToId),
+  ].filter(Boolean) as string[];
   const awardedUsers = awardedIds.length
     ? await prisma.user.findMany({ where: { id: { in: awardedIds } }, select: { id: true, fullName: true } })
     : [];
@@ -75,6 +89,43 @@ export default async function HubPage() {
         <h1 className="text-2xl font-bold">My Hub</h1>
         <p className="text-sm text-slate-500">Welcome back, {session.fullName}. Track your hiring and doing activities.</p>
       </header>
+
+      {unratedCompleted.length > 0 && (
+        <section className="rounded-xl border border-amber-300 bg-amber-50 p-5">
+          <div className="mb-3 flex items-start gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-200 text-amber-700">
+              <Star className="h-5 w-5 fill-amber-500" />
+            </div>
+            <div>
+              <h2 className="font-bold text-amber-900">
+                {unratedCompleted.length} pending rating{unratedCompleted.length === 1 ? "" : "s"}
+              </h2>
+              <p className="text-sm text-amber-800">
+                You completed {unratedCompleted.length === 1 ? "a commission" : "these commissions"} without rating the student. Please rate them now to keep the marketplace trustworthy.
+              </p>
+            </div>
+          </div>
+          <ul className="space-y-2">
+            {unratedCompleted.map((c) => (
+              <li key={c.id} className="flex items-center justify-between gap-3 rounded-lg bg-white p-3">
+                <div>
+                  <Link href={`/commission/${c.id}`} className="text-sm font-semibold hover:text-brand-600">{c.title}</Link>
+                  <p className="text-xs text-slate-500">
+                    Completed by {c.awardedToId ? (awardedMap.get(c.awardedToId) ?? "the student") : "the student"}
+                  </p>
+                </div>
+                {c.awardedToId && (
+                  <RateNowButton
+                    commissionId={c.id}
+                    commissionTitle={c.title}
+                    rateeName={awardedMap.get(c.awardedToId) ?? "the student"}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section>
         <h2 className="mb-3 text-lg font-bold">⚡ Tasks I&apos;m Doing</h2>
@@ -143,7 +194,7 @@ export default async function HubPage() {
                     <MarkCompleteButton
                       commissionId={t.id}
                       commissionTitle={t.title}
-                      awardedToId={t.awardedToId}
+                      awardedToName={awardedMap.get(t.awardedToId) ?? "the student"}
                     />
                   )}
                   {t.status === "COMPLETED" && (

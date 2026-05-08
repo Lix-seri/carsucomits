@@ -1,23 +1,26 @@
 import { ShieldCheck, Star } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { getUserSkills, getUserStats, getRecentReviews } from "@/lib/queries";
+import { getUserSkills, getUserStats, getRecentReviews, getRatingDistribution } from "@/lib/queries";
 import { SkillsManager } from "@/components/dashboard/skills-manager";
 import { AvatarUploader } from "@/components/dashboard/avatar-uploader";
+import { TrustBadge } from "@/components/trust-badge";
+import { RatingBreakdown } from "@/components/rating-breakdown";
 
 export default async function ProfilePage() {
   const session = await getSession();
   const fullName = session?.fullName ?? "Guest";
   const email = session?.email ?? "—";
 
-  const [user, skills, stats, reviews] = session
+  const [user, skills, stats, reviews, distribution] = session
     ? await Promise.all([
         prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } }),
         getUserSkills(session.userId),
         getUserStats(session.userId),
         getRecentReviews(session.userId, 5),
+        getRatingDistribution(session.userId),
       ])
-    : [null, [], { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null }, []];
+    : [null, [], { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null }, [], {}];
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -40,6 +43,9 @@ export default async function ProfilePage() {
                 <strong>{stats.rating != null ? stats.rating.toFixed(1) : "—"}</strong>{" "}
                 <span className="text-slate-500">({stats.reviewCount} reviews)</span>
               </p>
+              <div className="mt-2">
+                <TrustBadge avg={stats.rating} reviewCount={stats.reviewCount} size="md" showDescription />
+              </div>
             </div>
           </div>
 
@@ -63,6 +69,11 @@ export default async function ProfilePage() {
             No reviews yet. Reviews will show here automatically when commissioners rate your completed work.
           </p>
         ) : (
+          <div className="mb-6">
+            <RatingBreakdown byStar={distribution} avg={stats.rating} total={stats.reviewCount} />
+          </div>
+        )}
+        {reviews.length > 0 && (
           <ul className="space-y-4">
             {reviews.map((r, i) => (
               <li key={i} className="border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">

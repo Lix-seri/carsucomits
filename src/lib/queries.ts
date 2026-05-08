@@ -7,6 +7,17 @@ export async function getUserSkills(userId: string) {
   });
 }
 
+export async function getRatingDistribution(userId: string) {
+  const groups = await prisma.rating.groupBy({
+    by: ["stars"],
+    where: { rateeId: userId },
+    _count: true,
+  });
+  const byStar: Record<number, number> = {};
+  for (const g of groups) byStar[g.stars] = g._count;
+  return byStar;
+}
+
 export async function getUserStats(userId: string) {
   const [done, posted, ratingAgg, reviewCount, completedAsApplicant, totalAsApplicant] = await Promise.all([
     prisma.application.count({

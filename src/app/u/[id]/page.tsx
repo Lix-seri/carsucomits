@@ -7,7 +7,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { Avatar } from "@/components/avatar";
 import { BackButton } from "@/components/back-button";
 import { MessageButton } from "@/components/message-button";
-import { getUserSkills, getUserStats, getRecentReviews } from "@/lib/queries";
+import { TrustBadge } from "@/components/trust-badge";
+import { RatingBreakdown } from "@/components/rating-breakdown";
+import { getUserSkills, getUserStats, getRecentReviews, getRatingDistribution } from "@/lib/queries";
 
 const ROLE_LABEL: Record<string, string> = {
   STUDENT_EMPLOYEE: "Student Employee",
@@ -46,10 +48,11 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   });
   if (!user) notFound();
 
-  const [skills, stats, reviews] = await Promise.all([
+  const [skills, stats, reviews, distribution] = await Promise.all([
     getUserSkills(user.id),
     getUserStats(user.id),
     getRecentReviews(user.id, 8),
+    getRatingDistribution(user.id),
   ]);
 
   const isFlagged = user.status !== "ACTIVE";
@@ -96,6 +99,9 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                     <strong>{stats.rating != null ? stats.rating.toFixed(1) : "—"}</strong>{" "}
                     <span className="text-slate-500">({stats.reviewCount} review{stats.reviewCount === 1 ? "" : "s"})</span>
                   </p>
+                  <div className="mt-2">
+                    <TrustBadge avg={stats.rating} reviewCount={stats.reviewCount} size="md" showDescription />
+                  </div>
                 </div>
                 {session && session.userId !== user.id && user.status !== "BANNED" && (
                   <MessageButton userId={user.id} />
@@ -142,6 +148,11 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                 No reviews yet.
               </p>
             ) : (
+              <div className="mb-6">
+                <RatingBreakdown byStar={distribution} avg={stats.rating} total={stats.reviewCount} />
+              </div>
+            )}
+            {reviews.length > 0 && (
               <ul className="space-y-4">
                 {reviews.map((r, i) => (
                   <li key={i} className="border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">

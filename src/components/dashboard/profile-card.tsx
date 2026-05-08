@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ShieldCheck, Star, Lightbulb, Plus } from "lucide-react";
 import { Avatar } from "@/components/avatar";
+import { TrustBadge } from "@/components/trust-badge";
 
 const LEVEL_BAR: Record<string, { color: string; pct: number }> = {
   BEGINNER:     { color: "from-slate-400 to-slate-500",     pct: 30 },
@@ -41,6 +42,9 @@ export function ProfileCard({
             <strong>{user.rating != null ? user.rating.toFixed(1) : "—"}</strong>{" "}
             <span className="text-slate-500">({user.reviews} reviews)</span>
           </p>
+          <div className="mt-2 flex justify-center">
+            <TrustBadge avg={user.rating} reviewCount={user.reviews} size="sm" />
+          </div>
           <div className="mt-4 grid grid-cols-3 gap-2 border-t border-slate-100 pt-4 text-center">
             <div><p className="text-lg font-bold">{user.done}</p><p className="text-[11px] text-slate-500">Done</p></div>
             <div><p className="text-lg font-bold">{user.posted}</p><p className="text-[11px] text-slate-500">Posted</p></div>
