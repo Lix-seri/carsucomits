@@ -58,9 +58,13 @@ export default async function ApplicantsPage({
               return (
                 <li key={a.id} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
                   <div className="flex items-center gap-3">
-                    <Avatar name={a.applicant.fullName} src={a.applicant.avatarUrl} size="sm" />
+                    <Link href={`/u/${a.applicant.id}`} className="shrink-0">
+                      <Avatar name={a.applicant.fullName} src={a.applicant.avatarUrl} size="sm" />
+                    </Link>
                     <div>
-                      <p className="text-sm font-semibold">{a.applicant.fullName}</p>
+                      <Link href={`/u/${a.applicant.id}`} className="text-sm font-semibold hover:text-brand-600 hover:underline">
+                        {a.applicant.fullName}
+                      </Link>
                       <p className="text-xs text-slate-500">
                         {avg != null ? <><Star className="mr-1 inline h-3 w-3 fill-amber-400 text-amber-400" /> {avg.toFixed(1)}</> : "No reviews yet"}
                         <span className="mx-1">·</span>

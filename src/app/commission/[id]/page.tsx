@@ -107,10 +107,10 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
             <div className="my-6 border-t border-slate-100" />
 
             <h2 className="mb-3 text-lg font-bold">Posted by</h2>
-            <div className="flex items-center gap-3">
+            <Link href={`/u/${commission.commissioner.id}`} className="-mx-2 flex items-center gap-3 rounded-lg p-2 hover:bg-slate-50">
               <Avatar name={commission.commissioner.fullName} src={commission.commissioner.avatarUrl} size="md" />
               <div>
-                <p className="font-semibold">{commission.commissioner.fullName}</p>
+                <p className="font-semibold hover:text-brand-600">{commission.commissioner.fullName}</p>
                 <p className="text-xs text-slate-500">
                   {commission.commissioner._count.postedCommissions} commissions posted
                   {commissionerRating._avg.stars != null && (
@@ -121,7 +121,7 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
                   )}
                 </p>
               </div>
-            </div>
+            </Link>
 
             <div className="mt-8 flex flex-wrap gap-3">
               {!session ? (

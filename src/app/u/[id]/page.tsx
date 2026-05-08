@@ -1,0 +1,174 @@
+import { notFound } from "next/navigation";
+import { ShieldCheck, Star, AlertTriangle } from "lucide-react";
+import { prisma } from "@/lib/db";
+import { getSession } from "@/lib/session";
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import { Avatar } from "@/components/avatar";
+import { BackButton } from "@/components/back-button";
+import { getUserSkills, getUserStats, getRecentReviews } from "@/lib/queries";
+
+const ROLE_LABEL: Record<string, string> = {
+  STUDENT_EMPLOYEE: "Student Employee",
+  COMMISSIONER: "Commissioner",
+  ADMIN: "Admin",
+};
+
+const LEVEL_PILL: Record<string, string> = {
+  BEGINNER: "bg-slate-100 text-slate-700",
+  INTERMEDIATE: "bg-amber-100 text-amber-800",
+  ADVANCED: "bg-blue-100 text-blue-800",
+  EXPERT: "bg-purple-100 text-purple-800",
+};
+
+export default async function PublicProfile({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const session = await getSession();
+
+  // If a logged-in user tries to view their own profile, send them to the editable one.
+  if (session?.userId === id) {
+    const { redirect } = await import("next/navigation");
+    redirect("/profile");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      fullName: true,
+      avatarUrl: true,
+      role: true,
+      status: true,
+      bio: true,
+      createdAt: true,
+    },
+  });
+  if (!user) notFound();
+
+  const [skills, stats, reviews] = await Promise.all([
+    getUserSkills(user.id),
+    getUserStats(user.id),
+    getRecentReviews(user.id, 8),
+  ]);
+
+  const isFlagged = user.status !== "ACTIVE";
+
+  return (
+    <>
+      <SiteHeader />
+      <main className="bg-slate-50">
+        <div className="mx-auto max-w-4xl px-6 py-8">
+          <BackButton />
+
+          {isFlagged && (
+            <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+              <div>
+                <p className="font-semibold">This account is currently {user.status.toLowerCase()}.</p>
+                <p className="text-xs">Proceed with caution. Reports against this user may be under review.</p>
+              </div>
+            </div>
+          )}
+
+          <article className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+            <div className="h-28 bg-gradient-to-r from-brand-500 to-emerald-500" />
+            <div className="-mt-12 p-6">
+              <div className="flex flex-col items-start gap-4 md:flex-row md:items-end">
+                <Avatar name={user.fullName} src={user.avatarUrl} size="xl" ringed />
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-2xl font-bold">{user.fullName}</h1>
+                    {user.status === "ACTIVE" && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                        <ShieldCheck className="h-3.5 w-3.5" /> Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    {ROLE_LABEL[user.role] ?? user.role} · CSU Caraga
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    Joined {new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                  </p>
+                  <p className="mt-1 text-sm">
+                    <Star className="mr-1 inline h-4 w-4 fill-amber-400 text-amber-400" />
+                    <strong>{stats.rating != null ? stats.rating.toFixed(1) : "—"}</strong>{" "}
+                    <span className="text-slate-500">({stats.reviewCount} review{stats.reviewCount === 1 ? "" : "s"})</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <Stat label="Done" value={stats.done} />
+                <Stat label="Posted" value={stats.posted} />
+                <Stat label="Success Rate" value={stats.successRate != null ? `${stats.successRate}%` : "—"} />
+              </div>
+            </div>
+          </article>
+
+          {user.bio && (
+            <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+              <h2 className="mb-2 text-lg font-bold">About</h2>
+              <p className="whitespace-pre-line text-sm text-slate-700">{user.bio}</p>
+            </section>
+          )}
+
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+            <h2 className="mb-4 text-lg font-bold">Skills &amp; Expertise</h2>
+            {skills.length === 0 ? (
+              <p className="rounded-lg bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                No skills listed yet.
+              </p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {skills.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
+                    <span className="font-medium">{s.name}</span>
+                    <span className={`pill ${LEVEL_PILL[s.level] ?? "bg-slate-100 text-slate-700"}`}>{s.level}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+            <h2 className="mb-4 text-lg font-bold">Reviews</h2>
+            {reviews.length === 0 ? (
+              <p className="rounded-lg bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                No reviews yet.
+              </p>
+            ) : (
+              <ul className="space-y-4">
+                {reviews.map((r, i) => (
+                  <li key={i} className="border-b border-slate-100 pb-4 last:border-b-0 last:pb-0">
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-bold">{r.initials}</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold">{r.who}</p>
+                        <p className="text-xs text-amber-500">
+                          {"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}
+                          <span className="ml-2 text-slate-400">{r.when}</span>
+                        </p>
+                      </div>
+                    </div>
+                    {r.comment && <p className="mt-2 text-sm italic text-slate-600">&quot;{r.comment}&quot;</p>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="rounded-lg border border-slate-200 p-4 text-center">
+      <p className="text-2xl font-bold">{value}</p>
+      <p className="text-xs text-slate-500">{label}</p>
+    </div>
+  );
+}
