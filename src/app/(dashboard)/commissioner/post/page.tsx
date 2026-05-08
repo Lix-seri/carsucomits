@@ -2,64 +2,126 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const CATS = ["Academic", "Technical", "General Errands", "Administrative"];
+const CATS = [
+  { value: "ACADEMIC", label: "Academic" },
+  { value: "TECHNICAL", label: "Technical" },
+  { value: "GENERAL_ERRANDS", label: "General Errands" },
+  { value: "ADMINISTRATIVE", label: "Administrative" },
+];
+const LEVELS = [
+  { value: "BEGINNER", label: "Beginner" },
+  { value: "INTERMEDIATE", label: "Intermediate" },
+  { value: "ADVANCED", label: "Advanced" },
+  { value: "EXPERT", label: "Expert" },
+];
 
 export default function PostCommissionPage() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    const f = e.currentTarget;
+    const get = (name: string) =>
+      (f.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null)?.value ?? "";
+
+    const payload = {
+      title: get("title"),
+      description: get("description"),
+      category: get("category"),
+      subcategory: get("subcategory") || null,
+      requiredLevel: get("requiredLevel"),
+      fareMin: Number(get("fareMin")),
+      fareMax: get("fareMax") ? Number(get("fareMax")) : null,
+      fareUnit: get("fareUnit") || null,
+      deadline: get("deadline") || null,
+    };
+
+    try {
+      const res = await fetch("/api/commissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error ?? "Failed to post commission."); return; }
+      router.replace("/commissioner");
+      router.refresh();
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-1 text-2xl font-bold">Post a Commission</h1>
       <p className="mb-6 text-sm text-slate-500">Describe the task you need done and pick a fair fare.</p>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSubmitting(true);
-          setTimeout(() => router.push("/commissioner"), 600);
-        }}
-        className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
-      >
+      <form onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
         <div>
           <label className="label">Title</label>
-          <input className="input" placeholder="e.g. Logo design for student org" required />
+          <input name="title" className="input" placeholder="e.g. Logo design for student org" required />
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Category</label>
-            <select className="input" required>
-              <option value="">Select category</option>
-              {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
+            <select name="category" className="input" required defaultValue="">
+              <option value="" disabled>Select category</option>
+              {CATS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
           </div>
           <div>
             <label className="label">Required skill level</label>
-            <select className="input" required>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
-              <option>Expert</option>
+            <select name="requiredLevel" className="input" required defaultValue="INTERMEDIATE">
+              {LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
             </select>
           </div>
           <div>
-            <label className="label">Payment</label>
-            <input className="input" placeholder="e.g. ₱2,500 or ₱500/hr" required />
+            <label className="label">Subcategory <span className="text-slate-400">(optional)</span></label>
+            <input name="subcategory" className="input" placeholder="e.g. Graphic Design, Mathematics" />
           </div>
           <div>
-            <label className="label">Deadline</label>
-            <input type="date" className="input" />
+            <label className="label">Deadline <span className="text-slate-400">(optional)</span></label>
+            <input type="date" name="deadline" className="input" />
           </div>
         </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div>
+            <label className="label">Fare (min) ₱</label>
+            <input type="number" name="fareMin" className="input" min={0} required placeholder="500" />
+          </div>
+          <div>
+            <label className="label">Fare (max) <span className="text-slate-400">(optional)</span></label>
+            <input type="number" name="fareMax" className="input" min={0} placeholder="1500" />
+          </div>
+          <div>
+            <label className="label">Unit</label>
+            <select name="fareUnit" className="input" defaultValue="">
+              <option value="">Fixed</option>
+              <option value="/hr">/hr</option>
+              <option value="/day">/day</option>
+              <option value="/errand">/errand</option>
+            </select>
+          </div>
+        </div>
+
         <div>
           <label className="label">Description</label>
-          <textarea className="input min-h-[140px]" placeholder="Describe what you need, deliverables, and any references…" required />
+          <textarea name="description" className="input min-h-[140px]" placeholder="Describe what you need, deliverables, and any references…" required />
         </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
 
         <div className="flex gap-3">
           <button type="button" onClick={() => router.back()} className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-medium hover:bg-slate-50">Cancel</button>
           <button type="submit" disabled={submitting} className="btn-primary flex-1">
-            {submitting ? "Posting…" : "Submit"}
+            {submitting ? "Posting…" : "Post Commission"}
           </button>
         </div>
       </form>

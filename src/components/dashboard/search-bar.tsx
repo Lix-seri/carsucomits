@@ -3,24 +3,35 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, ArrowRight } from "lucide-react";
-import { COMMISSIONS } from "@/lib/mock-data";
+
+type Commission = {
+  id: string;
+  title: string;
+  category: string;
+  subcategory: string | null;
+  requiredLevel: string;
+  fareMin: number;
+  fareMax: number | null;
+  fareUnit: string | null;
+};
 
 export function SearchBar() {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [results, setResults] = useState<Commission[]>([]);
   const ref = useRef<HTMLDivElement>(null);
 
-  const results = useMemo(() => {
-    if (!q.trim()) return [];
-    const lower = q.toLowerCase();
-    return COMMISSIONS.filter((c) =>
-      c.title.toLowerCase().includes(lower) ||
-      c.description.toLowerCase().includes(lower) ||
-      c.category.toLowerCase().includes(lower) ||
-      (c.subcategory ?? "").toLowerCase().includes(lower)
-    ).slice(0, 6);
+  useEffect(() => {
+    if (!q.trim()) { setResults([]); return; }
+    const handle = setTimeout(() => {
+      fetch(`/api/commissions?q=${encodeURIComponent(q)}`)
+        .then((r) => r.json())
+        .then((data) => setResults(data.ok ? data.commissions.slice(0, 6) : []))
+        .catch(() => setResults([]));
+    }, 200);
+    return () => clearTimeout(handle);
   }, [q]);
 
   useEffect(() => {
@@ -35,7 +46,7 @@ export function SearchBar() {
     e.preventDefault();
     if (!q.trim()) return;
     if (results.length > 0 && active < results.length) {
-      router.push(`/browse?q=${encodeURIComponent(q)}#${results[active].id}`);
+      router.push(`/commission/${results[active].id}`);
     } else {
       router.push(`/browse?q=${encodeURIComponent(q)}`);
     }
@@ -47,6 +58,12 @@ export function SearchBar() {
     if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => Math.min(a + 1, results.length - 1)); }
     if (e.key === "ArrowUp")   { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
   }
+
+  const fareDisplay = useMemo(() => (c: Commission) =>
+    c.fareMax
+      ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}`
+      : `₱${c.fareMin}${c.fareUnit ?? ""}`,
+  []);
 
   return (
     <div ref={ref} className="relative flex-1">
@@ -82,7 +99,7 @@ export function SearchBar() {
                 {results.map((c, i) => (
                   <li key={c.id}>
                     <Link
-                      href={`/browse?q=${encodeURIComponent(q)}#${c.id}`}
+                      href={`/commission/${c.id}`}
                       onClick={() => setOpen(false)}
                       className={`flex items-start gap-3 rounded-lg px-3 py-2 transition ${
                         i === active ? "bg-brand-50" : "hover:bg-slate-50"
@@ -94,11 +111,11 @@ export function SearchBar() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold">{c.title}</p>
                         <p className="truncate text-xs text-slate-500">
-                          {c.category}{c.subcategory ? ` · ${c.subcategory}` : ""} · ₱{c.fare}
+                          {c.category.replace("_", " ")}{c.subcategory ? ` · ${c.subcategory}` : ""} · {fareDisplay(c)}
                         </p>
                       </div>
                       <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
-                        {c.skillLevel}
+                        {c.requiredLevel}
                       </span>
                     </Link>
                   </li>

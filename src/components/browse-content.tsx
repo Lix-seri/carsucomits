@@ -1,41 +1,84 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, X, SlidersHorizontal } from "lucide-react";
-import { CommissionCard } from "@/components/commission-card";
-import { COMMISSIONS, type Category, type SkillLevel } from "@/lib/mock-data";
+import { Search, X, SlidersHorizontal, ArrowRight } from "lucide-react";
 
-const CATS: Category[] = ["Academic", "Technical", "General Errands"];
-const LEVELS: SkillLevel[] = ["Beginner", "Intermediate", "Advanced", "Expert"];
+const CATS = [
+  { value: "ACADEMIC", label: "Academic" },
+  { value: "TECHNICAL", label: "Technical" },
+  { value: "GENERAL_ERRANDS", label: "General Errands" },
+  { value: "ADMINISTRATIVE", label: "Administrative" },
+];
+const LEVELS = [
+  { value: "BEGINNER", label: "Beginner" },
+  { value: "INTERMEDIATE", label: "Intermediate" },
+  { value: "ADVANCED", label: "Advanced" },
+  { value: "EXPERT", label: "Expert" },
+];
+
+const CAT_PILL: Record<string, string> = {
+  ACADEMIC: "bg-emerald-500 text-white",
+  TECHNICAL: "bg-blue-500 text-white",
+  GENERAL_ERRANDS: "bg-amber-500 text-white",
+  ADMINISTRATIVE: "bg-purple-500 text-white",
+};
+const LEVEL_PILL: Record<string, string> = {
+  BEGINNER: "bg-slate-100 text-slate-700",
+  INTERMEDIATE: "bg-amber-100 text-amber-800",
+  ADVANCED: "bg-blue-100 text-blue-800",
+  EXPERT: "bg-purple-100 text-purple-800",
+};
+
+type Commission = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  subcategory: string | null;
+  requiredLevel: string;
+  fareMin: number;
+  fareMax: number | null;
+  fareUnit: string | null;
+  status: string;
+  createdAt: string;
+  commissioner: { fullName: string; avatarUrl: string | null };
+  _count: { applications: number };
+};
 
 export function BrowseContent() {
   const params = useSearchParams();
   const initialQ = params.get("q") ?? "";
   const [q, setQ] = useState(initialQ);
-  const [cat, setCat] = useState<Category | null>(null);
-  const [lvl, setLvl] = useState<SkillLevel | null>(null);
+  const [cat, setCat] = useState<string | null>(null);
+  const [lvl, setLvl] = useState<string | null>(null);
+  const [items, setItems] = useState<Commission[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Pick up changes when navigating from search bar
+  useEffect(() => {
+    setLoading(true);
+    const sp = new URLSearchParams();
+    if (cat) sp.set("category", cat);
+    if (lvl) sp.set("level", lvl);
+    if (q) sp.set("q", q);
+    fetch(`/api/commissions?${sp.toString()}`)
+      .then((r) => r.json())
+      .then((data) => setItems(data.ok ? data.commissions : []))
+      .finally(() => setLoading(false));
+  }, [q, cat, lvl]);
+
   useEffect(() => {
     const next = params.get("q") ?? "";
     setQ(next);
   }, [params]);
 
-  const filtered = useMemo(() => {
-    return COMMISSIONS.filter((c) => {
-      const matchQ =
-        !q ||
-        c.title.toLowerCase().includes(q.toLowerCase()) ||
-        c.description.toLowerCase().includes(q.toLowerCase()) ||
-        c.category.toLowerCase().includes(q.toLowerCase()) ||
-        (c.subcategory ?? "").toLowerCase().includes(q.toLowerCase());
-      const matchC = !cat || c.category === cat;
-      const matchL = !lvl || c.skillLevel === lvl;
-      return matchQ && matchC && matchL;
-    });
-  }, [q, cat, lvl]);
-
   const hasFilter = cat || lvl || q;
+  const visible = items;
+
+  const fareDisplay = (c: Commission) =>
+    c.fareMax
+      ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}`
+      : `₱${c.fareMin}${c.fareUnit ?? ""}`;
 
   return (
     <main className="bg-slate-50">
@@ -63,13 +106,13 @@ export function BrowseContent() {
               <div className="flex flex-wrap gap-2">
                 {CATS.map((c) => (
                   <button
-                    key={c}
-                    onClick={() => setCat(cat === c ? null : c)}
+                    key={c.value}
+                    onClick={() => setCat(cat === c.value ? null : c.value)}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                      cat === c ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      cat === c.value ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
-                    {c}
+                    {c.label}
                   </button>
                 ))}
               </div>
@@ -79,13 +122,13 @@ export function BrowseContent() {
               <div className="flex flex-wrap gap-2">
                 {LEVELS.map((l) => (
                   <button
-                    key={l}
-                    onClick={() => setLvl(lvl === l ? null : l)}
+                    key={l.value}
+                    onClick={() => setLvl(lvl === l.value ? null : l.value)}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                      lvl === l ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      lvl === l.value ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
-                    {l}
+                    {l.label}
                   </button>
                 ))}
               </div>
@@ -102,23 +145,50 @@ export function BrowseContent() {
           )}
         </div>
 
-        <p className="mb-4 text-sm text-slate-600">
-          <SlidersHorizontal className="mr-1 inline h-4 w-4" />
-          Showing <strong>{filtered.length}</strong> of {COMMISSIONS.length} commissions
-        </p>
-
-        {filtered.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((c) => (
-              <div key={c.id} id={c.id} className="scroll-mt-24">
-                <CommissionCard c={c} />
-              </div>
-            ))}
-          </div>
+        {loading ? (
+          <p className="py-12 text-center text-slate-500">Loading commissions…</p>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white py-16 text-center">
-            <p className="text-slate-500">Walang available na commission sa filter mo. Try clearing one.</p>
-          </div>
+          <>
+            <p className="mb-4 text-sm text-slate-600">
+              <SlidersHorizontal className="mr-1 inline h-4 w-4" />
+              Showing <strong>{visible.length}</strong> open commission{visible.length === 1 ? "" : "s"}
+            </p>
+
+            {visible.length > 0 ? (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {visible.map((c) => (
+                  <article key={c.id} id={c.id} className="flex h-full scroll-mt-24 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-soft">
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <span className={`pill ${CAT_PILL[c.category] ?? "bg-slate-500 text-white"}`}>
+                        {c.category.replace("_", " ")}
+                      </span>
+                      <span className={`pill ${LEVEL_PILL[c.requiredLevel]}`}>{c.requiredLevel}</span>
+                    </div>
+                    {c.subcategory && (
+                      <span className="pill mb-3 w-fit bg-slate-100 text-slate-700">{c.subcategory}</span>
+                    )}
+                    <h3 className="mb-1.5 line-clamp-2 text-base font-bold text-ink">{c.title}</h3>
+                    <p className="mb-4 line-clamp-2 text-sm text-slate-600">{c.description}</p>
+                    <p className="mb-4 text-base font-bold text-brand-600">{fareDisplay(c)}</p>
+                    <p className="mb-3 text-xs text-slate-500">
+                      Posted by {c.commissioner.fullName} · {c._count.applications} applicant{c._count.applications === 1 ? "" : "s"}
+                    </p>
+                    <Link href={`/commission/${c.id}`} className="btn-primary mt-auto w-full">
+                      View &amp; Apply <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-slate-200 bg-white py-16 text-center">
+                <p className="text-slate-500">
+                  {hasFilter
+                    ? "Walang available na commission sa filter mo. Try clearing one."
+                    : "No commissions posted yet. Check back soon — or post one yourself!"}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>
