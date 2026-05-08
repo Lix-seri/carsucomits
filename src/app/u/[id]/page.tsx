@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Avatar } from "@/components/avatar";
 import { BackButton } from "@/components/back-button";
+import { MessageButton } from "@/components/message-button";
 import { getUserSkills, getUserStats, getRecentReviews } from "@/lib/queries";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -96,6 +97,9 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                     <span className="text-slate-500">({stats.reviewCount} review{stats.reviewCount === 1 ? "" : "s"})</span>
                   </p>
                 </div>
+                {session && session.userId !== user.id && user.status !== "BANNED" && (
+                  <MessageButton userId={user.id} />
+                )}
               </div>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
