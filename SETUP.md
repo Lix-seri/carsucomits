@@ -2,13 +2,18 @@
 
 Step-by-step instructions to run the project on a new computer (laptop, desktop, or a teammate's machine).
 
-> **TL;DR** — install Node, Git, VS Code, then paste the [one-shot block](#one-shot-setup-copypaste).
+> **TL;DR** — install Node, Git, VS Code, get a Neon `DATABASE_URL`, then paste the [one-shot block](#one-shot-setup-copypaste).
+>
+> **Want to deploy publicly?** See [DEPLOY.md](./DEPLOY.md) instead.
+
+> ⚠️ **Important:** This project now uses **Postgres** (hosted on Neon). You must complete [Step 0 — Get a Neon database URL](#step-0--get-a-neon-database-url) before any of the npm commands will work, even for local development. Neon's free tier is enough for the whole team.
 
 ---
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
+- [Step 0 — Get a Neon database URL](#step-0--get-a-neon-database-url)
 - [One-Shot Setup (copy-paste)](#one-shot-setup-copypaste)
 - [Step-by-Step Setup](#step-by-step-setup)
 - [Daily Workflow Across Multiple Computers](#daily-workflow-across-multiple-computers)
@@ -47,9 +52,25 @@ If either says **"not recognized"**, restart your computer and try again — the
 
 ---
 
+## Step 0 — Get a Neon database URL
+
+The project needs a Postgres database. Neon's free tier is fine.
+
+1. Open **https://neon.tech/** → **Sign up** → **Continue with GitHub**.
+2. Create a new project named `carsucomits` in the **Singapore** region.
+3. Copy the connection string Neon shows you. It looks like:
+   ```
+   postgresql://USER:PASSWORD@ep-xyz.aws.neon.tech/neondb?sslmode=require
+   ```
+4. Keep that string handy — you'll paste it into `.env` in Step 4 below.
+
+> **For groups:** the whole team can share the same Neon URL. Each developer doesn't need their own DB. Or use Neon's branching feature to give each dev their own branch.
+
+---
+
 ## One-Shot Setup (copy-paste)
 
-After Node, Git, and VS Code are installed, paste this entire block into Command Prompt:
+After Node, Git, and VS Code are installed, **and after you have your Neon URL from Step 0**, paste this into Command Prompt:
 
 ```bash
 git config --global user.name "svllynx"
@@ -59,6 +80,12 @@ git clone https://github.com/svllynx/carsucomits.git
 cd carsucomits\app
 npm install
 copy .env.example .env
+notepad .env
+```
+
+Notepad opens — paste your Neon URL into `DATABASE_URL`, save, close. Then:
+
+```bash
 npm run db:push
 npm run db:seed
 npm run dev
@@ -66,7 +93,7 @@ npm run dev
 
 When `npm run dev` finishes, open **http://localhost:3000** in your browser.
 
-> Replace the name and email above with your own if you're setting up on a teammate's account.
+> Replace the git config name and email above with your own if you're setting up on a teammate's account.
 
 ---
 
@@ -127,9 +154,16 @@ added 412 packages in 1m 22s
 copy .env.example .env
 ```
 
-The cloned repo intentionally does not include `.env` (it's in `.gitignore`). This step copies the example file with safe defaults.
+Open the new `.env` file in your editor and **replace the `DATABASE_URL` value** with the Neon connection string you got in [Step 0](#step-0--get-a-neon-database-url):
 
-### 7. Create the local database
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@ep-xyz.aws.neon.tech/neondb?sslmode=require"
+AUTH_SECRET="any-long-random-string-32-chars-or-more"
+```
+
+Save the file. Leave `BLOB_READ_WRITE_TOKEN` unset — only needed for testing avatar uploads locally, otherwise Vercel injects it in production.
+
+### 7. Push the schema to your Neon database
 
 ```bash
 npm run db:push
@@ -138,9 +172,10 @@ npm run db:push
 Expected output:
 
 ```
-SQLite database dev.db created at file:./dev.db
-Your database is now in sync with your Prisma schema. Done in 0.55s
+Your database is now in sync with your Prisma schema. Done in 4.21s
 ```
+
+This creates all the tables (User, Commission, Rating, etc.) on your Neon database.
 
 ### 8. Seed the admin account
 
@@ -235,10 +270,10 @@ These stay separate per computer — that's intentional, not a bug:
 | File / Folder | Reason | What to do on a new computer |
 |---|---|---|
 | `node_modules/` | Too large, regenerates from `package.json` | Run `npm install` |
-| `.env` | May hold secrets — never goes to GitHub | Run `copy .env.example .env` |
-| `prisma/dev.db` | Each machine has its own database | Run `npm run db:push && npm run db:seed` |
-| `public/avatars/*` | User-uploaded photos | Re-upload via the app as needed |
+| `.env` | Holds your Neon URL + secrets — never goes to GitHub | Run `copy .env.example .env` then fill in the Neon URL |
 | `.next/` | Build cache, regenerates automatically | Nothing — `npm run dev` rebuilds it |
+
+The Neon database itself **is** shared across machines (same URL = same data). Avatar uploads are also shared via Vercel Blob in production.
 
 Source code, configs, README, and migrations all sync via GitHub.
 
@@ -354,16 +389,17 @@ GitHub no longer accepts passwords as of 2021. Either:
 - Let the browser-based credential manager handle it (the popup that opens on first push), or
 - Generate a Personal Access Token at https://github.com/settings/tokens and paste it instead of your password.
 
-### `dev.db` looks different between machines
+### "Can't reach database server" on `npm run dev`
 
-That's expected. Each computer has its own SQLite file with its own users, reports, and avatars. The schema is shared (synced via `prisma/schema.prisma`), but the data isn't.
+Your `.env` is missing or has an invalid `DATABASE_URL`. Re-paste the Neon string into `.env`. Make sure it ends with `?sslmode=require`.
 
-If you want to copy DB contents between machines:
+### Neon database has no data anymore
 
-1. Stop the dev server on both.
-2. Send `app/prisma/dev.db` from one machine to the other (Discord, Drive, USB).
-3. On the destination machine, replace the existing `dev.db`.
-4. Restart `npm run dev`.
+Neon's free tier sleeps after 5 minutes of inactivity. The first query after sleeping takes 1–2 seconds extra to wake it. No data is lost — just slower the first time after a break.
+
+### Multiple group members editing simultaneously
+
+Since everyone shares the same Neon DB, your changes are live for the whole team. If you're testing destructive actions (banning users, deleting commissions), coordinate first or use Neon's branching to make a personal sandbox.
 
 ---
 

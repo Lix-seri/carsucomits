@@ -21,9 +21,9 @@ export async function GET(req: Request) {
       ...(q
         ? {
             OR: [
-              { title: { contains: q } },
-              { description: { contains: q } },
-              { subcategory: { contains: q } },
+              { title: { contains: q, mode: "insensitive" as const } },
+              { description: { contains: q, mode: "insensitive" as const } },
+              { subcategory: { contains: q, mode: "insensitive" as const } },
             ],
           }
         : {}),

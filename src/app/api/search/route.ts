@@ -13,7 +13,10 @@ export async function GET(req: Request) {
   const [users, commissions] = await Promise.all([
     prisma.user.findMany({
       where: {
-        OR: [{ fullName: { contains: q } }, { email: { contains: q } }],
+        OR: [
+          { fullName: { contains: q, mode: "insensitive" as const } },
+          { email: { contains: q, mode: "insensitive" as const } },
+        ],
         // Exclude admins, banned accounts, and the searching user themselves.
         NOT: [
           { role: "ADMIN" },
@@ -34,9 +37,9 @@ export async function GET(req: Request) {
       where: {
         status: "OPEN",
         OR: [
-          { title: { contains: q } },
-          { description: { contains: q } },
-          { subcategory: { contains: q } },
+          { title: { contains: q, mode: "insensitive" as const } },
+          { description: { contains: q, mode: "insensitive" as const } },
+          { subcategory: { contains: q, mode: "insensitive" as const } },
         ],
       },
       select: {

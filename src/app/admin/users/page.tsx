@@ -18,8 +18,8 @@ export default async function ManageUsers({
     where: search
       ? {
           OR: [
-            { fullName: { contains: search } },
-            { email: { contains: search } },
+            { fullName: { contains: search, mode: "insensitive" as const } },
+            { email: { contains: search, mode: "insensitive" as const } },
           ],
         }
       : undefined,

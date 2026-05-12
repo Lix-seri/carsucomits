@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { writeFile, mkdir, unlink } from "node:fs/promises";
-import path from "node:path";
+import { put, del } from "@vercel/blob";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
+// POST /api/profile/avatar — uploads to Vercel Blob and updates the user's avatarUrl.
 export async function POST(req: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
@@ -27,31 +27,42 @@ export async function POST(req: Request) {
             : file.type === "image/png"  ? "png"
             : file.type === "image/webp" ? "webp"
             : "gif";
-  const filename = `${session.userId}-${Date.now()}.${ext}`;
-  const dir = path.join(process.cwd(), "public", "avatars");
-  await mkdir(dir, { recursive: true });
-  const dest = path.join(dir, filename);
-  const buf = Buffer.from(await file.arrayBuffer());
-  await writeFile(dest, buf);
+  const key = `avatars/${session.userId}-${Date.now()}.${ext}`;
 
-  // Best-effort: remove the previous avatar file
-  const existing = await prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } });
-  if (existing?.avatarUrl?.startsWith("/avatars/")) {
-    try { await unlink(path.join(process.cwd(), "public", existing.avatarUrl)); } catch { /* ignore */ }
+  // Upload to Vercel Blob (public — anyone with the URL can view, fine for avatars).
+  const uploaded = await put(key, file, { access: "public", contentType: file.type });
+
+  // Best-effort: remove the previous avatar from Blob storage.
+  const existing = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { avatarUrl: true },
+  });
+  if (existing?.avatarUrl?.startsWith("https://")) {
+    try { await del(existing.avatarUrl); } catch { /* ignore */ }
   }
 
-  const url = `/avatars/${filename}`;
-  await prisma.user.update({ where: { id: session.userId }, data: { avatarUrl: url } });
-  return NextResponse.json({ ok: true, url });
+  await prisma.user.update({
+    where: { id: session.userId },
+    data: { avatarUrl: uploaded.url },
+  });
+
+  return NextResponse.json({ ok: true, url: uploaded.url });
 }
 
 export async function DELETE() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-  const existing = await prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } });
-  if (existing?.avatarUrl?.startsWith("/avatars/")) {
-    try { await unlink(path.join(process.cwd(), "public", existing.avatarUrl)); } catch { /* ignore */ }
+
+  const existing = await prisma.user.findUnique({
+    where: { id: session.userId },
+    select: { avatarUrl: true },
+  });
+  if (existing?.avatarUrl?.startsWith("https://")) {
+    try { await del(existing.avatarUrl); } catch { /* ignore */ }
   }
-  await prisma.user.update({ where: { id: session.userId }, data: { avatarUrl: null } });
+  await prisma.user.update({
+    where: { id: session.userId },
+    data: { avatarUrl: null },
+  });
   return NextResponse.json({ ok: true });
 }
