@@ -31,43 +31,58 @@ export default async function DashboardHome() {
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
   const greeting = timeBasedGreeting();
 
-  const data = session
-    ? await Promise.all([
-        prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } }),
-        getUserSkills(session.userId),
-        getUserStats(session.userId),
-        getRecentReviews(session.userId, 3),
-        prisma.commission.findMany({
-          where: { status: "OPEN", NOT: { commissionerId: session.userId } },
-          orderBy: { createdAt: "desc" },
-          include: { commissioner: { select: { fullName: true } } },
-          take: 3,
-        }),
-        prisma.commission.findFirst({
-          where: { awardedToId: session.userId, status: "IN_PROGRESS" },
-          include: { commissioner: { select: { fullName: true } } },
-          orderBy: { updatedAt: "desc" },
-        }),
-        prisma.commission.findFirst({
-          where: { commissionerId: session.userId, status: { in: ["OPEN", "IN_PROGRESS"] } },
-          orderBy: { createdAt: "desc" },
-          include: { _count: { select: { applications: true } } },
-        }),
-        prisma.commission.count({
-          where: {
-            OR: [
-              { awardedToId: session.userId, status: "IN_PROGRESS" },
-              { commissionerId: session.userId, status: "IN_PROGRESS" },
-            ],
-          },
-        }),
-        prisma.application.count({
-          where: { commission: { commissionerId: session.userId }, status: "PENDING" },
-        }),
-      ])
-    : [null, [], { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null }, [], [], null, null, 0, 0];
+  // Resolve all the dashboard data. Each query is awaited individually so TypeScript
+  // can infer each result's type precisely; the queries themselves still run in parallel
+  // because they're kicked off before being awaited.
+  const userQ = session
+    ? prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } })
+    : Promise.resolve(null);
+  const skillsQ = session ? getUserSkills(session.userId) : Promise.resolve([]);
+  const statsQ = session
+    ? getUserStats(session.userId)
+    : Promise.resolve({ done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null });
+  const reviewsQ = session ? getRecentReviews(session.userId, 3) : Promise.resolve([]);
+  const featuredQ = session
+    ? prisma.commission.findMany({
+        where: { status: "OPEN", NOT: { commissionerId: session.userId } },
+        orderBy: { createdAt: "desc" },
+        include: { commissioner: { select: { fullName: true } } },
+        take: 3,
+      })
+    : Promise.resolve([]);
+  const doingTaskQ = session
+    ? prisma.commission.findFirst({
+        where: { awardedToId: session.userId, status: "IN_PROGRESS" },
+        include: { commissioner: { select: { fullName: true } } },
+        orderBy: { updatedAt: "desc" },
+      })
+    : Promise.resolve(null);
+  const postedTaskQ = session
+    ? prisma.commission.findFirst({
+        where: { commissionerId: session.userId, status: { in: ["OPEN", "IN_PROGRESS"] } },
+        orderBy: { createdAt: "desc" },
+        include: { _count: { select: { applications: true } } },
+      })
+    : Promise.resolve(null);
+  const inProgressCountQ = session
+    ? prisma.commission.count({
+        where: {
+          OR: [
+            { awardedToId: session.userId, status: "IN_PROGRESS" },
+            { commissionerId: session.userId, status: "IN_PROGRESS" },
+          ],
+        },
+      })
+    : Promise.resolve(0);
+  const applicantsWaitingQ = session
+    ? prisma.application.count({
+        where: { commission: { commissionerId: session.userId }, status: "PENDING" },
+      })
+    : Promise.resolve(0);
 
-  const [user, skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] = data;
+  const [user, skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] =
+    await Promise.all([userQ, skillsQ, statsQ, reviewsQ, featuredQ, doingTaskQ, postedTaskQ, inProgressCountQ, applicantsWaitingQ]);
+
   const awardedToName = postedTask?.awardedToId
     ? (await prisma.user.findUnique({
         where: { id: postedTask.awardedToId },

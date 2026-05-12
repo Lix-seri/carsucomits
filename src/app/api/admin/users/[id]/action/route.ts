@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
+import { AccountStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
-const ACTION_TO_STATUS: Record<string, string> = {
-  WARN: "WARNED",
-  SUSPEND: "SUSPENDED",
-  BAN: "BANNED",
-  REINSTATE: "ACTIVE",
+const ACTION_TO_STATUS: Record<string, AccountStatus> = {
+  WARN: AccountStatus.WARNED,
+  SUSPEND: AccountStatus.SUSPENDED,
+  BAN: AccountStatus.BANNED,
+  REINSTATE: AccountStatus.ACTIVE,
 };
 
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -16,7 +17,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
 
   const { id } = await ctx.params;
   const { action } = await req.json();
-  const status = ACTION_TO_STATUS[action];
+  const status = ACTION_TO_STATUS[action as keyof typeof ACTION_TO_STATUS];
   if (!status) return NextResponse.json({ error: "Invalid action." }, { status: 400 });
 
   const target = await prisma.user.findUnique({ where: { id } });

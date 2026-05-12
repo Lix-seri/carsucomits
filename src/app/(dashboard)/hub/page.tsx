@@ -44,17 +44,8 @@ export default async function HubPage() {
     prisma.commission.findMany({
       where: { commissionerId: session.userId },
       orderBy: { createdAt: "desc" },
-      include: {
-        _count: { select: { applications: true } },
-        awardedTo: { select: { id: true, fullName: true } } as never,
-      },
-    }).catch(() =>
-      prisma.commission.findMany({
-        where: { commissionerId: session.userId },
-        orderBy: { createdAt: "desc" },
-        include: { _count: { select: { applications: true } } },
-      })
-    ),
+      include: { _count: { select: { applications: true } } },
+    }),
     // My applications
     prisma.application.findMany({
       where: { applicantId: session.userId },

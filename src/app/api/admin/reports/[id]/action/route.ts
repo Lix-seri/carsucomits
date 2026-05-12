@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { ReportStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 
-const ACTION_TO_STATUS: Record<string, string> = {
-  RESOLVE: "RESOLVED",
-  ESCALATE: "ESCALATED",
-  REOPEN: "PENDING",
+const ACTION_TO_STATUS: Record<string, ReportStatus> = {
+  RESOLVE: ReportStatus.RESOLVED,
+  ESCALATE: ReportStatus.ESCALATED,
+  REOPEN: ReportStatus.PENDING,
 };
 
 export async function POST(req: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -15,7 +16,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
 
   const { id } = await ctx.params;
   const { action } = await req.json();
-  const status = ACTION_TO_STATUS[action];
+  const status = ACTION_TO_STATUS[action as keyof typeof ACTION_TO_STATUS];
   if (!status) return NextResponse.json({ error: "Invalid action." }, { status: 400 });
 
   const report = await prisma.report.findUnique({ where: { id } });
@@ -25,8 +26,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     where: { id },
     data: {
       status,
-      resolvedById: status === "PENDING" ? null : session.userId,
-      resolvedAt: status === "PENDING" ? null : new Date(),
+      resolvedById: status === ReportStatus.PENDING ? null : session.userId,
+      resolvedAt: status === ReportStatus.PENDING ? null : new Date(),
     },
   });
 
