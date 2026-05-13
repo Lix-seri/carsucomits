@@ -1,0 +1,200 @@
+"use client";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { Upload, FileText, CheckCircle2, XCircle, Clock, MessageSquare } from "lucide-react";
+import { Avatar } from "@/components/avatar";
+
+type Deliverable = {
+  id: string;
+  fileUrl: string;
+  fileName: string;
+  fileSize: number;
+  message: string | null;
+  status: string;
+  reviewerNotes: string | null;
+  submittedAt: string;
+  reviewedAt: string | null;
+  submitter: { fullName: string; avatarUrl: string | null };
+};
+
+const STATUS_PILL: Record<string, string> = {
+  SUBMITTED: "bg-amber-100 text-amber-700",
+  APPROVED: "bg-emerald-100 text-emerald-700",
+  REVISION_REQUESTED: "bg-red-100 text-red-700",
+};
+
+function formatSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export function DeliverableSection({
+  commissionId, isOwner, isAwardedStudent, commissionStatus, initialDeliverables,
+}: {
+  commissionId: string;
+  isOwner: boolean;
+  isAwardedStudent: boolean;
+  commissionStatus: string;
+  initialDeliverables: Deliverable[];
+}) {
+  const router = useRouter();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submitDeliverable(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    const file = fileRef.current?.files?.[0];
+    if (!file) { setError("Pick a file to upload."); return; }
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      if (message.trim()) fd.append("message", message.trim());
+      const res = await fetch(`/api/commissions/${commissionId}/deliverables`, {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error ?? "Upload failed."); return; }
+      setMessage("");
+      if (fileRef.current) fileRef.current.value = "";
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function decide(deliverableId: string, action: "APPROVE" | "REQUEST_REVISION") {
+    let notes: string | undefined;
+    if (action === "REQUEST_REVISION") {
+      const input = window.prompt("What needs to change?");
+      if (!input || input.trim().length < 5) return;
+      notes = input.trim();
+    }
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/deliverables/${deliverableId}/decision`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, notes }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error ?? "Failed."); return; }
+      router.refresh();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const canSubmit = isAwardedStudent && (commissionStatus === "IN_PROGRESS" || commissionStatus === "AWAITING_REVIEW");
+
+  return (
+    <section>
+      <h2 className="mb-4 text-lg font-bold">📦 Job Workspace — Deliverables</h2>
+
+      {canSubmit && (
+        <form onSubmit={submitDeliverable} className="mb-6 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5">
+          <p className="mb-3 text-sm font-semibold">Submit a deliverable</p>
+          <input ref={fileRef} type="file" className="block w-full text-sm" />
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Optional message to the commissioner…"
+            className="input mt-3 min-h-[80px]"
+          />
+          {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+          <button type="submit" disabled={busy} className="btn-primary mt-3">
+            <Upload className="h-4 w-4" /> {busy ? "Uploading…" : "Submit deliverable"}
+          </button>
+          <p className="mt-2 text-xs text-slate-500">Up to 20 MB. Images, PDFs, docs, spreadsheets, or zip archives.</p>
+        </form>
+      )}
+
+      {initialDeliverables.length === 0 ? (
+        <p className="rounded-lg bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+          No deliverables yet.
+          {canSubmit && " Use the form above to submit your work."}
+        </p>
+      ) : (
+        <ul className="space-y-3">
+          {initialDeliverables.map((d) => (
+            <li key={d.id} className="rounded-xl border border-slate-200 bg-white p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <Avatar name={d.submitter.fullName} src={d.submitter.avatarUrl} size="sm" />
+                  <div>
+                    <p className="text-sm font-semibold">{d.submitter.fullName}</p>
+                    <p className="text-xs text-slate-500">
+                      <Clock className="mr-1 inline h-3 w-3" />
+                      {new Date(d.submittedAt).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+                <span className={`pill ${STATUS_PILL[d.status]}`}>
+                  {d.status === "SUBMITTED" && <Clock className="mr-1 inline h-3 w-3" />}
+                  {d.status === "APPROVED" && <CheckCircle2 className="mr-1 inline h-3 w-3" />}
+                  {d.status === "REVISION_REQUESTED" && <XCircle className="mr-1 inline h-3 w-3" />}
+                  {d.status.replace("_", " ")}
+                </span>
+              </div>
+
+              <a
+                href={d.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50"
+              >
+                <FileText className="h-4 w-4 text-brand-600" />
+                <span className="font-medium">{d.fileName}</span>
+                <span className="text-xs text-slate-500">({formatSize(d.fileSize)})</span>
+              </a>
+
+              {d.message && (
+                <div className="mt-3 rounded-lg bg-slate-50 p-3 text-sm">
+                  <p className="mb-1 flex items-center gap-1 text-xs font-semibold text-slate-500">
+                    <MessageSquare className="h-3 w-3" /> From {d.submitter.fullName}:
+                  </p>
+                  <p className="whitespace-pre-line text-slate-700">{d.message}</p>
+                </div>
+              )}
+
+              {d.reviewerNotes && (
+                <div className={`mt-3 rounded-lg p-3 text-sm ${d.status === "APPROVED" ? "bg-emerald-50" : "bg-red-50"}`}>
+                  <p className={`mb-1 text-xs font-semibold ${d.status === "APPROVED" ? "text-emerald-700" : "text-red-700"}`}>
+                    Reviewer notes:
+                  </p>
+                  <p className={`whitespace-pre-line ${d.status === "APPROVED" ? "text-emerald-800" : "text-red-800"}`}>
+                    {d.reviewerNotes}
+                  </p>
+                </div>
+              )}
+
+              {isOwner && d.status === "SUBMITTED" && (
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() => decide(d.id, "APPROVE")}
+                    disabled={busy}
+                    className="rounded-lg bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-emerald-600 disabled:opacity-50"
+                  >
+                    <CheckCircle2 className="mr-1 inline h-3.5 w-3.5" /> Approve
+                  </button>
+                  <button
+                    onClick={() => decide(d.id, "REQUEST_REVISION")}
+                    disabled={busy}
+                    className="rounded-lg border border-red-200 bg-white px-4 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    <XCircle className="mr-1 inline h-3.5 w-3.5" /> Request revision
+                  </button>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}

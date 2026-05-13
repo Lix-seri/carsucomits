@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { setSession } from "@/lib/session";
+import { sendVerificationEmail, makeToken } from "@/lib/email";
 
 export async function POST(req: Request) {
   const { fullName, email, password, role } = await req.json();
@@ -21,15 +22,25 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
   }
 
-  // Self-registration cannot create admins. Admins must be seeded by an existing admin
-  // or via `npm run db:seed`.
-  const safeRole =
-    role === "COMMISSIONER" ? "COMMISSIONER" : "STUDENT_EMPLOYEE";
+  // Self-registration cannot create admins.
+  const safeRole = role === "COMMISSIONER" ? "COMMISSIONER" : "STUDENT_EMPLOYEE";
 
   const passwordHash = await bcrypt.hash(password, 10);
+  const emailVerificationToken = makeToken();
+
   const user = await prisma.user.create({
-    data: { fullName, email, passwordHash, role: safeRole },
+    data: {
+      fullName,
+      email,
+      passwordHash,
+      role: safeRole,
+      emailVerificationToken,
+    },
   });
+
+  // Fire-and-forget the verification email. If RESEND_API_KEY isn't set, the
+  // email service prints the link to the server console so dev still works.
+  void sendVerificationEmail(email, emailVerificationToken);
 
   await setSession({
     userId: user.id,
@@ -37,5 +48,9 @@ export async function POST(req: Request) {
     email: user.email,
     role: user.role as "STUDENT_EMPLOYEE" | "COMMISSIONER" | "ADMIN",
   });
-  return NextResponse.json({ ok: true, user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role } });
+  return NextResponse.json({
+    ok: true,
+    user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role },
+    verificationRequired: true,
+  });
 }

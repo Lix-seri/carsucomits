@@ -49,7 +49,17 @@ export default function PostCommissionPage() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Failed to post commission."); return; }
-      router.replace("/commissioner");
+
+      // If the commissioner picked a cover image, upload it now.
+      const coverInput = f.elements.namedItem("coverImage") as HTMLInputElement | null;
+      const coverFile = coverInput?.files?.[0];
+      if (coverFile && data.commission?.id) {
+        const fd = new FormData();
+        fd.append("file", coverFile);
+        await fetch(`/api/commissions/${data.commission.id}/cover`, { method: "POST", body: fd });
+      }
+
+      router.replace(`/commission/${data.commission?.id ?? ""}`);
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -114,6 +124,17 @@ export default function PostCommissionPage() {
         <div>
           <label className="label">Description</label>
           <textarea name="description" className="input min-h-[140px]" placeholder="Describe what you need, deliverables, and any references…" required />
+        </div>
+
+        <div>
+          <label className="label">Cover image <span className="text-slate-400">(optional)</span></label>
+          <input
+            name="coverImage"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="block w-full text-sm"
+          />
+          <p className="mt-1 text-xs text-slate-500">JPG/PNG/WebP up to 5 MB. Shows on browse cards and the detail page.</p>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}

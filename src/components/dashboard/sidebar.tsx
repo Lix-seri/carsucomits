@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Briefcase, User, MessageCircle, Flag, Building2, Shield } from "lucide-react";
+import { Home, Briefcase, User, MessageCircle, Flag, Building2, Shield, Bookmark } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { LogoutButton } from "@/components/logout-button";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const MAIN = [
   { href: "/dashboard", label: "Home Feed", icon: Home },
   { href: "/hub", label: "My Hub", icon: Briefcase },
+  { href: "/saved", label: "Saved", icon: Bookmark },
   { href: "/profile", label: "My Profile", icon: User },
   { href: "/messages", label: "Messages", icon: MessageCircle },
   { href: "/reports", label: "Reports", icon: Flag, danger: true },

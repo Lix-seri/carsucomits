@@ -40,6 +40,7 @@ type Commission = {
   fareMin: number;
   fareMax: number | null;
   fareUnit: string | null;
+  coverImageUrl: string | null;
   status: string;
   createdAt: string;
   commissioner: { fullName: string; avatarUrl: string | null };
@@ -157,7 +158,12 @@ export function BrowseContent() {
             {visible.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {visible.map((c) => (
-                  <article key={c.id} id={c.id} className="flex h-full scroll-mt-24 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-soft">
+                  <article key={c.id} id={c.id} className="flex h-full scroll-mt-24 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-soft">
+                    {c.coverImageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.coverImageUrl} alt="" className="h-32 w-full object-cover" />
+                    )}
+                    <div className="flex flex-1 flex-col p-5">
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <span className={`pill ${CAT_PILL[c.category] ?? "bg-slate-500 text-white"}`}>
                         {c.category.replace("_", " ")}
@@ -176,6 +182,7 @@ export function BrowseContent() {
                     <Link href={`/commission/${c.id}`} className="btn-primary mt-auto w-full">
                       View &amp; Apply <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
+                    </div>
                   </article>
                 ))}
               </div>

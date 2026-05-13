@@ -51,6 +51,7 @@ export async function GET(req: Request) {
         fareMin: true,
         fareMax: true,
         fareUnit: true,
+        coverImageUrl: true,
       },
       take: 6,
     }),

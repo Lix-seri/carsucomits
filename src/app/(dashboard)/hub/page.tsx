@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { MarkCompleteButton } from "@/components/mark-complete-button";
 import { RateNowButton } from "@/components/rate-now-button";
+import { RateCommissionerButton } from "@/components/rate-commissioner-button";
+import { WithdrawButton } from "@/components/withdraw-button";
 
 const STATUS_PILL: Record<string, string> = {
   OPEN: "bg-emerald-50 text-emerald-700",
@@ -33,12 +35,12 @@ export default async function HubPage() {
     );
   }
 
-  const [doing, posted, applications, unratedCompleted] = await Promise.all([
+  const [doing, posted, applications, unratedCompleted, completedAsStudent] = await Promise.all([
     // Tasks I'm doing — commissions awarded to me
     prisma.commission.findMany({
       where: { awardedToId: session.userId, status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
       orderBy: { createdAt: "desc" },
-      include: { commissioner: { select: { fullName: true } } },
+      include: { commissioner: { select: { id: true, fullName: true } } },
     }),
     // Tasks I posted
     prisma.commission.findMany({
@@ -61,6 +63,15 @@ export default async function HubPage() {
         awardedToId: { not: null },
         ratings: { none: { raterId: session.userId } },
       },
+    }),
+    // Completed jobs I worked on where I haven't yet rated the commissioner
+    prisma.commission.findMany({
+      where: {
+        awardedToId: session.userId,
+        status: "COMPLETED",
+        ratings: { none: { raterId: session.userId } },
+      },
+      include: { commissioner: { select: { id: true, fullName: true } } },
     }),
   ]);
 
@@ -213,12 +224,39 @@ export default async function HubPage() {
                 <Link href={`/commission/${a.commission.id}`} className="flex-1 truncate text-sm font-semibold hover:text-brand-600">
                   {a.commission.title}
                 </Link>
-                <span className={`pill ${APP_STATUS_PILL[a.status] ?? "bg-slate-100"}`}>{a.status}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`pill ${APP_STATUS_PILL[a.status] ?? "bg-slate-100"}`}>{a.status}</span>
+                  {a.status === "PENDING" && a.commission.status === "OPEN" && (
+                    <WithdrawButton applicationId={a.id} />
+                  )}
+                </div>
               </li>
             ))}
           </ul>
         )}
       </section>
+
+      {completedAsStudent.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-bold">⭐ Rate your commissioners</h2>
+          <p className="mb-3 text-xs text-slate-500">You worked on these commissions but haven&apos;t rated the commissioner yet. Your rating helps other students.</p>
+          <ul className="space-y-2 rounded-xl border border-amber-200 bg-amber-50/40 p-3">
+            {completedAsStudent.map((c) => (
+              <li key={c.id} className="flex items-center justify-between gap-3 rounded-lg bg-white p-3">
+                <div>
+                  <Link href={`/commission/${c.id}`} className="text-sm font-semibold hover:text-brand-600">{c.title}</Link>
+                  <p className="text-xs text-slate-500">Completed with {c.commissioner.fullName}</p>
+                </div>
+                <RateCommissionerButton
+                  commissionId={c.id}
+                  commissionTitle={c.title}
+                  commissionerName={c.commissioner.fullName}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

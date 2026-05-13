@@ -7,6 +7,10 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Avatar } from "@/components/avatar";
 import { ApplyButton } from "@/components/apply-button";
+import { BookmarkButton } from "@/components/bookmark-button";
+import { CoverImageUploader } from "@/components/cover-image-uploader";
+import { WithdrawButton } from "@/components/withdraw-button";
+import { DeliverableSection } from "@/components/deliverable-section";
 
 const CAT_COLOR: Record<string, string> = {
   ACADEMIC: "bg-emerald-100 text-emerald-700",
@@ -48,13 +52,32 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
   });
 
   const isOwner = session?.userId === commission.commissionerId;
-  const alreadyApplied = session
-    ? !!(await prisma.application.findUnique({
+  const myApplication = session
+    ? await prisma.application.findUnique({
         where: {
           commissionId_applicantId: { commissionId: commission.id, applicantId: session.userId },
         },
-      }))
-    : false;
+      })
+    : null;
+  const alreadyApplied = !!myApplication;
+  const canWithdraw = !!myApplication && myApplication.status === "PENDING";
+  const isAwardedStudent = session?.userId === commission.awardedToId;
+
+  const savedRow = session
+    ? await prisma.savedCommission.findUnique({
+        where: { userId_commissionId: { userId: session.userId, commissionId: commission.id } },
+      })
+    : null;
+  const initialSaved = !!savedRow;
+
+  const deliverables =
+    isOwner || isAwardedStudent
+      ? await prisma.deliverable.findMany({
+          where: { commissionId: commission.id },
+          orderBy: { submittedAt: "desc" },
+          include: { submitter: { select: { fullName: true, avatarUrl: true } } },
+        })
+      : [];
 
   const fareDisplay = commission.fareMax
     ? `₱${commission.fareMin}–${commission.fareMax}${commission.fareUnit ?? ""}`
@@ -69,7 +92,12 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
             <ArrowLeft className="h-4 w-4" /> Back to Browse
           </Link>
 
-          <article className="mt-4 rounded-2xl border border-slate-200 bg-white p-8 shadow-card">
+          <article className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+            {commission.coverImageUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={commission.coverImageUrl} alt="" className="h-56 w-full object-cover" />
+            )}
+            <div className="p-8">
             <div className="mb-4 flex flex-wrap items-center gap-2">
               <span className={`pill ${CAT_COLOR[commission.category] ?? "bg-slate-100 text-slate-700"}`}>
                 {commission.category.replace("_", " ")}
@@ -130,11 +158,50 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
                 <Link href="/commissioner/applicants" className="btn-primary">Manage applicants</Link>
               ) : commission.status !== "OPEN" ? (
                 <ApplyButton commissionId={commission.id} disabled label={`This commission is ${commission.status.replace("_", " ").toLowerCase()}`} />
+              ) : alreadyApplied && !canWithdraw ? (
+                <ApplyButton commissionId={commission.id} disabled label={`Application ${myApplication?.status.toLowerCase()}`} />
               ) : alreadyApplied ? (
-                <ApplyButton commissionId={commission.id} disabled label="Already applied ✓" />
+                <>
+                  <ApplyButton commissionId={commission.id} disabled label="Application pending" />
+                  <WithdrawButton applicationId={myApplication!.id} />
+                </>
               ) : (
                 <ApplyButton commissionId={commission.id} />
               )}
+              {session && !isOwner && (
+                <BookmarkButton commissionId={commission.id} initialSaved={initialSaved} />
+              )}
+            </div>
+
+            {isOwner && (
+              <div className="mt-8 border-t border-slate-100 pt-6">
+                <h2 className="mb-3 text-lg font-bold">Cover Image</h2>
+                <CoverImageUploader commissionId={commission.id} initialUrl={commission.coverImageUrl} />
+              </div>
+            )}
+
+            {(isOwner || isAwardedStudent) && commission.awardedToId && (
+              <div className="mt-8 border-t border-slate-100 pt-6">
+                <DeliverableSection
+                  commissionId={commission.id}
+                  isOwner={isOwner}
+                  isAwardedStudent={isAwardedStudent}
+                  commissionStatus={commission.status}
+                  initialDeliverables={deliverables.map((d) => ({
+                    id: d.id,
+                    fileUrl: d.fileUrl,
+                    fileName: d.fileName,
+                    fileSize: d.fileSize,
+                    message: d.message,
+                    status: d.status,
+                    reviewerNotes: d.reviewerNotes,
+                    submittedAt: d.submittedAt.toISOString(),
+                    reviewedAt: d.reviewedAt?.toISOString() ?? null,
+                    submitter: { fullName: d.submitter.fullName, avatarUrl: d.submitter.avatarUrl },
+                  }))}
+                />
+              </div>
+            )}
             </div>
           </article>
         </div>

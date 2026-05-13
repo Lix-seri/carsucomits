@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { setSession } from "@/lib/session";
+import { verifyTotp, consumeBackupCode } from "@/lib/mfa";
 
 export async function POST(req: Request) {
-  const { email, password, expectedRole } = await req.json();
+  const { email, password, expectedRole, mfaCode } = await req.json();
   if (!email || !password) {
     return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
   }
@@ -21,14 +22,36 @@ export async function POST(req: Request) {
   if (expectedRole === "ADMIN" && user.role !== "ADMIN") {
     return NextResponse.json(
       { error: "This is not an admin account. Switch to the Student tab to sign in." },
-      { status: 403 }
+      { status: 403 },
     );
   }
   if (expectedRole === "STUDENT" && user.role === "ADMIN") {
     return NextResponse.json(
       { error: "This is an admin account. Switch to the Admin tab to sign in." },
-      { status: 403 }
+      { status: 403 },
     );
+  }
+
+  // MFA challenge for accounts that have it enabled.
+  if (user.mfaEnabled) {
+    if (!mfaCode) {
+      return NextResponse.json({ ok: false, mfaRequired: true }, { status: 200 });
+    }
+    const code = String(mfaCode).trim();
+    let codeOk = false;
+    if (user.totpSecret && verifyTotp(user.totpSecret, code)) {
+      codeOk = true;
+    } else {
+      // Maybe it's a backup code.
+      const result = consumeBackupCode(user.mfaBackupCodes, code);
+      if (result.ok) {
+        await prisma.user.update({ where: { id: user.id }, data: { mfaBackupCodes: result.remaining } });
+        codeOk = true;
+      }
+    }
+    if (!codeOk) {
+      return NextResponse.json({ error: "Invalid 6-digit code or backup code.", mfaRequired: true }, { status: 401 });
+    }
   }
 
   await setSession({
@@ -37,5 +60,13 @@ export async function POST(req: Request) {
     email: user.email,
     role: user.role as "STUDENT_EMPLOYEE" | "COMMISSIONER" | "ADMIN",
   });
-  return NextResponse.json({ ok: true, user: { id: user.id, fullName: user.fullName, role: user.role } });
+
+  await prisma.auditLog.create({
+    data: { actorId: user.id, action: "LOGIN", target: user.id },
+  });
+
+  return NextResponse.json({
+    ok: true,
+    user: { id: user.id, fullName: user.fullName, role: user.role },
+  });
 }
