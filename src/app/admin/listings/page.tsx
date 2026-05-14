@@ -1,25 +1,176 @@
-const LISTINGS = [
-  { title: "CSU Website Redesign", payment: "₱50,000", status: "Open", statusColor: "bg-emerald-50 text-emerald-700", applicants: 5 },
-  { title: "Mathematics Tutoring", payment: "₱800/hr", status: "In Progress", statusColor: "bg-amber-50 text-amber-700", applicants: 1 },
-  { title: "Flyer Distribution", payment: "₱300", status: "Open", statusColor: "bg-emerald-50 text-emerald-700", applicants: 3 },
-];
+import Link from "next/link";
+import { Search, Eye } from "lucide-react";
+import { prisma } from "@/lib/db";
 
-export default function AdminListings() {
+const CAT_PILL: Record<string, string> = {
+  ACADEMIC: "bg-emerald-50 text-emerald-700",
+  TECHNICAL: "bg-blue-50 text-blue-700",
+  GENERAL_ERRANDS: "bg-amber-50 text-amber-700",
+  ADMINISTRATIVE: "bg-purple-50 text-purple-700",
+};
+const STATUS_PILL: Record<string, string> = {
+  OPEN: "bg-emerald-50 text-emerald-700",
+  IN_PROGRESS: "bg-amber-50 text-amber-700",
+  AWAITING_REVIEW: "bg-blue-50 text-blue-700",
+  COMPLETED: "bg-slate-100 text-slate-700",
+  CANCELLED: "bg-red-50 text-red-700",
+  DISPUTED: "bg-red-100 text-red-700",
+};
+
+function fareDisplay(c: { fareMin: number; fareMax: number | null; fareUnit: string | null }) {
+  return c.fareMax ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}` : `₱${c.fareMin}${c.fareUnit ?? ""}`;
+}
+
+export default async function AdminListings({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string }>;
+}) {
+  const { q, status } = await searchParams;
+  const search = (q ?? "").trim();
+  const statusFilter = status?.trim();
+
+  const validStatuses = ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW", "COMPLETED", "CANCELLED", "DISPUTED"];
+  const statusWhere =
+    statusFilter && validStatuses.includes(statusFilter)
+      ? { status: statusFilter as "OPEN" | "IN_PROGRESS" | "AWAITING_REVIEW" | "COMPLETED" | "CANCELLED" | "DISPUTED" }
+      : {};
+
+  const [listings, totals] = await Promise.all([
+    prisma.commission.findMany({
+      where: {
+        ...statusWhere,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: "insensitive" as const } },
+                { description: { contains: search, mode: "insensitive" as const } },
+              ],
+            }
+          : {}),
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        commissioner: { select: { fullName: true } },
+        _count: { select: { applications: true } },
+      },
+      take: 100,
+    }),
+    prisma.commission.groupBy({
+      by: ["status"],
+      _count: true,
+    }),
+  ]);
+
+  const totalCount = totals.reduce((sum, t) => sum + t._count, 0);
+  const counts = Object.fromEntries(totals.map((t) => [t.status, t._count]));
+
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
-      <h2 className="mb-4 text-lg font-bold">All Listings</h2>
-      <div className="grid gap-4 md:grid-cols-3">
-        {LISTINGS.map((l, i) => (
-          <article key={i} className="rounded-xl border border-slate-200 p-4">
-            <h3 className="mb-1 text-base font-bold">{l.title}</h3>
-            <p className="text-xs text-slate-500">Payment: <span className="font-semibold text-slate-700">{l.payment}</span></p>
-            <div className="mt-3 flex items-center justify-between">
-              <span className={`pill ${l.statusColor}`}>{l.status}</span>
-              <span className="text-xs text-slate-500">{l.applicants} applicant{l.applicants === 1 ? "" : "s"}</span>
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <KpiCard label="All" value={totalCount} active={!statusFilter} href="/admin/listings" />
+        <KpiCard label="Open" value={counts.OPEN ?? 0} active={statusFilter === "OPEN"} href="/admin/listings?status=OPEN" />
+        <KpiCard label="In Progress" value={counts.IN_PROGRESS ?? 0} active={statusFilter === "IN_PROGRESS"} href="/admin/listings?status=IN_PROGRESS" />
+        <KpiCard label="Awaiting Review" value={counts.AWAITING_REVIEW ?? 0} active={statusFilter === "AWAITING_REVIEW"} href="/admin/listings?status=AWAITING_REVIEW" />
+        <KpiCard label="Completed" value={counts.COMPLETED ?? 0} active={statusFilter === "COMPLETED"} href="/admin/listings?status=COMPLETED" />
+        <KpiCard label="Cancelled" value={counts.CANCELLED ?? 0} active={statusFilter === "CANCELLED"} href="/admin/listings?status=CANCELLED" />
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-bold">
+            All Listings <span className="text-sm font-normal text-slate-500">({listings.length})</span>
+          </h2>
+          <form className="inline">
+            {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
+            <div className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5">
+              <Search className="h-4 w-4 text-slate-400" />
+              <input
+                name="q"
+                defaultValue={search}
+                placeholder="Search title or description…"
+                className="w-64 bg-transparent text-sm outline-none"
+              />
             </div>
-          </article>
-        ))}
+          </form>
+        </div>
+
+        {listings.length === 0 ? (
+          <p className="rounded-lg bg-slate-50 px-4 py-12 text-center text-sm text-slate-500">
+            {search || statusFilter
+              ? "No listings match your filters."
+              : "No commissions in the system yet."}
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wider text-slate-500">
+                <tr>
+                  <th className="py-2 font-semibold">Title</th>
+                  <th className="py-2 font-semibold">Commissioner</th>
+                  <th className="py-2 font-semibold">Category</th>
+                  <th className="py-2 font-semibold">Fare</th>
+                  <th className="py-2 font-semibold">Applicants</th>
+                  <th className="py-2 font-semibold">Status</th>
+                  <th className="py-2 font-semibold">Posted</th>
+                  <th className="py-2 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {listings.map((l) => (
+                  <tr key={l.id} className="hover:bg-slate-50/50">
+                    <td className="py-3">
+                      <Link href={`/commission/${l.id}`} className="font-semibold hover:text-brand-600">
+                        {l.title}
+                      </Link>
+                    </td>
+                    <td className="py-3 text-slate-600">{l.commissioner.fullName}</td>
+                    <td className="py-3">
+                      <span className={`pill ${CAT_PILL[l.category] ?? "bg-slate-100 text-slate-700"}`}>
+                        {l.category.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td className="py-3 font-semibold text-brand-600">{fareDisplay(l)}</td>
+                    <td className="py-3">{l._count.applications}</td>
+                    <td className="py-3">
+                      <span className={`pill ${STATUS_PILL[l.status] ?? "bg-slate-100 text-slate-700"}`}>
+                        {l.status.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td className="py-3 text-xs text-slate-500">
+                      {new Date(l.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3">
+                      <Link
+                        href={`/commission/${l.id}`}
+                        className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:underline"
+                      >
+                        <Eye className="h-3.5 w-3.5" /> View
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
+  );
+}
+
+function KpiCard({ label, value, active, href }: { label: string; value: number; active: boolean; href: string }) {
+  return (
+    <Link
+      href={href}
+      className={`flex flex-col rounded-xl border p-3 transition ${
+        active
+          ? "border-brand-500 bg-brand-50 shadow-soft"
+          : "border-slate-200 bg-white hover:border-brand-300 hover:bg-slate-50"
+      }`}
+    >
+      <span className="text-2xl font-bold">{value}</span>
+      <span className={`text-xs ${active ? "font-semibold text-brand-700" : "text-slate-500"}`}>{label}</span>
+    </Link>
   );
 }
