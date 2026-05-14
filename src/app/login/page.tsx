@@ -181,12 +181,6 @@ export default function LoginPage() {
                 <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
                   {loading ? "Signing in…" : `Login as ${role === "STUDENT" ? "Student" : "Admin"}`}
                 </button>
-
-                <p className="text-center">
-                  <Link href="/forgot-password" className="text-sm font-semibold text-brand-600 hover:text-brand-700">
-                    Forgot Password?
-                  </Link>
-                </p>
               </form>
 
               {role === "STUDENT" && (
