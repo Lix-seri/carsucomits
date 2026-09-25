@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
-import { RatingModal } from "@/components/rating-modal";
+import { RatingModal } from "@/features/ratings/rating-modal";
 
 export function MarkCompleteButton({
   commissionId, commissionTitle, awardedToName,

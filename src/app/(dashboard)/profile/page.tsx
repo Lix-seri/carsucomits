@@ -4,8 +4,8 @@ import { getSession } from "@/lib/session";
 import { getUserSkills, getUserStats, getRecentReviews, getRatingDistribution } from "@/lib/queries";
 import { SkillsManager } from "@/components/dashboard/skills-manager";
 import { AvatarUploader } from "@/components/dashboard/avatar-uploader";
-import { TrustBadge } from "@/components/trust-badge";
-import { RatingBreakdown } from "@/components/rating-breakdown";
+import { TrustBadge } from "@/features/ratings/trust-badge";
+import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
 
 export default async function ProfilePage() {
   const session = await getSession();

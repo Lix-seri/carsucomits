@@ -7,8 +7,8 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Avatar } from "@/components/ui/avatar";
 import { BackButton } from "@/components/layout/back-button";
 import { MessageButton } from "@/features/messages/message-button";
-import { TrustBadge } from "@/components/trust-badge";
-import { RatingBreakdown } from "@/components/rating-breakdown";
+import { TrustBadge } from "@/features/ratings/trust-badge";
+import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
 import { getUserSkills, getUserStats, getRecentReviews, getRatingDistribution } from "@/lib/queries";
 
 const ROLE_LABEL: Record<string, string> = {

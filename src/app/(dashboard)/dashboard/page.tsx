@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Hand, TrendingUp, Users, Star, ArrowRight, ChevronRight, CheckCircle2 } from "lucide-react";
 import { ProfileCard } from "@/components/dashboard/profile-card";
-import { MarkCompleteButton } from "@/components/mark-complete-button";
+import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { getUserSkills, getUserStats, getRecentReviews } from "@/lib/queries";

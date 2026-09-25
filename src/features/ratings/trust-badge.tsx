@@ -1,4 +1,4 @@
-import { trustTier } from "@/lib/trust";
+import { trustTier } from "@/features/ratings/trust";
 import { cn } from "@/lib/utils";
 
 export function TrustBadge({

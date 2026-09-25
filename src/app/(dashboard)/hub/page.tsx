@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { MarkCompleteButton } from "@/components/mark-complete-button";
-import { RateNowButton } from "@/components/rate-now-button";
-import { RateCommissionerButton } from "@/components/rate-commissioner-button";
+import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
+import { RateNowButton } from "@/features/ratings/rate-now-button";
+import { RateCommissionerButton } from "@/features/ratings/rate-commissioner-button";
 import { WithdrawButton } from "@/components/withdraw-button";
 
 const STATUS_PILL: Record<string, string> = {

@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { ratingDistributionFromCounts } from "@/lib/trust";
+import { ratingDistributionFromCounts } from "@/features/ratings/trust";
 
 export function RatingBreakdown({
   byStar, avg, total,
