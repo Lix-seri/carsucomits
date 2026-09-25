@@ -2,7 +2,6 @@
 import { prisma } from "@/lib/db";
 import type { Session } from "@/lib/session";
 import { getUserSkills, getUserStats } from "@/features/profile/server";
-import { getRecentReviews } from "@/features/ratings/server";
 import { getMyListings } from "@/features/commissions/server";
 import { listApplicantsForMe } from "@/features/applications/server";
 
@@ -14,10 +13,9 @@ async function namesById(ids: (string | null)[]) {
 
 export async function getDashboard(session: Session) {
   const me = session.userId;
-  const [skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] = await Promise.all([
+  const [skills, stats, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] = await Promise.all([
     getUserSkills(me),
     getUserStats(me),
-    getRecentReviews(me, 3),
     prisma.commission.findMany({
       where: { status: "OPEN", NOT: { commissionerId: me } },
       orderBy: { createdAt: "desc" },
@@ -40,7 +38,7 @@ export async function getDashboard(session: Session) {
     prisma.application.count({ where: { commission: { commissionerId: me }, status: "PENDING" } }),
   ]);
   const awardedToName = postedTask?.awardedToId ? ((await namesById([postedTask.awardedToId])).get(postedTask.awardedToId) ?? "the student") : "the student";
-  return { skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName };
+  return { skills, stats, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName };
 }
 
 export async function getHub(session: Session) {
