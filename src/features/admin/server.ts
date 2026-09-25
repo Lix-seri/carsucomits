@@ -47,7 +47,7 @@ export async function getAdminDashboard(session: Session) {
   assertAdmin(session);
   const [totalUsers, activeListings, pendingReports, flaggedAccounts, flagged, latestReports] = await Promise.all([
     prisma.user.count(),
-    prisma.commission.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }),
+    prisma.commission.count({ where: { status: { in: ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"] } } }),
     prisma.report.count({ where: { status: "PENDING" } }),
     prisma.user.count({ where: { status: { in: ["WARNED", "SUSPENDED", "BANNED"] } } }),
     flaggedUsers(10),

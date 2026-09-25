@@ -25,17 +25,17 @@ export async function getDashboard(session: Session) {
       take: 3,
     }),
     prisma.commission.findFirst({
-      where: { awardedToId: me, status: "IN_PROGRESS" },
+      where: { awardedToId: me, status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
       include: { commissioner: { select: { fullName: true } } },
       orderBy: { updatedAt: "desc" },
     }),
     prisma.commission.findFirst({
-      where: { commissionerId: me, status: { in: ["OPEN", "IN_PROGRESS"] } },
+      where: { commissionerId: me, status: { in: ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"] } },
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { applications: true } } },
     }),
     prisma.commission.count({
-      where: { OR: [{ awardedToId: me, status: "IN_PROGRESS" }, { commissionerId: me, status: "IN_PROGRESS" }] },
+      where: { OR: [{ awardedToId: me }, { commissionerId: me }], status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
     }),
     prisma.application.count({ where: { commission: { commissionerId: me }, status: "PENDING" } }),
   ]);
@@ -78,7 +78,7 @@ export async function getHub(session: Session) {
 export async function getCommissionerHome(session: Session) {
   const me = session.userId;
   const [activeListings, totalApplicants, completedTasks, listings, pending] = await Promise.all([
-    prisma.commission.count({ where: { commissionerId: me, status: { in: ["OPEN", "IN_PROGRESS"] } } }),
+    prisma.commission.count({ where: { commissionerId: me, status: { in: ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"] } } }),
     prisma.application.count({ where: { commission: { commissionerId: me } } }),
     prisma.commission.count({ where: { commissionerId: me, status: "COMPLETED" } }),
     getMyListings(me, ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"], 10),

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Calendar, User, Star } from "lucide-react";
 import { getCommissionDetail } from "@/features/commissions/server";
 import { listDeliverables } from "@/features/deliverables/server";
+import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { getSession } from "@/lib/session";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -35,7 +36,7 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
 
   const detail = await getCommissionDetail(id, session);
   if (!detail) notFound();
-  const { commission, commissionerAvg, myApplication, saved: initialSaved } = detail;
+  const { commission, commissionerAvg, myApplication, saved: initialSaved, awardeeName } = detail;
 
   const isOwner = session?.userId === commission.commissionerId;
   const alreadyApplied = !!myApplication;
@@ -162,6 +163,11 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
                     submitter: { fullName: d.submitter.fullName, avatarUrl: d.submitter.avatarUrl },
                   }))}
                 />
+                {isOwner && (commission.status === "IN_PROGRESS" || commission.status === "AWAITING_REVIEW") && (
+                  <div className="mt-6 max-w-xs">
+                    <MarkCompleteButton commissionId={commission.id} commissionTitle={commission.title} awardedToName={awardeeName} />
+                  </div>
+                )}
               </div>
             )}
             </div>

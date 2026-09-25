@@ -83,7 +83,10 @@ export async function completeWithRating(session: Session, commissionId: string,
   const commission = await prisma.commission.findUnique({ where: { id: commissionId } });
   if (!commission) throw new HttpError(404, "Commission not found.");
   if (commission.commissionerId !== session.userId) throw new HttpError(403, "Only the commissioner can mark this completed.");
-  if (commission.status !== "IN_PROGRESS") throw new HttpError(400, "Only in-progress commissions can be marked completed.");
+  // Completion follows either straight work (IN_PROGRESS) or a reviewed deliverable (AWAITING_REVIEW).
+  if (commission.status !== "IN_PROGRESS" && commission.status !== "AWAITING_REVIEW") {
+    throw new HttpError(400, "Only commissions in progress or awaiting review can be marked completed.");
+  }
   if (!commission.awardedToId) throw new HttpError(400, "No applicant has been awarded yet.");
 
   const rateeId = commission.awardedToId;

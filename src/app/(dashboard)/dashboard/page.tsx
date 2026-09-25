@@ -116,7 +116,7 @@ export default async function DashboardHome() {
             <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-card">
               <div className="mb-2 flex items-center justify-between">
                 <span className="pill bg-purple-100 text-purple-700">⚡ Task I&apos;m Doing</span>
-                <span className="pill bg-amber-100 text-amber-700">{doingTask ? "In Progress" : "—"}</span>
+                <span className="pill bg-amber-100 text-amber-700">{doingTask ? doingTask.status.replace("_", " ") : "—"}</span>
               </div>
               {doingTask ? (
                 <>
@@ -156,7 +156,7 @@ export default async function DashboardHome() {
                     <Link href={`/commissioner/applicants?commissionId=${postedTask.id}`} className="btn-primary mt-3 w-full">
                       <Users className="h-4 w-4" /> Review Applicants
                     </Link>
-                  ) : postedTask.status === "IN_PROGRESS" && postedTask.awardedToId ? (
+                  ) : (postedTask.status === "IN_PROGRESS" || postedTask.status === "AWAITING_REVIEW") && postedTask.awardedToId ? (
                     <div className="mt-3">
                       <MarkCompleteButton
                         commissionId={postedTask.id}

@@ -108,14 +108,15 @@ export async function getCommissionDetail(id: string, session: Session | null) {
   });
   if (!commission) return null;
 
-  const [commissionerRating, myApplication, savedRow] = await Promise.all([
+  const [commissionerRating, myApplication, savedRow, awardee] = await Promise.all([
     prisma.rating.aggregate({ where: { rateeId: commission.commissionerId }, _avg: { stars: true } }),
     session
       ? prisma.application.findUnique({ where: { commissionId_applicantId: { commissionId: id, applicantId: session.userId } } })
       : null,
     session ? prisma.savedCommission.findUnique({ where: { userId_commissionId: { userId: session.userId, commissionId: id } } }) : null,
+    commission.awardedToId ? prisma.user.findUnique({ where: { id: commission.awardedToId }, select: { fullName: true } }) : null,
   ]);
-  return { commission, commissionerAvg: commissionerRating._avg.stars, myApplication, saved: !!savedRow };
+  return { commission, commissionerAvg: commissionerRating._avg.stars, myApplication, saved: !!savedRow, awardeeName: awardee?.fullName ?? "the student" };
 }
 
 export async function getMyListings(userId: string, statuses?: CommissionStatus[], take?: number) {

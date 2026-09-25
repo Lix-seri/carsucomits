@@ -1,4 +1,5 @@
 import { expect, request as pwRequest, type APIRequestContext, type Page } from "@playwright/test";
+import { PrismaClient } from "@prisma/client";
 import { PORT } from "../playwright.config";
 
 export const BASE = `http://localhost:${PORT}`;
@@ -54,4 +55,21 @@ export async function visit(page: Page, path: string, shotName: string) {
   await expect(page.locator("body")).not.toContainText(/Application error|Unhandled Runtime Error|Internal Server Error/);
   await page.screenshot({ path: `test-results/screens/${shotName}.png`, fullPage: true });
   expect(errors, `${path} threw in the browser`).toEqual([]);
+}
+
+/** Direct access to the test database, for states the API can't reach without Blob uploads. */
+export function testDb() {
+  return new PrismaClient({
+    datasources: { db: { url: process.env.TEST_DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5433/carsucomits_test" } },
+  });
+}
+
+/** poster posts, worker applies, poster accepts → an IN_PROGRESS commission. */
+export async function hiredCommission() {
+  const poster = await newUser("Poster");
+  const worker = await newUser("Worker");
+  const c = await postCommission(poster.api);
+  const app = await (await worker.api.post(`/api/commissions/${c.id}/apply`, { data: {} })).json();
+  expect((await poster.api.post(`/api/applications/${app.application.id}/accept`)).ok()).toBeTruthy();
+  return { poster, worker, c };
 }

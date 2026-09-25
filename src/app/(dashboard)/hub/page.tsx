@@ -142,7 +142,7 @@ export default async function HubPage() {
                       Review Applicants ({t._count.applications})
                     </Link>
                   )}
-                  {t.status === "IN_PROGRESS" && t.awardedToId && (
+                  {(t.status === "IN_PROGRESS" || t.status === "AWAITING_REVIEW") && t.awardedToId && (
                     <MarkCompleteButton
                       commissionId={t.id}
                       commissionTitle={t.title}
