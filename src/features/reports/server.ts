@@ -1,0 +1,65 @@
+import { ReportStatus } from "@prisma/client";
+import { prisma } from "@/lib/db";
+import { HttpError } from "@/lib/http";
+import { assertAdmin, type Session } from "@/lib/session";
+
+export async function fileReport(session: Session, input: { reporteeEmail?: unknown; reason?: unknown; details?: unknown }) {
+  const { reporteeEmail, reason, details } = input;
+  if (typeof reporteeEmail !== "string" || !reporteeEmail || typeof reason !== "string" || !reason) {
+    throw new HttpError(400, "Reported user and reason are required.");
+  }
+  const reportee = await prisma.user.findUnique({ where: { email: reporteeEmail.toLowerCase() } });
+  if (!reportee) throw new HttpError(404, "That user doesn't exist on CarsuComits.");
+  if (reportee.id === session.userId) throw new HttpError(400, "You can't report yourself.");
+
+  const report = await prisma.report.create({
+    data: {
+      reporterId: session.userId,
+      reporteeId: reportee.id,
+      reason,
+      details: typeof details === "string" ? details : null,
+    },
+  });
+  return { report };
+}
+
+/** Reports I filed and reports about me. */
+export async function listMyReports(session: Session) {
+  const include = { reportee: { select: { fullName: true } }, reporter: { select: { fullName: true } } };
+  const [filed, aboutMe] = await Promise.all([
+    prisma.report.findMany({ where: { reporterId: session.userId }, orderBy: { createdAt: "desc" }, include }),
+    prisma.report.findMany({ where: { reporteeId: session.userId }, orderBy: { createdAt: "desc" }, include }),
+  ]);
+  return { filed, aboutMe };
+}
+
+const REPORT_ACTIONS: Record<string, ReportStatus> = {
+  RESOLVE: ReportStatus.RESOLVED,
+  ESCALATE: ReportStatus.ESCALATED,
+  REOPEN: ReportStatus.PENDING,
+};
+
+/** Admin: resolve, escalate or reopen a report. */
+export async function actOnReport(session: Session, reportId: string, action: unknown) {
+  assertAdmin(session);
+  const status = typeof action === "string" ? REPORT_ACTIONS[action] : undefined;
+  if (!status) throw new HttpError(400, "Invalid action.");
+
+  const report = await prisma.report.findUnique({ where: { id: reportId } });
+  if (!report) throw new HttpError(404, "Report not found.");
+
+  const reopening = status === ReportStatus.PENDING;
+  await prisma.report.update({
+    where: { id: reportId },
+    data: { status, resolvedById: reopening ? null : session.userId, resolvedAt: reopening ? null : new Date() },
+  });
+  await prisma.auditLog.create({
+    data: {
+      actorId: session.userId,
+      action: `REPORT_${action}`,
+      target: reportId,
+      meta: JSON.stringify({ reportId, newStatus: status }),
+    },
+  });
+  return { status };
+}

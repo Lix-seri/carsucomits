@@ -1,7 +1,7 @@
 import { Users, ClipboardList, Flag, AlertOctagon, Star } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { UserActionButtons } from "@/components/admin/user-action-buttons";
-import { ReportActionButtons } from "@/components/admin/report-action-buttons";
+import { ReportActionButtons } from "@/features/reports/report-action-buttons";
 
 const ROLE_LABEL: Record<string, string> = {
   STUDENT_EMPLOYEE: "Student Employee",
