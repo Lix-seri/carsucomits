@@ -24,7 +24,7 @@ export function ProfileCard({
           <strong>{user.rating != null ? user.rating.toFixed(1) : "—"}</strong>
           <span className="text-muted">({user.reviews})</span>
         </p>
-        <div className="mt-2 flex justify-center"><TrustBadge avg={user.rating} reviewCount={user.reviews} size="sm" /></div>
+        <div className="mt-2 flex justify-center"><TrustBadge avg={user.rating} reviewCount={user.reviews}/></div>
         <dl className="mt-4 grid grid-cols-3 border-t border-line pt-4">
           {[["Completed", user.done], ["Posted", user.posted], ["Success", user.rate != null ? `${user.rate}%` : "—"]].map(([label, value]) => (
             <div key={label}>

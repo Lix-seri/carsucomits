@@ -1,26 +1,39 @@
 "use client";
 import { useEffect, useState } from "react";
-import { AlertTriangle, FileText, Plus } from "lucide-react";
+import { FileText, Flag, ShieldCheck } from "lucide-react";
 import { api } from "@/lib/api";
-import { Dialog } from "@/components/ui/dialog";
-import { Field, FormError } from "@/components/ui/form";
 import { REPORT_REASONS } from "@/lib/labels";
+import { ReportStatusBadge } from "@/components/ui/badge";
+import { Dialog } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Field, FormError } from "@/components/ui/form";
+import { PageHeader } from "@/components/ui/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
 
-type Report = {
-  id: string;
-  reason: string;
-  details: string | null;
-  status: string;
-  createdAt: string;
-};
+type Report = { id: string; reason: string; details: string | null; status: string; createdAt: string };
 type FiledReport = Report & { reportee: { fullName: string } };
 
-const STATUS_PILL: Record<string, string> = {
-  PENDING:              "bg-warning-100 text-warning-700",
-  UNDER_INVESTIGATION:  "bg-info-100 text-info-700",
-  RESOLVED:             "bg-brand-100 text-brand-700",
-  ESCALATED:            "bg-danger-100 text-danger-700",
-};
+const date = (iso: string) => new Date(iso).toLocaleDateString("en-PH", { dateStyle: "medium" });
+
+function ReportItems({ reports, headline }: { reports: Report[]; headline: (r: Report) => string }) {
+  return (
+    <ul className="divide-y divide-line rounded-xl border border-line bg-white">
+      {reports.map((r) => (
+        <li key={r.id} className="flex items-start justify-between gap-3 p-4">
+          <div className="min-w-0 text-sm">
+            <p className="font-semibold">{headline(r)}</p>
+            <p className="mt-0.5">
+              {r.reason}
+              {r.details && <span className="text-muted"> — {r.details}</span>}
+            </p>
+            <p className="text-xs text-muted">Filed {date(r.createdAt)}</p>
+          </div>
+          <ReportStatusBadge status={r.status} />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function ReportsView() {
   const [showNew, setShowNew] = useState(false);
@@ -28,17 +41,12 @@ export function ReportsView() {
   const [aboutMe, setAboutMe] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/reports/mine")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok) {
-          setFiled(data.filed);
-          setAboutMe(data.aboutMe);
-        }
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  async function load() {
+    const mine = await api<{ filed: FiledReport[]; aboutMe: Report[] }>("/api/reports/mine");
+    if (mine.ok) { setFiled(mine.data.filed); setAboutMe(mine.data.aboutMe); }
+    setLoading(false);
+  }
+  useEffect(() => { load(); }, []);
 
   const [form, setForm] = useState({ reporteeEmail: "", reason: "", details: "" });
   const [fieldError, setFieldError] = useState<{ field?: string; message: string } | null>(null);
@@ -54,76 +62,35 @@ export function ReportsView() {
     setFieldError(null);
     setForm({ reporteeEmail: "", reason: "", details: "" });
     setShowNew(false);
-    const mine = await api<{ filed: FiledReport[]; aboutMe: Report[] }>("/api/reports/mine");
-    if (mine.ok) { setFiled(mine.data.filed); setAboutMe(mine.data.aboutMe); }
+    await load();
   }
 
+  const loadingList = <div className="space-y-2"><Skeleton className="h-20" /><Skeleton className="h-20" /></div>;
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="overflow-hidden rounded-2xl bg-white shadow-card">
-        <div className="bg-gradient-to-r from-danger-500 to-warning-500 p-5 text-white">
-          <h2 className="flex items-center gap-2 text-lg font-bold"><AlertTriangle className="h-5 w-5" /> Reports Center</h2>
-          <p className="text-sm text-white/85">Manage your reports and flags</p>
-        </div>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <PageHeader
+        title="Reports"
+        description="Report ghosting, scams or anything that breaks the rules. Admins review every report."
+        actions={<button onClick={() => { setFieldError(null); setShowNew(true); }} className="btn-secondary"><Flag className="h-4 w-4" /> Report someone</button>}
+      />
 
-        <div className="space-y-6 p-5">
-          <section>
-            <h3 className="mb-3 flex items-center gap-2 text-sm font-bold">🚩 Reports About You</h3>
-            {loading ? (
-              <p className="text-sm text-muted">Loading…</p>
-            ) : aboutMe.length === 0 ? (
-              <p className="rounded-lg bg-brand-50 px-4 py-4 text-center text-sm text-brand-700">
-                ✓ No reports filed against you. Keep it up!
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {aboutMe.map((r) => (
-                  <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-danger-50/60 p-3">
-                    <div>
-                      <p className="text-sm font-semibold">A user reported you</p>
-                      <p className="text-xs text-muted">Reason: {r.reason}</p>
-                      {r.details && <p className="text-xs italic text-muted">&quot;{r.details}&quot;</p>}
-                      <p className="text-xs text-muted">Filed {new Date(r.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <span className={`pill ${STATUS_PILL[r.status]} h-fit`}>{r.status.replaceAll("_", " ")}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
+      <section aria-labelledby="about-you">
+        <h2 id="about-you" className="mb-3 text-lg font-semibold">About you</h2>
+        {loading ? loadingList : aboutMe.length === 0 ? (
+          <EmptyState icon={ShieldCheck} title="No one has reported you" />
+        ) : (
+          <ReportItems reports={aboutMe} headline={() => "A student reported you"} />
+        )}
+      </section>
 
-          <section>
-            <h3 className="mb-3 flex items-center gap-2 text-sm font-bold"><FileText className="h-4 w-4" /> Reports You Filed</h3>
-            {loading ? (
-              <p className="text-sm text-muted">Loading…</p>
-            ) : filed.length === 0 ? (
-              <p className="rounded-lg bg-sunken px-4 py-4 text-center text-sm text-muted">
-                You haven&apos;t filed any reports yet.
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {filed.map((r) => (
-                  <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-info-50/60 p-3">
-                    <div>
-                      <p className="text-sm font-semibold">You reported {r.reportee.fullName}</p>
-                      <p className="text-xs text-muted">Reason: {r.reason}</p>
-                      {r.details && <p className="text-xs italic text-muted">&quot;{r.details}&quot;</p>}
-                      <p className="text-xs text-muted">Filed {new Date(r.createdAt).toLocaleDateString()}</p>
-                    </div>
-                    <span className={`pill ${STATUS_PILL[r.status]} h-fit`}>{r.status.replaceAll("_", " ")}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          <div>
-            <button onClick={() => setShowNew(true)} className="w-full rounded-lg bg-danger-500 py-2.5 text-sm font-semibold text-white hover:bg-danger-600">
-              <Plus className="mr-1 inline h-4 w-4" /> Submit New Report
-            </button>
-          </div>
-        </div>
-      </div>
+      <section aria-labelledby="you-filed">
+        <h2 id="you-filed" className="mb-3 text-lg font-semibold">You filed</h2>
+        {loading ? loadingList : filed.length === 0 ? (
+          <EmptyState icon={FileText} title="You haven't filed any reports">Reports you file show up here with their status.</EmptyState>
+        ) : (
+          <ReportItems reports={filed} headline={(r) => `You reported ${(r as FiledReport).reportee.fullName}`} />
+        )}
+      </section>
 
       <Dialog open={showNew} onClose={() => !submitting && setShowNew(false)} title="Submit a report" description="Admins review every report. The person you report won't see your name.">
         <form noValidate onSubmit={submit} className="space-y-3">
@@ -140,9 +107,9 @@ export function ReportsView() {
             <textarea className="input min-h-24" value={form.details} onChange={(e) => setForm({ ...form, details: e.target.value })} maxLength={2000} />
           </Field>
           <FormError message={fieldError && !["reporteeEmail", "reason", "details"].includes(fieldError.field ?? "") ? fieldError.message : null} />
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => setShowNew(false)} className="flex-1 rounded-lg border border-line py-2.5 text-sm font-medium hover:bg-sunken">Cancel</button>
-            <button type="submit" disabled={submitting} className="flex-1 rounded-lg bg-danger-500 py-2.5 text-sm font-semibold text-white hover:bg-danger-600 disabled:opacity-50">{submitting ? "Submitting…" : "Submit"}</button>
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" onClick={() => setShowNew(false)} className="btn-ghost">Cancel</button>
+            <button type="submit" disabled={submitting} className="btn-danger">{submitting ? "Submitting…" : "Submit"}</button>
           </div>
         </form>
       </Dialog>

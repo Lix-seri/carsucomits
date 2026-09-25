@@ -35,7 +35,7 @@ export function Avatar({
     );
   }
   return (
-    <span className={cn("grid place-items-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 font-bold text-white", dim, ring, className)}>
+    <span className={cn("grid place-items-center rounded-full bg-brand-100 font-semibold text-brand-800", dim, ring, className)}>
       {initialsFor(name)}
     </span>
   );

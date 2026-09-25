@@ -115,7 +115,7 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
   if (step === "backup") {
     return (
       <div className="space-y-3">
-        <p className="text-sm font-semibold">⚠️ Save these backup codes</p>
+        <p className="text-sm font-semibold">Save these backup codes</p>
         <p className="text-xs text-muted">
           Use any of these to sign in if you lose access to your authenticator app. Each code works once.
           <strong> Save them somewhere safe — they won&apos;t be shown again.</strong>

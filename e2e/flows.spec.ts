@@ -133,7 +133,7 @@ test.describe("flows through the UI", () => {
 
     // Report through the site dialog, with inline validation.
     await worker.goto("/reports");
-    await worker.getByRole("button", { name: /Submit New Report/ }).click();
+    await worker.getByRole("button", { name: "Report someone" }).click();
     const report = worker.getByRole("dialog", { name: "Submit a report" });
     await report.getByLabel("Reported user's email").fill(posterUser.email);
     await report.getByRole("button", { name: "Submit" }).click();

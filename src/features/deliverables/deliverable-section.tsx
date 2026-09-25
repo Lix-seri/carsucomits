@@ -1,8 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Upload, FileText, CheckCircle2, XCircle, Clock, MessageSquare } from "lucide-react";
+import { Upload, FileText, CheckCircle2, MessageSquare } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { DeliverableStatusBadge } from "@/components/ui/badge";
 import { Dialog } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/form";
 import { api } from "@/lib/api";
@@ -18,12 +19,6 @@ type Deliverable = {
   submittedAt: string;
   reviewedAt: string | null;
   submitter: { fullName: string; avatarUrl: string | null };
-};
-
-const STATUS_PILL: Record<string, string> = {
-  SUBMITTED: "bg-warning-100 text-warning-700",
-  APPROVED: "bg-brand-100 text-brand-700",
-  REVISION_REQUESTED: "bg-danger-100 text-danger-700",
 };
 
 function formatSize(bytes: number) {
@@ -96,7 +91,7 @@ export function DeliverableSection({
 
   return (
     <section>
-      <h2 className="mb-4 text-lg font-bold">📦 Job Workspace — Deliverables</h2>
+      <h2 className="mb-4 text-lg font-semibold">Deliverables</h2>
 
       {canSubmit && (
         <form onSubmit={submitDeliverable} className="mb-6 rounded-xl border border-dashed border-line-strong bg-sunken p-5">
@@ -117,9 +112,9 @@ export function DeliverableSection({
       )}
 
       {initialDeliverables.length === 0 ? (
-        <p className="rounded-lg bg-sunken px-4 py-6 text-center text-sm text-muted">
+        <p className="rounded-xl border border-dashed border-line-strong px-4 py-6 text-center text-sm text-muted">
           No deliverables yet.
-          {canSubmit && " Use the form above to submit your work."}
+          {canSubmit && " Upload your work above when it's ready for review."}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -131,17 +126,11 @@ export function DeliverableSection({
                   <div>
                     <p className="text-sm font-semibold">{d.submitter.fullName}</p>
                     <p className="text-xs text-muted">
-                      <Clock className="mr-1 inline h-3 w-3" />
-                      {new Date(d.submittedAt).toLocaleString()}
+                      {new Date(d.submittedAt).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" })}
                     </p>
                   </div>
                 </div>
-                <span className={`pill ${STATUS_PILL[d.status]}`}>
-                  {d.status === "SUBMITTED" && <Clock className="mr-1 inline h-3 w-3" />}
-                  {d.status === "APPROVED" && <CheckCircle2 className="mr-1 inline h-3 w-3" />}
-                  {d.status === "REVISION_REQUESTED" && <XCircle className="mr-1 inline h-3 w-3" />}
-                  {d.status.replace("_", " ")}
-                </span>
+                <DeliverableStatusBadge status={d.status} />
               </div>
 
               <a
@@ -150,7 +139,7 @@ export function DeliverableSection({
                 rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center gap-2 rounded-lg border border-line px-3 py-2 text-sm hover:bg-sunken"
               >
-                <FileText className="h-4 w-4 text-brand-600" />
+                <FileText className="h-4 w-4 text-muted" />
                 <span className="font-medium">{d.fileName}</span>
                 <span className="text-xs text-muted">({formatSize(d.fileSize)})</span>
               </a>
@@ -158,38 +147,26 @@ export function DeliverableSection({
               {d.message && (
                 <div className="mt-3 rounded-lg bg-sunken p-3 text-sm">
                   <p className="mb-1 flex items-center gap-1 text-xs font-semibold text-muted">
-                    <MessageSquare className="h-3 w-3" /> From {d.submitter.fullName}:
+                    <MessageSquare className="h-3 w-3" /> From {d.submitter.fullName}
                   </p>
                   <p className="whitespace-pre-line text-ink">{d.message}</p>
                 </div>
               )}
 
               {d.reviewerNotes && (
-                <div className={`mt-3 rounded-lg p-3 text-sm ${d.status === "APPROVED" ? "bg-brand-50" : "bg-danger-50"}`}>
-                  <p className={`mb-1 text-xs font-semibold ${d.status === "APPROVED" ? "text-brand-700" : "text-danger-700"}`}>
-                    Reviewer notes:
-                  </p>
-                  <p className={`whitespace-pre-line ${d.status === "APPROVED" ? "text-brand-800" : "text-danger-700"}`}>
-                    {d.reviewerNotes}
-                  </p>
+                <div className="mt-3 rounded-lg border border-line p-3 text-sm">
+                  <p className="mb-1 text-xs font-semibold text-muted">Commissioner&apos;s notes</p>
+                  <p className="whitespace-pre-line">{d.reviewerNotes}</p>
                 </div>
               )}
 
               {isOwner && d.status === "SUBMITTED" && (
                 <div className="mt-3 flex gap-2">
-                  <button
-                    onClick={() => decide(d.id, "APPROVE")}
-                    disabled={busy}
-                    className="rounded-lg bg-brand-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-50"
-                  >
-                    <CheckCircle2 className="mr-1 inline h-3.5 w-3.5" /> Approve
+                  <button onClick={() => decide(d.id, "APPROVE")} disabled={busy} className="btn-primary btn-sm">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Approve
                   </button>
-                  <button
-                    onClick={() => { setNotes(""); setNotesError(null); setRevisionFor(d.id); }}
-                    disabled={busy}
-                    className="rounded-lg border border-danger-200 bg-white px-4 py-1.5 text-sm font-semibold text-danger-600 hover:bg-danger-50 disabled:opacity-50"
-                  >
-                    <XCircle className="mr-1 inline h-3.5 w-3.5" /> Request revision
+                  <button onClick={() => { setNotes(""); setNotesError(null); setRevisionFor(d.id); }} disabled={busy} className="btn-secondary btn-sm">
+                    Request revision
                   </button>
                 </div>
               )}

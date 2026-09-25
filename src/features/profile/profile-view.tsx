@@ -58,7 +58,7 @@ export function ProfileView({
               <strong>{stats.rating != null ? stats.rating.toFixed(1) : "—"}</strong>
               <span className="text-muted">({stats.reviewCount} review{stats.reviewCount === 1 ? "" : "s"})</span>
             </span>
-            <TrustBadge avg={stats.rating} reviewCount={stats.reviewCount} size="sm" showDescription={!isSelf} />
+            <TrustBadge avg={stats.rating} reviewCount={stats.reviewCount} showDescription={!isSelf} />
           </div>
           <dl className="mt-6 grid grid-cols-3 divide-x divide-line rounded-xl border border-line text-center">
             {[

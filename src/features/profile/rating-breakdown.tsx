@@ -29,7 +29,7 @@ export function RatingBreakdown({
             </span>
             <div className="h-2 flex-1 overflow-hidden rounded-full bg-sunken">
               <div
-                className="h-full bg-gradient-to-r from-warning-200 to-warning-500"
+                className="h-full bg-warning-400"
                 style={{ width: `${d.percent}%` }}
               />
             </div>

@@ -2,7 +2,9 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Send, ArrowLeft, MessageCircle } from "lucide-react";
+import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { timeAgoShort } from "@/lib/format";
 
 type Thread = {
@@ -43,11 +45,6 @@ function MessagesViewInner() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [convError, setConvError] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
-
-  // Identify "me" from the threads list (we infer it from whichever id appears as "other").
-  // For correctness, expose it via /api/notifications response which already runs on login.
-  // Easier: stash the session userId in a cookie-readable endpoint. Skipping — we don't need
-  // meId for thread display since the API already grouped by other.
 
   const loadThreads = useCallback(async () => {
     const res = await fetch("/api/messages/threads");
@@ -158,17 +155,16 @@ function MessagesViewInner() {
       {/* On phones, one pane at a time: the list, or the open conversation. */}
       <aside className={`${activeId ? "hidden lg:flex" : "flex"} flex-col overflow-hidden rounded-2xl border border-line bg-white`}>
         <div className="border-b border-line p-4">
-          <h2 className="text-lg font-bold">Messages</h2>
-          <p className="text-xs text-muted">Your conversations</p>
+          <h1 className="text-lg font-semibold">Messages</h1>
         </div>
         <div className="flex-1 overflow-y-auto">
           {loadingThreads ? (
-            <p className="p-6 text-center text-sm text-muted">Loading…</p>
+            <div className="space-y-2 p-4"><Skeleton className="h-14" /><Skeleton className="h-14" /><Skeleton className="h-14" /></div>
           ) : threads.length === 0 ? (
             <div className="p-6 text-center text-sm text-muted">
               <MessageCircle className="mx-auto mb-2 h-8 w-8 text-faint" />
-              <p>No conversations yet.</p>
-              <p className="mt-1 text-xs">Click &quot;Message&quot; on any user&apos;s profile to start one.</p>
+              <p className="font-semibold text-ink">No conversations yet</p>
+              <p className="mt-1">Open someone&apos;s profile and choose Message to start one.</p>
             </div>
           ) : (
             <ul>
@@ -220,20 +216,20 @@ function MessagesViewInner() {
           </p>
         ) : (
           <>
-            <div className="flex items-center gap-3 border-b border-line bg-gradient-to-r from-brand-500 to-brand-600 p-4 text-white">
-              <button onClick={() => setActiveId(null)} className="rounded-full p-1 hover:bg-white/20 lg:hidden" aria-label="Back to conversations">
+            <div className="flex items-center gap-3 border-b border-line p-4">
+              <button onClick={() => setActiveId(null)} className="rounded-full p-1 text-muted hover:bg-sunken lg:hidden" aria-label="Back to conversations">
                 <ArrowLeft className="h-4 w-4" />
               </button>
               <Avatar name={other.fullName} src={other.avatarUrl} size="sm" />
               <div>
                 <p className="font-semibold">{other.fullName}</p>
-                <p className="text-xs text-white/85">CSU Marketplace member</p>
+                <Link href={`/u/${other.id}`} className="text-xs text-muted hover:text-brand-700 hover:underline">View profile</Link>
               </div>
             </div>
             <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto p-4">
               {messages.length === 0 ? (
                 <p className="py-12 text-center text-sm text-muted">
-                  No messages yet. Send the first one!
+                  No messages yet. Say hello and what you need.
                 </p>
               ) : (
                 messages.map((m) => {

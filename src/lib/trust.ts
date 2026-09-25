@@ -1,3 +1,5 @@
+import type { Tone } from "./labels";
+
 // Trust badge tiers based on a user's average rating + review volume.
 // Used on profile pages, public profiles, and the dashboard sidebar card.
 
@@ -5,63 +7,26 @@ export type TrustTier = {
   level: "HIGHLY_TRUSTED" | "TRUSTED" | "RISING" | "NEW" | "CAUTION";
   label: string;
   description: string;
-  color: string; // tailwind classes
-  emoji: string;
+  tone: Tone;
 };
 
+const reviews = (n: number) => `${n} review${n === 1 ? "" : "s"}`;
+
 export function trustTier(avg: number | null, reviewCount: number): TrustTier {
-  if (reviewCount === 0) {
-    return {
-      level: "NEW",
-      label: "New Member",
-      description: "No reviews yet — give them a chance to prove themselves.",
-      color: "bg-sunken text-ink border-line",
-      emoji: "✨",
-    };
+  if (reviewCount === 0 || avg == null) {
+    return { level: "NEW", label: "New member", description: "No reviews yet.", tone: "neutral" };
   }
-  if (avg == null) {
-    return {
-      level: "NEW",
-      label: "New Member",
-      description: "No ratings yet.",
-      color: "bg-sunken text-ink border-line",
-      emoji: "✨",
-    };
-  }
+  const summary = `${avg.toFixed(1)} stars over ${reviews(reviewCount)}`;
   if (reviewCount >= 2 && avg < 3.0) {
-    return {
-      level: "CAUTION",
-      label: "Use Caution",
-      description: `Average ${avg.toFixed(1)}★ over ${reviewCount} reviews — flagged for low ratings.`,
-      color: "bg-danger-100 text-danger-700 border-danger-200",
-      emoji: "⚠️",
-    };
+    return { level: "CAUTION", label: "Use caution", description: `${summary}, flagged for low ratings.`, tone: "danger" };
   }
   if (avg >= 4.5 && reviewCount >= 5) {
-    return {
-      level: "HIGHLY_TRUSTED",
-      label: "Highly Trusted",
-      description: `Outstanding ${avg.toFixed(1)}★ over ${reviewCount} reviews.`,
-      color: "bg-brand-100 text-brand-700 border-brand-200",
-      emoji: "🏆",
-    };
+    return { level: "HIGHLY_TRUSTED", label: "Highly trusted", description: `${summary}.`, tone: "brand" };
   }
   if (avg >= 4.0 && reviewCount >= 3) {
-    return {
-      level: "TRUSTED",
-      label: "Trusted",
-      description: `Solid ${avg.toFixed(1)}★ over ${reviewCount} reviews.`,
-      color: "bg-info-100 text-info-700 border-info-200",
-      emoji: "✓",
-    };
+    return { level: "TRUSTED", label: "Trusted", description: `${summary}.`, tone: "info" };
   }
-  return {
-    level: "RISING",
-    label: "Rising",
-    description: `${avg.toFixed(1)}★ over ${reviewCount} review${reviewCount === 1 ? "" : "s"} — building reputation.`,
-    color: "bg-warning-100 text-warning-700 border-warning-200",
-    emoji: "📈",
-  };
+  return { level: "RISING", label: "Rising", description: `${summary}, still building a reputation.`, tone: "neutral" };
 }
 
 export type RatingDistribution = { stars: number; count: number; percent: number }[];
