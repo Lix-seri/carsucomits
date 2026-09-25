@@ -73,7 +73,8 @@ test.describe("flows through the UI", () => {
     await poster.getByLabel("Category", { exact: true }).selectOption("TECHNICAL");
     await poster.getByLabel("Description").fill("Design an A3 poster for the org fair, two revisions included.");
     await poster.getByRole("button", { name: "Post Commission" }).click();
-    await expect(poster.getByText("Minimum fare must be a number.")).toBeVisible();
+    await expect(poster.getByText("Minimum fare is required.")).toBeVisible();
+    await expect(poster.getByLabel("Fare (min) ₱")).toBeFocused();
     await shot(poster, "post-errors");
     await poster.getByLabel("Fare (min) ₱").fill("500");
     await poster.getByRole("button", { name: "Post Commission" }).click();

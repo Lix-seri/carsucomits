@@ -1,9 +1,10 @@
 "use client";
-import { Children, cloneElement, isValidElement, useId } from "react";
+import { Children, cloneElement, isValidElement, useEffect, useId } from "react";
 
 /**
  * A labelled form control with an inline error. Wires the label to the control and
- * the error to aria-describedby, so screen readers announce both.
+ * the error to aria-describedby, so screen readers announce both, and focuses the
+ * control when an error appears.
  */
 export function Field({
   label, error, hint, children,
@@ -11,6 +12,10 @@ export function Field({
   const id = useId();
   const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
   const control = Children.only(children);
+  // Take the user to the problem: focusing also scrolls the field into view.
+  useEffect(() => {
+    if (error) document.getElementById(id)?.focus();
+  }, [error, id]);
   return (
     <div>
       <label htmlFor={id} className="label">{label}</label>

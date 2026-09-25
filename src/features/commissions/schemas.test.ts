@@ -21,6 +21,13 @@ test("a non-numeric fare is a 400 with a message, not a 500", () => {
   assert.match(error({ ...valid, fareMin: "abc" })!.message, /must be a number/);
 });
 
+test("a missing fare says it is required", () => {
+  const { fareMin, ...rest } = valid;
+  void fareMin;
+  assert.equal(error(rest)!.message, "Minimum fare is required.");
+  assert.equal(error({ ...valid, fareMin: "" })!.message, "Minimum fare is required.");
+});
+
 test("max fare below min fare is rejected on the fareMax field", () => {
   const issue = error({ ...valid, fareMax: 100 })!;
   assert.deepEqual(issue.path, ["fareMax"]);

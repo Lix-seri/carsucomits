@@ -1,12 +1,16 @@
 import { z } from "zod";
 import { Category, CommissionStatus, SkillLevel } from "@prisma/client";
 
+/** Whole pesos from a number or a numeric string; empty means missing. */
 export const peso = (label: string) =>
-  z.coerce
-    .number({ error: `${label} must be a number.` })
-    .int(`${label} must be whole pesos.`)
-    .min(0, `${label} can't be negative.`)
-    .max(1_000_000, `${label} is too high.`);
+  z.preprocess(
+    (v) => (v === "" || v === null || v === undefined ? undefined : typeof v === "string" ? Number(v) : v),
+    z
+      .number({ error: (iss) => (iss.input === undefined ? `${label} is required.` : `${label} must be a number.`) })
+      .int(`${label} must be whole pesos.`)
+      .min(0, `${label} can't be negative.`)
+      .max(1_000_000, `${label} is too high.`),
+  );
 
 const today = () => new Date().toISOString().slice(0, 10);
 
