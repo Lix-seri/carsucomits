@@ -8,8 +8,6 @@ build
 .DS_Store
 prisma/dev.db
 prisma/dev.db-journal
-public/avatars/*
-!public/avatars/.gitkeep
 .data
 tsconfig.tsbuildinfo
 test-results
