@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Users, ClipboardList, AlertTriangle, FileText, Settings, ShieldCheck } from "lucide-react";
-import { LogoutButton } from "@/components/logout-button";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
 
 const NAV = [

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, ArrowRight, Briefcase, User as UserIcon, Star } from "lucide-react";
-import { Avatar } from "@/components/avatar";
+import { Avatar } from "@/components/ui/avatar";
 
 type Commission = {
   id: string;

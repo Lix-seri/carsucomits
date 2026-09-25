@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { Avatar } from "@/components/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { ApplicantDecisionButtons } from "@/components/applicant-decision-buttons";
 
 export default async function ApplicantsPage({

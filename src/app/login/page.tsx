@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, Eye, EyeOff, GraduationCap, Shield, KeyRound } from "lucide-react";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
 
 type LoginRole = "STUDENT" | "ADMIN";

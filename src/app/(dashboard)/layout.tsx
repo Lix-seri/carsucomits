@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { DashboardSidebar } from "@/components/dashboard/sidebar";
-import { DashboardTopbar } from "@/components/dashboard/topbar";
+import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
+import { DashboardTopbar } from "@/components/layout/dashboard-topbar";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
 

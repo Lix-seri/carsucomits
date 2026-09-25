@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Briefcase, User, MessageCircle, Flag, Building2, Shield, Bookmark } from "lucide-react";
-import { Avatar } from "@/components/avatar";
-import { LogoutButton } from "@/components/logout-button";
+import { Avatar } from "@/components/ui/avatar";
+import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
 
 const MAIN = [

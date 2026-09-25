@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Upload, FileText, CheckCircle2, XCircle, Clock, MessageSquare } from "lucide-react";
-import { Avatar } from "@/components/avatar";
+import { Avatar } from "@/components/ui/avatar";
 
 type Deliverable = {
   id: string;

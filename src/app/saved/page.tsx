@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Bookmark, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { BookmarkButton } from "@/components/bookmark-button";
 
 const CAT_PILL: Record<string, string> = {

@@ -2,7 +2,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Send, ArrowLeft, MessageCircle } from "lucide-react";
-import { Avatar } from "@/components/avatar";
+import { Avatar } from "@/components/ui/avatar";
 
 type Thread = {
   otherId: string;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ShieldCheck, Star, Mail, Users } from "lucide-react";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/layout/site-header";
+import { SiteFooter } from "@/components/layout/site-footer";
 
 const VALUES = [
   { icon: Mail, title: "CSU Email Verified", desc: "Every user is authenticated via their official @carsu.edu.ph email — no outsiders, no fake accounts." },

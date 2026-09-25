@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck, Star, Lightbulb, Plus } from "lucide-react";
-import { Avatar } from "@/components/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { TrustBadge } from "@/components/trust-badge";
 
 const LEVEL_BAR: Record<string, { color: string; pct: number }> = {

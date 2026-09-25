@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Camera, Trash2 } from "lucide-react";
-import { Avatar } from "@/components/avatar";
+import { Avatar } from "@/components/ui/avatar";
 
 export function AvatarUploader({
   fullName, initialUrl,

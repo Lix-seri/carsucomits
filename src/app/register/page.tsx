@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/layout/logo";
 
 export default function RegisterPage() {
   const router = useRouter();

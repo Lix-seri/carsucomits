@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Bell } from "lucide-react";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { getSession } from "@/lib/session";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

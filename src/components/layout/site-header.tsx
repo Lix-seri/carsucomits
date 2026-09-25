@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LayoutDashboard } from "lucide-react";
 import { Logo } from "./logo";
-import { Avatar } from "./avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { LogoutButton } from "./logout-button";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
