@@ -3,9 +3,7 @@ import { Hand, TrendingUp, Users, Star, ArrowRight, ChevronRight, CheckCircle2 }
 import { ProfileCard } from "@/features/profile/profile-card";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/db";
-import { getUserSkills, getUserStats } from "@/features/profile/server";
-import { getRecentReviews } from "@/features/ratings/server";
+import { getDashboard } from "@/features/hub/server";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-100 text-emerald-700",
@@ -32,64 +30,19 @@ export default async function DashboardHome() {
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
   const greeting = timeBasedGreeting();
 
-  // Resolve all the dashboard data. Each query is awaited individually so TypeScript
-  // can infer each result's type precisely; the queries themselves still run in parallel
-  // because they're kicked off before being awaited.
-  const userQ = session
-    ? prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } })
-    : Promise.resolve(null);
-  const skillsQ = session ? getUserSkills(session.userId) : Promise.resolve([]);
-  const statsQ = session
-    ? getUserStats(session.userId)
-    : Promise.resolve({ done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null });
-  const reviewsQ = session ? getRecentReviews(session.userId, 3) : Promise.resolve([]);
-  const featuredQ = session
-    ? prisma.commission.findMany({
-        where: { status: "OPEN", NOT: { commissionerId: session.userId } },
-        orderBy: { createdAt: "desc" },
-        include: { commissioner: { select: { fullName: true } } },
-        take: 3,
-      })
-    : Promise.resolve([]);
-  const doingTaskQ = session
-    ? prisma.commission.findFirst({
-        where: { awardedToId: session.userId, status: "IN_PROGRESS" },
-        include: { commissioner: { select: { fullName: true } } },
-        orderBy: { updatedAt: "desc" },
-      })
-    : Promise.resolve(null);
-  const postedTaskQ = session
-    ? prisma.commission.findFirst({
-        where: { commissionerId: session.userId, status: { in: ["OPEN", "IN_PROGRESS"] } },
-        orderBy: { createdAt: "desc" },
-        include: { _count: { select: { applications: true } } },
-      })
-    : Promise.resolve(null);
-  const inProgressCountQ = session
-    ? prisma.commission.count({
-        where: {
-          OR: [
-            { awardedToId: session.userId, status: "IN_PROGRESS" },
-            { commissionerId: session.userId, status: "IN_PROGRESS" },
-          ],
-        },
-      })
-    : Promise.resolve(0);
-  const applicantsWaitingQ = session
-    ? prisma.application.count({
-        where: { commission: { commissionerId: session.userId }, status: "PENDING" },
-      })
-    : Promise.resolve(0);
-
-  const [user, skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] =
-    await Promise.all([userQ, skillsQ, statsQ, reviewsQ, featuredQ, doingTaskQ, postedTaskQ, inProgressCountQ, applicantsWaitingQ]);
-
-  const awardedToName = postedTask?.awardedToId
-    ? (await prisma.user.findUnique({
-        where: { id: postedTask.awardedToId },
-        select: { fullName: true },
-      }))?.fullName ?? "the student"
-    : "the student";
+  const { skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName } = session
+    ? await getDashboard(session)
+    : {
+        skills: [],
+        stats: { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null },
+        reviews: [],
+        featured: [],
+        doingTask: null,
+        postedTask: null,
+        inProgressCount: 0,
+        applicantsWaiting: 0,
+        awardedToName: "the student",
+      };
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -245,7 +198,7 @@ export default async function DashboardHome() {
             done: stats.done,
             posted: stats.posted,
             rate: stats.successRate,
-            avatarUrl: user?.avatarUrl ?? null,
+            avatarUrl: session?.avatarUrl ?? null,
           }}
           skills={skills}
           reviews={reviews}

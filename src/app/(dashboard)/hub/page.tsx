@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { getHub } from "@/features/hub/server";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { RateNowButton } from "@/features/ratings/rate-now-button";
 import { RateCommissionerButton } from "@/features/ratings/rate-commissioner-button";
@@ -35,55 +35,7 @@ export default async function HubPage() {
     );
   }
 
-  const [doing, posted, applications, unratedCompleted, completedAsStudent] = await Promise.all([
-    // Tasks I'm doing — commissions awarded to me
-    prisma.commission.findMany({
-      where: { awardedToId: session.userId, status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
-      orderBy: { createdAt: "desc" },
-      include: { commissioner: { select: { id: true, fullName: true } } },
-    }),
-    // Tasks I posted
-    prisma.commission.findMany({
-      where: { commissionerId: session.userId },
-      orderBy: { createdAt: "desc" },
-      include: { _count: { select: { applications: true } } },
-    }),
-    // My applications
-    prisma.application.findMany({
-      where: { applicantId: session.userId },
-      orderBy: { createdAt: "desc" },
-      include: { commission: { select: { id: true, title: true, status: true } } },
-      take: 20,
-    }),
-    // Legacy: commissions I posted that are COMPLETED but I never rated
-    prisma.commission.findMany({
-      where: {
-        commissionerId: session.userId,
-        status: "COMPLETED",
-        awardedToId: { not: null },
-        ratings: { none: { raterId: session.userId } },
-      },
-    }),
-    // Completed jobs I worked on where I haven't yet rated the commissioner
-    prisma.commission.findMany({
-      where: {
-        awardedToId: session.userId,
-        status: "COMPLETED",
-        ratings: { none: { raterId: session.userId } },
-      },
-      include: { commissioner: { select: { id: true, fullName: true } } },
-    }),
-  ]);
-
-  // The awardedTo fetch above is best-effort; do a separate lookup to be safe.
-  const awardedIds = [
-    ...posted.map((p) => p.awardedToId),
-    ...unratedCompleted.map((p) => p.awardedToId),
-  ].filter(Boolean) as string[];
-  const awardedUsers = awardedIds.length
-    ? await prisma.user.findMany({ where: { id: { in: awardedIds } }, select: { id: true, fullName: true } })
-    : [];
-  const awardedMap = new Map(awardedUsers.map((u) => [u.id, u.fullName]));
+  const { doing, posted, applications, unratedCompleted, completedAsStudent, awardedMap } = await getHub(session);
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">

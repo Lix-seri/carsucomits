@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ClipboardList, Users, CheckCircle2, Plus, Eye, Star } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { getCommissionerHome } from "@/features/hub/server";
 import { Avatar } from "@/components/ui/avatar";
 import { ApplicantDecisionButtons } from "@/features/applications/applicant-decision-buttons";
 
@@ -37,34 +37,7 @@ export default async function CommissionerHome() {
     );
   }
 
-  const [activeListings, totalApplicants, completedTasks, listings, recentApplicants] = await Promise.all([
-    prisma.commission.count({ where: { commissionerId: session.userId, status: { in: ["OPEN", "IN_PROGRESS"] } } }),
-    prisma.application.count({ where: { commission: { commissionerId: session.userId } } }),
-    prisma.commission.count({ where: { commissionerId: session.userId, status: "COMPLETED" } }),
-    prisma.commission.findMany({
-      where: { commissionerId: session.userId, status: { in: ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"] } },
-      orderBy: { createdAt: "desc" },
-      include: { _count: { select: { applications: true } } },
-      take: 10,
-    }),
-    prisma.application.findMany({
-      where: { commission: { commissionerId: session.userId }, status: "PENDING" },
-      orderBy: { createdAt: "desc" },
-      include: {
-        applicant: { select: { id: true, fullName: true, avatarUrl: true } },
-        commission: { select: { id: true, title: true } },
-      },
-      take: 10,
-    }),
-  ]);
-
-  const applicantRatings = await Promise.all(
-    recentApplicants.map((a) =>
-      prisma.rating.aggregate({ where: { rateeId: a.applicantId }, _avg: { stars: true } })
-        .then((r) => ({ id: a.applicantId, avg: r._avg.stars }))
-    )
-  );
-  const ratingMap = new Map(applicantRatings.map((r) => [r.id, r.avg]));
+  const { activeListings, totalApplicants, completedTasks, listings, recentApplicants, ratingMap } = await getCommissionerHome(session);
 
   return (
     <div className="space-y-6">
