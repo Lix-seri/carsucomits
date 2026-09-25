@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin, Calendar, User, Star } from "lucide-react";
-import { prisma } from "@/lib/db";
+import { getCommissionDetail } from "@/features/commissions/server";
+import { listDeliverables } from "@/features/deliverables/server";
 import { getSession } from "@/lib/session";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -10,7 +11,7 @@ import { ApplyButton } from "@/features/applications/apply-button";
 import { BookmarkButton } from "@/features/commissions/bookmark-button";
 import { CoverImageUploader } from "@/features/commissions/cover-image-uploader";
 import { WithdrawButton } from "@/features/applications/withdraw-button";
-import { DeliverableSection } from "@/components/deliverable-section";
+import { DeliverableSection } from "@/features/deliverables/deliverable-section";
 
 const CAT_COLOR: Record<string, string> = {
   ACADEMIC: "bg-emerald-100 text-emerald-700",
@@ -35,49 +36,15 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
   const { id } = await params;
   const session = await getSession();
 
-  const commission = await prisma.commission.findUnique({
-    where: { id },
-    include: {
-      commissioner: {
-        select: { id: true, fullName: true, avatarUrl: true, _count: { select: { postedCommissions: true } } },
-      },
-      _count: { select: { applications: true } },
-    },
-  });
-  if (!commission) notFound();
-
-  const commissionerRating = await prisma.rating.aggregate({
-    where: { rateeId: commission.commissionerId },
-    _avg: { stars: true },
-  });
+  const detail = await getCommissionDetail(id, session);
+  if (!detail) notFound();
+  const { commission, commissionerAvg, myApplication, saved: initialSaved } = detail;
 
   const isOwner = session?.userId === commission.commissionerId;
-  const myApplication = session
-    ? await prisma.application.findUnique({
-        where: {
-          commissionId_applicantId: { commissionId: commission.id, applicantId: session.userId },
-        },
-      })
-    : null;
   const alreadyApplied = !!myApplication;
   const canWithdraw = !!myApplication && myApplication.status === "PENDING";
   const isAwardedStudent = session?.userId === commission.awardedToId;
-
-  const savedRow = session
-    ? await prisma.savedCommission.findUnique({
-        where: { userId_commissionId: { userId: session.userId, commissionId: commission.id } },
-      })
-    : null;
-  const initialSaved = !!savedRow;
-
-  const deliverables =
-    isOwner || isAwardedStudent
-      ? await prisma.deliverable.findMany({
-          where: { commissionId: commission.id },
-          orderBy: { submittedAt: "desc" },
-          include: { submitter: { select: { fullName: true, avatarUrl: true } } },
-        })
-      : [];
+  const deliverables = isOwner || isAwardedStudent ? await listDeliverables(commission.id) : [];
 
   const fareDisplay = commission.fareMax
     ? `₱${commission.fareMin}–${commission.fareMax}${commission.fareUnit ?? ""}`
@@ -141,10 +108,10 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
                 <p className="font-semibold hover:text-brand-600">{commission.commissioner.fullName}</p>
                 <p className="text-xs text-slate-500">
                   {commission.commissioner._count.postedCommissions} commissions posted
-                  {commissionerRating._avg.stars != null && (
+                  {commissionerAvg != null && (
                     <span className="ml-2">
                       <Star className="mr-1 inline h-3 w-3 fill-amber-400 text-amber-400" />
-                      {commissionerRating._avg.stars.toFixed(1)}
+                      {commissionerAvg.toFixed(1)}
                     </span>
                   )}
                 </p>
