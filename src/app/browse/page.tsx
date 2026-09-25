@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { BrowseContent } from "@/components/browse-content";
+import { BrowseContent } from "@/features/commissions/browse-content";
 
 export default function BrowsePage() {
   return (

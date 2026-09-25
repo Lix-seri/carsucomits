@@ -7,8 +7,8 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Avatar } from "@/components/ui/avatar";
 import { ApplyButton } from "@/components/apply-button";
-import { BookmarkButton } from "@/components/bookmark-button";
-import { CoverImageUploader } from "@/components/cover-image-uploader";
+import { BookmarkButton } from "@/features/commissions/bookmark-button";
+import { CoverImageUploader } from "@/features/commissions/cover-image-uploader";
 import { WithdrawButton } from "@/components/withdraw-button";
 import { DeliverableSection } from "@/components/deliverable-section";
 

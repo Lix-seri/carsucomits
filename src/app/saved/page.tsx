@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Bookmark, ArrowRight } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { getSavedCommissions } from "@/features/commissions/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
-import { BookmarkButton } from "@/components/bookmark-button";
+import { BookmarkButton } from "@/features/commissions/bookmark-button";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-500 text-white",
@@ -33,18 +33,7 @@ export default async function SavedPage() {
     );
   }
 
-  const saved = await prisma.savedCommission.findMany({
-    where: { userId: session.userId },
-    orderBy: { createdAt: "desc" },
-    include: {
-      commission: {
-        include: {
-          commissioner: { select: { fullName: true } },
-          _count: { select: { applications: true } },
-        },
-      },
-    },
-  });
+  const saved = await getSavedCommissions(session.userId);
 
   return (
     <>

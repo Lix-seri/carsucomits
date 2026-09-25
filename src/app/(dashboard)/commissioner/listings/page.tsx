@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Eye, Plus } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { getMyListings } from "@/features/commissions/server";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-50 text-emerald-700",
@@ -28,11 +28,7 @@ export default async function ListingsPage() {
     );
   }
 
-  const listings = await prisma.commission.findMany({
-    where: { commissionerId: session.userId },
-    orderBy: { createdAt: "desc" },
-    include: { _count: { select: { applications: true } } },
-  });
+  const listings = await getMyListings(session.userId);
 
   return (
     <div className="space-y-4">
