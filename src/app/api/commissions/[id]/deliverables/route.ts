@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { notify } from "@/lib/notifications";
+import { notify } from "@/features/notifications/server";
 
 const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
 const ALLOWED_TYPES = [

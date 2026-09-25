@@ -1,38 +1,15 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { jsonRoute, readJson } from "@/lib/http";
+import { getSession, requireSession } from "@/lib/session";
+import { listNotifications, markNotificationsRead } from "@/features/notifications/server";
 
-// GET /api/notifications — list mine
-export async function GET() {
+// GET /api/notifications — mine (empty when signed out, so the bell can poll freely)
+export const GET = jsonRoute(async () => {
   const session = await getSession();
-  if (!session) return NextResponse.json({ ok: true, notifications: [], unread: 0 });
+  return session ? listNotifications(session) : { notifications: [], unread: 0 };
+});
 
-  const [notifications, unread] = await Promise.all([
-    prisma.notification.findMany({
-      where: { userId: session.userId },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    }),
-    prisma.notification.count({ where: { userId: session.userId, readAt: null } }),
-  ]);
-  return NextResponse.json({ ok: true, notifications, unread });
-}
-
-// PATCH /api/notifications  — mark all as read (or specific ids via body)
-export async function PATCH(req: Request) {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
-
-  const body = await req.json().catch(() => ({}));
-  const ids: string[] | undefined = body?.ids;
-
-  await prisma.notification.updateMany({
-    where: {
-      userId: session.userId,
-      readAt: null,
-      ...(ids && ids.length > 0 ? { id: { in: ids } } : {}),
-    },
-    data: { readAt: new Date() },
-  });
-  return NextResponse.json({ ok: true });
-}
+// PATCH /api/notifications — mark all read, or only body.ids
+export const PATCH = jsonRoute(async (req) => {
+  await markNotificationsRead(await requireSession(), (await readJson(req)).ids);
+  return {};
+});

@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 import type { Role } from "@prisma/client";
 import { prisma } from "./db";
+import { HttpError } from "./http";
 
 export type Session = { userId: string; fullName: string; email: string; role: Role };
 type Token = { uid: string; role: Role; exp: number };
@@ -60,6 +61,18 @@ export const getSession = cache(async (): Promise<Session | null> => {
   if (!user || user.status === "BANNED" || user.status === "SUSPENDED") return null;
   return { userId: user.id, fullName: user.fullName, email: user.email, role: user.role };
 });
+
+/** For API routes: the current session, or a 401. */
+export async function requireSession(): Promise<Session> {
+  const session = await getSession();
+  if (!session) throw new HttpError(401, "Not signed in.");
+  return session;
+}
+
+/** For services: a 403 unless the caller is an admin. */
+export function assertAdmin(session: Session) {
+  if (session.role !== "ADMIN") throw new HttpError(403, "Admins only.");
+}
 
 export async function setSession(user: { id: string; role: Role }) {
   const value = await signToken({ uid: user.id, role: user.role, exp: Math.floor(Date.now() / 1000) + MAX_AGE });

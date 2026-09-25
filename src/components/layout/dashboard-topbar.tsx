@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Filter, Bell, Plus } from "lucide-react";
 import { SearchBar } from "@/components/dashboard/search-bar";
-import { NotificationsPopover } from "@/components/modals/notifications-popover";
+import { NotificationsPopover } from "@/features/notifications/notifications-popover";
 
 export function DashboardTopbar() {
   const [showNotif, setShowNotif] = useState(false);

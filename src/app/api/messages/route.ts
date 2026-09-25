@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { notify } from "@/lib/notifications";
+import { notify } from "@/features/notifications/server";
 
 // POST /api/messages — send a message
 export async function POST(req: Request) {

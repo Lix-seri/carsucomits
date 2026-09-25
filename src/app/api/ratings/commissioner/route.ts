@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { notify } from "@/lib/notifications";
+import { notify } from "@/features/notifications/server";
 
 // POST /api/ratings/commissioner — awarded student rates the commissioner after completion.
 export async function POST(req: Request) {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { notify } from "@/lib/notifications";
+import { notify } from "@/features/notifications/server";
 
 // POST /api/commissions/[id]/complete — REQ-4.4 + REQ-5.1 atomic
 // Marks the commission COMPLETED *and* creates the rating in one transaction.
