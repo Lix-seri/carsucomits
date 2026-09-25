@@ -44,7 +44,7 @@ export async function getRecentReviews(userId: string, take = 3) {
 }
 
 /** REQ-5.3: warn an ACTIVE user whose average drops below 3.0 over at least 2 ratings. */
-async function flagIfLowRating(actorId: string, rateeId: string, notifyUser: boolean) {
+async function flagIfLowRating(actorId: string, rateeId: string) {
   const agg = await prisma.rating.aggregate({ where: { rateeId }, _avg: { stars: true }, _count: true });
   const avg = agg._avg.stars ?? null;
   if (avg == null || agg._count < 2 || avg >= 3.0) return { avg, flagged: false };
@@ -56,23 +56,23 @@ async function flagIfLowRating(actorId: string, rateeId: string, notifyUser: boo
   await prisma.auditLog.create({
     data: { actorId, action: "AUTO_FLAG_LOW_RATING", target: rateeId, meta: JSON.stringify({ avg, ratingCount: agg._count }) },
   });
-  if (notifyUser) {
-    await notify({
-      userId: rateeId,
-      type: "ACCOUNT_FLAGGED",
-      title: "Your account has been flagged",
-      body: "Your average rating dropped below 3.0. Admins will review your account.",
-    });
-  }
+  await notify({
+    userId: rateeId,
+    type: "ACCOUNT_FLAGGED",
+    title: "Your account has been flagged",
+    body: "Your average rating dropped below 3.0. Admins will review your account.",
+  });
   return { avg, flagged: true };
 }
 
-function upsertRating(commissionId: string, raterId: string, rateeId: string, stars: number, comment: string | null) {
-  return prisma.rating.upsert({
-    where: { commissionId_raterId_rateeId: { commissionId, raterId, rateeId } },
-    update: { stars, comment },
-    create: { commissionId, raterId, rateeId, stars, comment },
-  });
+/** Ratings are final: a second rating of the same person for the same commission is a 409. */
+async function assertNotRated(commissionId: string, raterId: string, rateeId: string) {
+  const existing = await prisma.rating.findUnique({ where: { commissionId_raterId_rateeId: { commissionId, raterId, rateeId } } });
+  if (existing) throw new HttpError(409, "You have already rated this commission.");
+}
+
+function createRating(commissionId: string, raterId: string, rateeId: string, stars: number, comment: string | null) {
+  return prisma.rating.create({ data: { commissionId, raterId, rateeId, stars, comment } });
 }
 
 const ratingNote = (comment: string | null, title: string) => (comment ? `"${comment.slice(0, 80)}"` : `For "${title}"`);
@@ -90,8 +90,9 @@ export async function completeWithRating(session: Session, commissionId: string,
   if (!commission.awardedToId) throw new HttpError(400, "No applicant has been awarded yet.");
 
   const rateeId = commission.awardedToId;
+  await assertNotRated(commissionId, session.userId, rateeId);
   await prisma.$transaction([
-    upsertRating(commissionId, session.userId, rateeId, stars, comment),
+    createRating(commissionId, session.userId, rateeId, stars, comment),
     prisma.commission.update({ where: { id: commissionId }, data: { status: "COMPLETED" } }),
   ]);
 
@@ -110,7 +111,7 @@ export async function completeWithRating(session: Session, commissionId: string,
     link: `/profile`,
   });
 
-  const { avg, flagged } = await flagIfLowRating(session.userId, rateeId, true);
+  const { avg, flagged } = await flagIfLowRating(session.userId, rateeId);
   return { average: avg, flagged };
 }
 
@@ -124,7 +125,8 @@ export async function rateRetroactively(session: Session, commissionId: string, 
   if (!commission.awardedToId) throw new HttpError(400, "No applicant was awarded.");
 
   const rateeId = commission.awardedToId;
-  await upsertRating(commissionId, session.userId, rateeId, stars, comment);
+  await assertNotRated(commissionId, session.userId, rateeId);
+  await createRating(commissionId, session.userId, rateeId, stars, comment);
   await notify({
     userId: rateeId,
     type: "RATING_RECEIVED",
@@ -133,8 +135,7 @@ export async function rateRetroactively(session: Session, commissionId: string, 
     link: `/profile`,
   });
 
-  // Same as the old route: this path never told the user they were flagged (fixed in Phase 2).
-  const { avg } = await flagIfLowRating(session.userId, rateeId, false);
+  const { avg } = await flagIfLowRating(session.userId, rateeId);
   return { average: avg };
 }
 
@@ -148,7 +149,8 @@ export async function rateCommissioner(session: Session, input: RatingInput & { 
   if (commission.awardedToId !== session.userId) throw new HttpError(403, "Only the awarded student can rate the commissioner.");
 
   const rateeId = commission.commissionerId;
-  await upsertRating(commissionId, session.userId, rateeId, stars, comment);
+  await assertNotRated(commissionId, session.userId, rateeId);
+  await createRating(commissionId, session.userId, rateeId, stars, comment);
   await notify({
     userId: rateeId,
     type: "RATING_RECEIVED",

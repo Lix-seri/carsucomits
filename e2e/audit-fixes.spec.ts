@@ -64,3 +64,15 @@ test.describe("audit fixes: sign-in throttling", () => {
     expect((await right()).ok()).toBeTruthy();
   });
 });
+
+test.describe("audit fixes: ratings", () => {
+  test.skip(({ isMobile }) => isMobile, "API checks run once");
+
+  test("M9: a rating can't be changed once given", async () => {
+    const { poster, worker, c } = await hiredCommission();
+    expect((await poster.api.post(`/api/commissions/${c.id}/complete`, { data: { stars: 5 } })).ok()).toBeTruthy();
+    expect((await poster.api.post(`/api/commissions/${c.id}/rate-now`, { data: { stars: 1, comment: "Changed my mind entirely." } })).status()).toBe(409);
+    expect((await worker.api.post(`/api/ratings/commissioner`, { data: { commissionId: c.id, stars: 4 } })).ok()).toBeTruthy();
+    expect((await worker.api.post(`/api/ratings/commissioner`, { data: { commissionId: c.id, stars: 5 } })).status()).toBe(409);
+  });
+});
