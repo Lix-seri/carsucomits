@@ -42,7 +42,7 @@ export default async function AdminLogs() {
             let meta: Record<string, unknown> | null = null;
             try { if (l.meta) meta = JSON.parse(l.meta); } catch { /* ignore */ }
             return (
-              <li key={l.id} className={`rounded-r-lg border-l-4 bg-slate-50 px-3 py-2 ${style.bar}`}>
+              <li key={l.id} className={`break-all rounded-r-lg border-l-4 bg-slate-50 px-3 py-2 ${style.bar}`}>
                 <span className="text-slate-500">
                   {l.createdAt.toISOString().replace("T", " ").slice(0, 19)}
                 </span>

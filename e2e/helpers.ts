@@ -53,6 +53,10 @@ export async function visit(page: Page, path: string, shotName: string) {
   const res = await page.goto(path);
   expect(res?.status(), `${path} status`).toBeLessThan(400);
   await expect(page.locator("body")).not.toContainText(/Application error|Unhandled Runtime Error|Internal Server Error/);
+  // No page may scroll sideways (wide tables scroll inside their own container). Compare with
+  // the real viewport: on phones Chrome widens innerWidth to fit overflowing content.
+  const overflow = (await page.evaluate(() => document.documentElement.scrollWidth)) - page.viewportSize()!.width;
+  expect(overflow, `${path} is wider than the viewport`).toBeLessThanOrEqual(1);
   // caret: "initial" — Playwright's default hides the text cursor by injecting a style
   // attribute, which React reports as a hydration mismatch if hydration isn't done yet.
   await page.screenshot({ path: `test-results/screens/${shotName}.png`, fullPage: true, caret: "initial" });

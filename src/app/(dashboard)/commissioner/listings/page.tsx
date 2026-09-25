@@ -37,7 +37,7 @@ export default async function ListingsPage() {
           You haven&apos;t posted any commissions yet.
         </p>
       ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
           <table className="w-full text-sm">
             <thead className="text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { AppShell } from "@/components/layout/app-shell";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { DashboardTopbar } from "@/components/layout/dashboard-topbar";
 import { pageSession } from "@/lib/session";
@@ -11,12 +12,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (session.role === "ADMIN") redirect("/admin");
 
   return (
-    <div className="flex min-h-screen bg-brand-50/40">
-      <DashboardSidebar user={{ fullName: session.fullName, avatarUrl: session.avatarUrl, role: session.role }} />
-      <div className="flex flex-1 flex-col">
-        <DashboardTopbar search={<SearchBar />} bell={<NotificationsBell />} />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
-      </div>
-    </div>
+    <AppShell
+      sidebar={<DashboardSidebar user={{ fullName: session.fullName, avatarUrl: session.avatarUrl, role: session.role }} />}
+      header={<DashboardTopbar search={<SearchBar />} bell={<NotificationsBell />} />}
+    >
+      {children}
+    </AppShell>
   );
 }

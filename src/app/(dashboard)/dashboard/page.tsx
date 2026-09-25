@@ -26,7 +26,7 @@ export default async function DashboardHome() {
   const { skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName } = await getDashboard(session);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
       <div className="space-y-6">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-500 to-emerald-500 p-7 text-white shadow-soft">
           <p className="mb-1 text-xs font-medium opacity-90">{today}</p>

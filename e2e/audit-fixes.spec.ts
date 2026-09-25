@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { hiredCommission, newUser, postCommission, testDb } from "./helpers";
+import { hiredCommission, newUser, postCommission, signInPage, testDb } from "./helpers";
 
 // Regression tests for the Phase 2 audit fixes (claude/audits/AUDIT_2026-09-25.md). API-level, desktop only.
 test.describe("audit fixes", () => {
@@ -139,5 +139,22 @@ test.describe("audit fixes: home page", () => {
     await page.getByRole("link", { name: /Technical/ }).first().click();
     await expect(page).toHaveURL(/\/browse\?category=TECHNICAL$/);
     await expect(page.getByRole("heading", { name: c.title })).toBeVisible();
+  });
+});
+
+test.describe("audit fixes: mobile layout", () => {
+  test.skip(({ isMobile }) => !isMobile, "phone-only behaviour");
+
+  test("H9: on a phone the sidebar is a drawer behind the menu button", async ({ page }) => {
+    const me = await newUser("Phone");
+    await signInPage(page, { email: me.email, password: "password123" });
+    await page.goto("/dashboard");
+    const hubLink = page.getByRole("link", { name: "My Hub" });
+    await expect(hubLink).not.toBeInViewport();
+    await page.getByRole("button", { name: "Open menu" }).click();
+    await expect(hubLink).toBeInViewport();
+    await hubLink.click();
+    await expect(page).toHaveURL(/\/hub$/);
+    await expect(page.getByRole("link", { name: "My Hub" })).not.toBeInViewport();
   });
 });

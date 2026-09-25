@@ -151,7 +151,8 @@ function MessagesViewInner() {
 
   return (
     <div className="grid h-[calc(100vh-7rem)] gap-4 lg:grid-cols-[320px_1fr]">
-      <aside className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      {/* On phones, one pane at a time: the list, or the open conversation. */}
+      <aside className={`${activeId ? "hidden lg:flex" : "flex"} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white`}>
         <div className="border-b border-slate-100 p-4">
           <h2 className="text-lg font-bold">Messages</h2>
           <p className="text-xs text-slate-500">Your conversations</p>
@@ -201,7 +202,7 @@ function MessagesViewInner() {
         </div>
       </aside>
 
-      <section className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <section className={`${activeId ? "flex" : "hidden lg:flex"} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white`}>
         {!activeId ? (
           <div className="grid flex-1 place-items-center px-6 text-center">
             <div>
@@ -216,7 +217,7 @@ function MessagesViewInner() {
         ) : (
           <>
             <div className="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-brand-500 to-brand-600 p-4 text-white">
-              <button onClick={() => setActiveId(null)} className="rounded-full p-1 hover:bg-white/20 lg:hidden">
+              <button onClick={() => setActiveId(null)} className="rounded-full p-1 hover:bg-white/20 lg:hidden" aria-label="Back to conversations">
                 <ArrowLeft className="h-4 w-4" />
               </button>
               <Avatar name={other.fullName} src={other.avatarUrl} size="sm" />
