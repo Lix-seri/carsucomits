@@ -5,6 +5,20 @@ import { timeAgo } from "@/lib/format";
 import { initialsFor } from "@/components/ui/avatar";
 import { notify } from "@/features/notifications/server";
 
+/** Average stars and review count per user, in one query (users with no ratings are absent). */
+export async function ratingSummaries(userIds: string[]) {
+  const rows = userIds.length
+    ? await prisma.rating.groupBy({ by: ["rateeId"], where: { rateeId: { in: userIds } }, _avg: { stars: true }, _count: true })
+    : [];
+  return new Map(rows.map((r) => [r.rateeId, { avg: r._avg.stars, count: r._count }]));
+}
+
+/** userId → average stars, for tables that only show the average. */
+export async function averageRatings(userIds: string[]) {
+  const summaries = await ratingSummaries(userIds);
+  return new Map(Array.from(summaries, ([id, s]) => [id, s.avg]));
+}
+
 export async function getRatingDistribution(userId: string) {
   const groups = await prisma.rating.groupBy({ by: ["stars"], where: { rateeId: userId }, _count: true });
   const byStar: Record<number, number> = {};

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import type { Session } from "@/lib/session";
+import { ratingSummaries } from "@/features/ratings/server";
 
 /** Topbar search: up to 5 users (not admins, not banned, not me) and 6 open commissions. */
 export async function search(q: string, session: Session | null) {
@@ -20,12 +21,9 @@ export async function search(q: string, session: Session | null) {
       take: 6,
     }),
   ]);
-  const ratings = await Promise.all(
-    users.map((u) => prisma.rating.aggregate({ where: { rateeId: u.id }, _avg: { stars: true }, _count: true }).then((r) => [u.id, r] as const)),
-  );
-  const byId = new Map(ratings);
+  const byId = await ratingSummaries(users.map((u) => u.id));
   return {
-    users: users.map((u) => ({ ...u, ratingAvg: byId.get(u.id)?._avg.stars ?? null, reviewCount: byId.get(u.id)?._count ?? 0 })),
+    users: users.map((u) => ({ ...u, ratingAvg: byId.get(u.id)?.avg ?? null, reviewCount: byId.get(u.id)?.count ?? 0 })),
     commissions,
   };
 }

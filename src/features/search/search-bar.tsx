@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X, ArrowRight, Briefcase, User as UserIcon, Star } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { formatFare } from "@/lib/format";
 
 type Commission = {
   id: string;
@@ -90,9 +91,6 @@ export function SearchBar() {
     if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => Math.min(a + 1, flat.length - 1)); }
     if (e.key === "ArrowUp")   { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
   }
-
-  const fareDisplay = (c: Commission) =>
-    c.fareMax ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}` : `₱${c.fareMin}${c.fareUnit ?? ""}`;
 
   const totalResults = flat.length;
 
@@ -203,7 +201,7 @@ export function SearchBar() {
                                 </span>
                               </p>
                               <p className="truncate text-xs text-slate-500">
-                                {c.category.replace("_", " ")}{c.subcategory ? ` · ${c.subcategory}` : ""} · {fareDisplay(c)}
+                                {c.category.replace("_", " ")}{c.subcategory ? ` · ${c.subcategory}` : ""} · {formatFare(c)}
                               </p>
                             </div>
                             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-700">

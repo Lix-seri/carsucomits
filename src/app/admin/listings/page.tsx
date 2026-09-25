@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Search, Eye } from "lucide-react";
 import { pageSession } from "@/lib/session";
 import { listAllListings } from "@/features/admin/server";
+import { formatFare } from "@/lib/format";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-50 text-emerald-700",
@@ -17,10 +18,6 @@ const STATUS_PILL: Record<string, string> = {
   CANCELLED: "bg-red-50 text-red-700",
   DISPUTED: "bg-red-100 text-red-700",
 };
-
-function fareDisplay(c: { fareMin: number; fareMax: number | null; fareUnit: string | null }) {
-  return c.fareMax ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}` : `₱${c.fareMin}${c.fareUnit ?? ""}`;
-}
 
 export default async function AdminListings({
   searchParams,
@@ -98,7 +95,7 @@ export default async function AdminListings({
                         {l.category.replace("_", " ")}
                       </span>
                     </td>
-                    <td className="py-3 font-semibold text-brand-600">{fareDisplay(l)}</td>
+                    <td className="py-3 font-semibold text-brand-600">{formatFare(l)}</td>
                     <td className="py-3">{l._count.applications}</td>
                     <td className="py-3">
                       <span className={`pill ${STATUS_PILL[l.status] ?? "bg-slate-100 text-slate-700"}`}>

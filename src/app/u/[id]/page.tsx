@@ -9,19 +9,9 @@ import { BackButton } from "@/components/layout/back-button";
 import { MessageButton } from "@/features/messages/message-button";
 import { TrustBadge } from "@/features/ratings/trust-badge";
 import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
-
-const ROLE_LABEL: Record<string, string> = {
-  STUDENT_EMPLOYEE: "Student Employee",
-  COMMISSIONER: "Commissioner",
-  ADMIN: "Admin",
-};
-
-const LEVEL_PILL: Record<string, string> = {
-  BEGINNER: "bg-slate-100 text-slate-700",
-  INTERMEDIATE: "bg-amber-100 text-amber-800",
-  ADVANCED: "bg-blue-100 text-blue-800",
-  EXPERT: "bg-purple-100 text-purple-800",
-};
+import { Stat } from "@/components/ui/stat";
+import { ROLE_LABEL } from "@/lib/labels";
+import { LEVEL_PILL } from "@/lib/labels";
 
 export default async function PublicProfile({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -159,11 +149,3 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 p-4 text-center">
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
-    </div>
-  );
-}

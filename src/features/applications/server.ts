@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { notify } from "@/features/notifications/server";
+import { averageRatings } from "@/features/ratings/server";
 
 export async function applyToCommission(session: Session, commissionId: string, input: { coverLetter?: unknown; proposedRate?: unknown }) {
   const commission = await prisma.commission.findUnique({ where: { id: commissionId } });
@@ -139,10 +140,5 @@ export async function listApplicantsForMe(session: Session, opts: { commissionId
     },
     take: opts.take,
   });
-  const ratings = await Promise.all(
-    applications.map((a) =>
-      prisma.rating.aggregate({ where: { rateeId: a.applicantId }, _avg: { stars: true } }).then((r) => [a.applicantId, r._avg.stars] as const),
-    ),
-  );
-  return { applications, avgRating: new Map(ratings) };
+  return { applications, avgRating: await averageRatings(applications.map((a) => a.applicantId)) };
 }

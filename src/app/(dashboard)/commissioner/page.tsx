@@ -4,6 +4,8 @@ import { getSession } from "@/lib/session";
 import { getCommissionerHome } from "@/features/hub/server";
 import { Avatar } from "@/components/ui/avatar";
 import { ApplicantDecisionButtons } from "@/features/applications/applicant-decision-buttons";
+import { greeting } from "@/lib/format";
+import { Kpi } from "@/components/ui/kpi";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-50 text-emerald-700",
@@ -17,13 +19,6 @@ const STATUS_PILL: Record<string, string> = {
   COMPLETED: "bg-slate-100 text-slate-700",
   CANCELLED: "bg-red-50 text-red-700",
 };
-
-function timeBasedGreeting(d = new Date()) {
-  const h = d.getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
-}
 
 export default async function CommissionerHome() {
   const session = await getSession();
@@ -42,7 +37,7 @@ export default async function CommissionerHome() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">{timeBasedGreeting()}, {firstName}!</h1>
+        <h1 className="text-2xl font-bold">{greeting()}, {firstName}!</h1>
         <p className="text-sm text-slate-500">Here&apos;s what&apos;s happening with your commissions.</p>
       </header>
 
@@ -130,16 +125,3 @@ export default async function CommissionerHome() {
   );
 }
 
-function Kpi({ label, value, icon: Icon, color }: { label: string; value: number; icon: React.ComponentType<{ className?: string }>; color: string }) {
-  return (
-    <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-      <div>
-        <p className="text-xs text-slate-500">{label}</p>
-        <p className="mt-1 text-3xl font-bold">{value}</p>
-      </div>
-      <div className={`grid h-11 w-11 place-items-center rounded-lg ${color}`}>
-        <Icon className="h-5 w-5" />
-      </div>
-    </div>
-  );
-}

@@ -1,19 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-const CATS = [
-  { value: "ACADEMIC", label: "Academic" },
-  { value: "TECHNICAL", label: "Technical" },
-  { value: "GENERAL_ERRANDS", label: "General Errands" },
-  { value: "ADMINISTRATIVE", label: "Administrative" },
-];
-const LEVELS = [
-  { value: "BEGINNER", label: "Beginner" },
-  { value: "INTERMEDIATE", label: "Intermediate" },
-  { value: "ADVANCED", label: "Advanced" },
-  { value: "EXPERT", label: "Expert" },
-];
+import { CATEGORY_OPTIONS, LEVEL_OPTIONS } from "@/lib/labels";
 
 export function PostCommissionForm() {
   const router = useRouter();
@@ -82,13 +70,13 @@ export function PostCommissionForm() {
             <label className="label">Category</label>
             <select name="category" className="input" required defaultValue="">
               <option value="" disabled>Select category</option>
-              {CATS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+              {CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
           </div>
           <div>
             <label className="label">Required skill level</label>
             <select name="requiredLevel" className="input" required defaultValue="INTERMEDIATE">
-              {LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+              {LEVEL_OPTIONS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
             </select>
           </div>
           <div>

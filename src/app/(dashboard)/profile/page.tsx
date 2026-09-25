@@ -5,6 +5,7 @@ import { SkillsManager } from "@/features/profile/skills-manager";
 import { AvatarUploader } from "@/features/profile/avatar-uploader";
 import { TrustBadge } from "@/features/ratings/trust-badge";
 import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
+import { Stat } from "@/components/ui/stat";
 
 export default async function ProfilePage() {
   const session = await getSession();
@@ -90,11 +91,3 @@ export default async function ProfilePage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="rounded-lg border border-slate-200 p-4 text-center">
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs text-slate-500">{label}</p>
-    </div>
-  );
-}

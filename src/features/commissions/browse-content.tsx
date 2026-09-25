@@ -3,19 +3,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Search, X, SlidersHorizontal, ArrowRight } from "lucide-react";
-
-const CATS = [
-  { value: "ACADEMIC", label: "Academic" },
-  { value: "TECHNICAL", label: "Technical" },
-  { value: "GENERAL_ERRANDS", label: "General Errands" },
-  { value: "ADMINISTRATIVE", label: "Administrative" },
-];
-const LEVELS = [
-  { value: "BEGINNER", label: "Beginner" },
-  { value: "INTERMEDIATE", label: "Intermediate" },
-  { value: "ADVANCED", label: "Advanced" },
-  { value: "EXPERT", label: "Expert" },
-];
+import { formatFare } from "@/lib/format";
+import { CATEGORY_OPTIONS, LEVEL_OPTIONS, LEVEL_PILL } from "@/lib/labels";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-500 text-white",
@@ -23,13 +12,6 @@ const CAT_PILL: Record<string, string> = {
   GENERAL_ERRANDS: "bg-amber-500 text-white",
   ADMINISTRATIVE: "bg-purple-500 text-white",
 };
-const LEVEL_PILL: Record<string, string> = {
-  BEGINNER: "bg-slate-100 text-slate-700",
-  INTERMEDIATE: "bg-amber-100 text-amber-800",
-  ADVANCED: "bg-blue-100 text-blue-800",
-  EXPERT: "bg-purple-100 text-purple-800",
-};
-
 type Commission = {
   id: string;
   title: string;
@@ -76,11 +58,6 @@ export function BrowseContent() {
   const hasFilter = cat || lvl || q;
   const visible = items;
 
-  const fareDisplay = (c: Commission) =>
-    c.fareMax
-      ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}`
-      : `₱${c.fareMin}${c.fareUnit ?? ""}`;
-
   return (
     <main className="bg-slate-50">
       <div className="mx-auto max-w-7xl px-6 py-12">
@@ -105,7 +82,7 @@ export function BrowseContent() {
             <div>
               <p className="label !mb-2">Category</p>
               <div className="flex flex-wrap gap-2">
-                {CATS.map((c) => (
+                {CATEGORY_OPTIONS.map((c) => (
                   <button
                     key={c.value}
                     onClick={() => setCat(cat === c.value ? null : c.value)}
@@ -121,7 +98,7 @@ export function BrowseContent() {
             <div>
               <p className="label !mb-2">Skill Level</p>
               <div className="flex flex-wrap gap-2">
-                {LEVELS.map((l) => (
+                {LEVEL_OPTIONS.map((l) => (
                   <button
                     key={l.value}
                     onClick={() => setLvl(lvl === l.value ? null : l.value)}
@@ -175,7 +152,7 @@ export function BrowseContent() {
                     )}
                     <h3 className="mb-1.5 line-clamp-2 text-base font-bold text-ink">{c.title}</h3>
                     <p className="mb-4 line-clamp-2 text-sm text-slate-600">{c.description}</p>
-                    <p className="mb-4 text-base font-bold text-brand-600">{fareDisplay(c)}</p>
+                    <p className="mb-4 text-base font-bold text-brand-600">{formatFare(c)}</p>
                     <p className="mb-3 text-xs text-slate-500">
                       Posted by {c.commissioner.fullName} · {c._count.applications} applicant{c._count.applications === 1 ? "" : "s"}
                     </p>

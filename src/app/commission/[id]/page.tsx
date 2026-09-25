@@ -12,18 +12,14 @@ import { BookmarkButton } from "@/features/commissions/bookmark-button";
 import { CoverImageUploader } from "@/features/commissions/cover-image-uploader";
 import { WithdrawButton } from "@/features/applications/withdraw-button";
 import { DeliverableSection } from "@/features/deliverables/deliverable-section";
+import { formatFare } from "@/lib/format";
+import { LEVEL_PILL } from "@/lib/labels";
 
 const CAT_COLOR: Record<string, string> = {
   ACADEMIC: "bg-emerald-100 text-emerald-700",
   TECHNICAL: "bg-blue-100 text-blue-700",
   GENERAL_ERRANDS: "bg-amber-100 text-amber-700",
   ADMINISTRATIVE: "bg-purple-100 text-purple-700",
-};
-const LEVEL_COLOR: Record<string, string> = {
-  BEGINNER: "bg-slate-100 text-slate-700",
-  INTERMEDIATE: "bg-amber-100 text-amber-800",
-  ADVANCED: "bg-blue-100 text-blue-800",
-  EXPERT: "bg-purple-100 text-purple-800",
 };
 const STATUS_COLOR: Record<string, string> = {
   OPEN: "bg-emerald-100 text-emerald-700",
@@ -46,9 +42,7 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
   const isAwardedStudent = session?.userId === commission.awardedToId;
   const deliverables = isOwner || isAwardedStudent ? await listDeliverables(commission.id) : [];
 
-  const fareDisplay = commission.fareMax
-    ? `₱${commission.fareMin}–${commission.fareMax}${commission.fareUnit ?? ""}`
-    : `₱${commission.fareMin}${commission.fareUnit ?? ""}`;
+  const fareDisplay = formatFare(commission);
 
   return (
     <>
@@ -72,7 +66,7 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
               {commission.subcategory && (
                 <span className="pill bg-slate-100 text-slate-700">{commission.subcategory}</span>
               )}
-              <span className={`pill ${LEVEL_COLOR[commission.requiredLevel]}`}>{commission.requiredLevel}</span>
+              <span className={`pill ${LEVEL_PILL[commission.requiredLevel]}`}>{commission.requiredLevel}</span>
               <span className={`pill ${STATUS_COLOR[commission.status]}`}>{commission.status.replace("_", " ")}</span>
             </div>
 

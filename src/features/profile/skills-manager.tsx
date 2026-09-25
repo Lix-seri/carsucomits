@@ -2,18 +2,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { LEVEL_LABEL, LEVEL_PILL } from "@/lib/labels";
 
 const LEVELS = ["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"] as const;
-const LEVEL_LABEL: Record<string, string> = {
-  BEGINNER: "Beginner", INTERMEDIATE: "Intermediate", ADVANCED: "Advanced", EXPERT: "Expert",
-};
-const LEVEL_PILL: Record<string, string> = {
-  BEGINNER: "bg-slate-100 text-slate-700",
-  INTERMEDIATE: "bg-amber-100 text-amber-800",
-  ADVANCED: "bg-blue-100 text-blue-800",
-  EXPERT: "bg-purple-100 text-purple-800",
-};
-
 type Skill = { id: string; name: string; level: string };
 
 export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {

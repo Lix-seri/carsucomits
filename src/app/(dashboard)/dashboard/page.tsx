@@ -4,6 +4,8 @@ import { ProfileCard } from "@/features/profile/profile-card";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { getSession } from "@/lib/session";
 import { getDashboard } from "@/features/hub/server";
+import { formatFare } from "@/lib/format";
+import { greeting } from "@/lib/format";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-100 text-emerald-700",
@@ -12,23 +14,12 @@ const CAT_PILL: Record<string, string> = {
   ADMINISTRATIVE: "bg-purple-100 text-purple-700",
 };
 
-function timeBasedGreeting(d = new Date()) {
-  const h = d.getHours();
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
-}
-
-function fareDisplay(c: { fareMin: number; fareMax: number | null; fareUnit: string | null }) {
-  return c.fareMax ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}` : `₱${c.fareMin}${c.fareUnit ?? ""}`;
-}
-
 export default async function DashboardHome() {
   const session = await getSession();
   const fullName = session?.fullName ?? "Guest";
   const firstName = fullName.split(" ")[0];
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-  const greeting = timeBasedGreeting();
+  const hello = greeting();
 
   const { skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName } = session
     ? await getDashboard(session)
@@ -49,7 +40,7 @@ export default async function DashboardHome() {
       <div className="space-y-6">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-500 to-emerald-500 p-7 text-white shadow-soft">
           <p className="mb-1 text-xs font-medium opacity-90">{today}</p>
-          <h1 className="text-3xl font-bold">{greeting}, {firstName}! <Hand className="ml-1 inline h-7 w-7" /></h1>
+          <h1 className="text-3xl font-bold">{hello}, {firstName}! <Hand className="ml-1 inline h-7 w-7" /></h1>
           <p className="mt-1 opacity-90">
             {inProgressCount > 0 || applicantsWaiting > 0
               ? `You have ${inProgressCount} active task${inProgressCount === 1 ? "" : "s"} and ${applicantsWaiting} new applicant${applicantsWaiting === 1 ? "" : "s"} waiting.`
@@ -102,7 +93,7 @@ export default async function DashboardHome() {
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end justify-between gap-3">
-                      <p className="whitespace-nowrap text-lg font-bold text-brand-600">{fareDisplay(f)}</p>
+                      <p className="whitespace-nowrap text-lg font-bold text-brand-600">{formatFare(f)}</p>
                       <Link href={`/commission/${f.id}`} className="btn-primary !py-2">
                         View &amp; Apply <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
@@ -131,7 +122,7 @@ export default async function DashboardHome() {
                   <Link href={`/commission/${doingTask.id}`} className="text-base font-bold hover:text-brand-600">{doingTask.title}</Link>
                   <p className="text-xs text-slate-500">For {doingTask.commissioner.fullName}</p>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                    <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{fareDisplay(doingTask)}</p></div>
+                    <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{formatFare(doingTask)}</p></div>
                     <div><p className="text-slate-500">Deadline</p><p className="font-semibold">{doingTask.deadline ? new Date(doingTask.deadline).toLocaleDateString() : "—"}</p></div>
                   </div>
                   <Link href="/hub" className="mt-3 block w-full rounded-lg border border-slate-200 py-2 text-center text-sm font-semibold hover:bg-slate-50">
@@ -157,7 +148,7 @@ export default async function DashboardHome() {
                   <Link href={`/commission/${postedTask.id}`} className="text-base font-bold hover:text-brand-600">{postedTask.title}</Link>
                   <p className="text-xs text-slate-500">{postedTask._count.applications} applicant{postedTask._count.applications === 1 ? "" : "s"}</p>
                   <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                    <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{fareDisplay(postedTask)}</p></div>
+                    <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{formatFare(postedTask)}</p></div>
                     <div><p className="text-slate-500">Deadline</p><p className="font-semibold">{postedTask.deadline ? new Date(postedTask.deadline).toLocaleDateString() : "—"}</p></div>
                   </div>
                   {postedTask.status === "OPEN" ? (

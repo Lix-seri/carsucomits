@@ -1,57 +1,51 @@
 import { Star } from "lucide-react";
-import { pageSession } from "@/lib/session";
-import { listUsers } from "@/features/admin/server";
-import { UserActionButtons } from "@/features/admin/user-action-buttons";
 import { ROLE_LABEL } from "@/lib/labels";
+import { UserActionButtons } from "./user-action-buttons";
 
-export default async function ManageUsers({
-  searchParams,
-}: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
-  const search = (q ?? "").trim();
+type FlaggedUser = {
+  id: string;
+  fullName: string;
+  role: string;
+  status: string;
+  receivedReports: { reason: string; createdAt: Date }[];
+};
 
-  const { users, avgMap } = await listUsers(await pageSession({ admin: true }), search);
-
+/** Users with an open report against them, with moderation buttons. */
+export function FlaggedUsersTable({ users, avgMap, emptyText }: { users: FlaggedUser[]; avgMap: Map<string, number | null>; emptyText: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold">User Management</h2>
-        <form className="inline">
-          <input
-            name="q"
-            defaultValue={search}
-            placeholder="Search users…"
-            className="input !py-2 !w-56"
-          />
-        </form>
-      </div>
+    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+        Flagged Users
+        <span className="grid h-6 w-6 place-items-center rounded-full bg-red-500 text-xs font-bold text-white">{users.length}</span>
+      </h2>
       {users.length === 0 ? (
-        <p className="rounded-lg bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">No users found.</p>
+        <p className="rounded-lg bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">{emptyText}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-xs uppercase tracking-wider text-slate-500">
               <tr>
-                <th className="py-2 font-semibold">Name</th>
-                <th className="py-2 font-semibold">Email</th>
+                <th className="py-2 font-semibold">User Name</th>
                 <th className="py-2 font-semibold">Role</th>
+                <th className="py-2 font-semibold">Reason Flagged</th>
                 <th className="py-2 font-semibold">Rating</th>
-                <th className="py-2 font-semibold">Status</th>
+                <th className="py-2 font-semibold">Date Reported</th>
                 <th className="py-2 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {users.map((u) => {
+                const latestReport = u.receivedReports[0];
                 const avg = avgMap.get(u.id);
                 return (
                   <tr key={u.id}>
                     <td className="py-3 font-semibold">{u.fullName}</td>
-                    <td className="py-3 text-slate-600">{u.email}</td>
                     <td className="py-3 text-slate-600">{ROLE_LABEL[u.role] ?? u.role}</td>
+                    <td className="py-3">{latestReport?.reason ?? "—"}</td>
                     <td className="py-3 text-amber-500">
                       {avg != null ? <><Star className="mr-1 inline h-3.5 w-3.5 fill-amber-400" /> {avg.toFixed(1)}</> : <span className="text-slate-400">—</span>}
                     </td>
-                    <td className="py-3"><span className="pill bg-slate-100 text-slate-700">{u.status}</span></td>
+                    <td className="py-3 text-slate-600">{latestReport ? new Date(latestReport.createdAt).toLocaleDateString() : "—"}</td>
                     <td className="py-3"><UserActionButtons userId={u.id} status={u.status} /></td>
                   </tr>
                 );
@@ -60,6 +54,6 @@ export default async function ManageUsers({
           </table>
         </div>
       )}
-    </div>
+    </section>
   );
 }

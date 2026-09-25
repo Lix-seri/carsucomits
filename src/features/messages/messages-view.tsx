@@ -3,6 +3,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Send, ArrowLeft, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { timeAgoShort } from "@/lib/format";
 
 type Thread = {
   otherId: string;
@@ -24,14 +25,6 @@ type Message = {
 };
 
 type OtherUser = { id: string; fullName: string; avatarUrl: string | null };
-
-function timeAgo(iso: string) {
-  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (seconds < 60) return "just now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
-}
 
 function MessagesViewInner() {
   const params = useSearchParams();
@@ -185,7 +178,7 @@ function MessagesViewInner() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
                         <p className="truncate text-sm font-semibold">{t.otherName}</p>
-                        <span className="shrink-0 text-[10px] text-slate-400">{timeAgo(t.lastAt)}</span>
+                        <span className="shrink-0 text-[10px] text-slate-400">{timeAgoShort(t.lastAt)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <p className="truncate text-xs text-slate-500">
@@ -248,7 +241,7 @@ function MessagesViewInner() {
                       >
                         {m.body}
                         <p className={`mt-0.5 text-[10px] ${fromOther ? "text-slate-400" : "text-white/70"}`}>
-                          {timeAgo(m.createdAt)}
+                          {timeAgoShort(m.createdAt)}
                         </p>
                       </div>
                     </div>

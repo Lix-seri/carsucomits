@@ -6,6 +6,7 @@ import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { RateNowButton } from "@/features/ratings/rate-now-button";
 import { RateCommissionerButton } from "@/features/ratings/rate-commissioner-button";
 import { WithdrawButton } from "@/features/applications/withdraw-button";
+import { formatFare } from "@/lib/format";
 
 const STATUS_PILL: Record<string, string> = {
   OPEN: "bg-emerald-50 text-emerald-700",
@@ -20,10 +21,6 @@ const APP_STATUS_PILL: Record<string, string> = {
   REJECTED: "bg-red-100 text-red-700",
   WITHDRAWN: "bg-slate-100 text-slate-700",
 };
-
-function fareDisplay(c: { fareMin: number; fareMax: number | null; fareUnit: string | null }) {
-  return c.fareMax ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}` : `₱${c.fareMin}${c.fareUnit ?? ""}`;
-}
 
 export default async function HubPage() {
   const session = await getSession();
@@ -99,7 +96,7 @@ export default async function HubPage() {
                   <span className={`pill ${STATUS_PILL[t.status]}`}>{t.status.replace("_", " ")}</span>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
-                  <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{fareDisplay(t)}</p></div>
+                  <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{formatFare(t)}</p></div>
                   <div><p className="text-slate-500">Deadline</p><p className="font-semibold">{t.deadline ? new Date(t.deadline).toLocaleDateString() : "—"}</p></div>
                   <div><p className="text-slate-500">Skill</p><p className="font-semibold">{t.requiredLevel}</p></div>
                 </div>
@@ -133,7 +130,7 @@ export default async function HubPage() {
                   <span className={`pill ${STATUS_PILL[t.status]}`}>{t.status.replace("_", " ")}</span>
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
-                  <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{fareDisplay(t)}</p></div>
+                  <div><p className="text-slate-500">Fare</p><p className="font-bold text-brand-600">{formatFare(t)}</p></div>
                   <div><p className="text-slate-500">Deadline</p><p className="font-semibold">{t.deadline ? new Date(t.deadline).toLocaleDateString() : "—"}</p></div>
                   <div><p className="text-slate-500">Posted</p><p className="font-semibold">{new Date(t.createdAt).toLocaleDateString()}</p></div>
                 </div>

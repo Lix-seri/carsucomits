@@ -2,16 +2,13 @@ import Link from "next/link";
 import { ShieldCheck, Star, Lightbulb, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { TrustBadge } from "@/features/ratings/trust-badge";
+import { LEVEL_LABEL } from "@/lib/labels";
 
 const LEVEL_BAR: Record<string, { color: string; pct: number }> = {
   BEGINNER:     { color: "from-slate-400 to-slate-500",     pct: 30 },
   INTERMEDIATE: { color: "from-purple-400 to-pink-500",     pct: 60 },
   ADVANCED:     { color: "from-emerald-400 to-emerald-600", pct: 80 },
   EXPERT:       { color: "from-amber-400 to-orange-500",    pct: 95 },
-};
-
-const LEVEL_LABEL: Record<string, string> = {
-  BEGINNER: "Beginner", INTERMEDIATE: "Intermediate", ADVANCED: "Advanced", EXPERT: "Expert",
 };
 
 type Skill = { id: string; name: string; level: string };

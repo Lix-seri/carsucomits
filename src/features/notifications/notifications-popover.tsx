@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { timeAgoShort } from "@/lib/format";
 
 type Notification = {
   id: string;
@@ -11,14 +12,6 @@ type Notification = {
   readAt: string | null;
   createdAt: string;
 };
-
-function timeAgo(iso: string) {
-  const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (seconds < 60) return "just now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
-}
 
 export function NotificationsPopover({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -76,7 +69,7 @@ export function NotificationsPopover({ onClose }: { onClose: () => void }) {
               <div className={`rounded-lg px-3 py-2 text-sm ${!n.readAt ? "bg-brand-50/50" : "hover:bg-slate-50"}`}>
                 <p className="leading-snug">{n.title}</p>
                 {n.body && <p className="mt-0.5 line-clamp-2 text-xs text-slate-600">{n.body}</p>}
-                <p className="mt-1 text-xs text-slate-500">{timeAgo(n.createdAt)}</p>
+                <p className="mt-1 text-xs text-slate-500">{timeAgoShort(n.createdAt)}</p>
               </div>
             );
             return (

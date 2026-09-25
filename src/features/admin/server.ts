@@ -4,6 +4,7 @@ import { AccountStatus, CommissionStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import { assertAdmin, type Session } from "@/lib/session";
+import { averageRatings } from "@/features/ratings/server";
 
 const USER_ACTIONS: Record<string, AccountStatus> = {
   WARN: AccountStatus.WARNED,
@@ -29,13 +30,6 @@ export async function moderateUser(session: Session, userId: string, action: unk
   return { status };
 }
 
-async function avgRatings(ids: string[]) {
-  const rows = await Promise.all(
-    ids.map((id) => prisma.rating.aggregate({ where: { rateeId: id }, _avg: { stars: true } }).then((r) => [id, r._avg.stars] as const)),
-  );
-  return new Map(rows);
-}
-
 const OPEN_REPORT = { status: { in: ["PENDING", "UNDER_INVESTIGATION"] as ("PENDING" | "UNDER_INVESTIGATION")[] } };
 
 /** Users with an open report against them, newest report first. */
@@ -45,7 +39,7 @@ async function flaggedUsers(take?: number) {
     include: { receivedReports: { where: OPEN_REPORT, orderBy: { createdAt: "desc" }, take: 1 } },
     take,
   });
-  return { flaggedUsers: users, avgMap: await avgRatings(users.map((u) => u.id)) };
+  return { flaggedUsers: users, avgMap: await averageRatings(users.map((u) => u.id)) };
 }
 
 const reportParties = { reporter: { select: { fullName: true } }, reportee: { select: { fullName: true } } };
@@ -80,7 +74,7 @@ export async function listUsers(session: Session, search: string) {
     orderBy: { createdAt: "desc" },
     take: 100,
   });
-  return { users, avgMap: await avgRatings(users.map((u) => u.id)) };
+  return { users, avgMap: await averageRatings(users.map((u) => u.id)) };
 }
 
 export async function listAllListings(session: Session, search: string, statusFilter?: string) {

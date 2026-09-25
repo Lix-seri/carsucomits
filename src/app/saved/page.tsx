@@ -5,6 +5,7 @@ import { getSavedCommissions } from "@/features/commissions/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { BookmarkButton } from "@/features/commissions/bookmark-button";
+import { formatFare } from "@/lib/format";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-500 text-white",
@@ -12,10 +13,6 @@ const CAT_PILL: Record<string, string> = {
   GENERAL_ERRANDS: "bg-amber-500 text-white",
   ADMINISTRATIVE: "bg-purple-500 text-white",
 };
-
-function fareDisplay(c: { fareMin: number; fareMax: number | null; fareUnit: string | null }) {
-  return c.fareMax ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}` : `₱${c.fareMin}${c.fareUnit ?? ""}`;
-}
 
 export default async function SavedPage() {
   const session = await getSession();
@@ -73,7 +70,7 @@ export default async function SavedPage() {
                     </div>
                     <h3 className="mb-1.5 line-clamp-2 text-base font-bold">{s.commission.title}</h3>
                     <p className="mb-4 line-clamp-2 text-sm text-slate-600">{s.commission.description}</p>
-                    <p className="mb-3 text-base font-bold text-brand-600">{fareDisplay(s.commission)}</p>
+                    <p className="mb-3 text-base font-bold text-brand-600">{formatFare(s.commission)}</p>
                     <Link href={`/commission/${s.commission.id}`} className="btn-primary mt-auto w-full">
                       View &amp; Apply <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
