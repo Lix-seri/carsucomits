@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { PORT } from "../playwright.config";
 
 export const BASE = `http://localhost:${PORT}`;
-export const ADMIN = { email: "glen.licayan@carsu.edu.ph", password: "123456" };
+export const ADMIN = { email: "glen.licayan@carsu.edu.ph", password: "e2e-admin-password" };
 
 const uniq = () => Math.random().toString(36).slice(2, 8);
 

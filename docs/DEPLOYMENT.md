@@ -20,7 +20,7 @@ Production runs on **Vercel** (hosting), **Neon** (Postgres) and **Vercel Blob**
    - **Framework:** Next.js.
    - **Build command:** the default, `npm run build`.
 3. **Environment variables:** add the three above, then create the Blob store (Storage → Create → Blob) and redeploy.
-4. **Admin account:** seed it once against the production database. From a machine whose `.env` points at production, run `npm run db:seed`. **Then change the password.** The seed password is public in this repo.
+4. **Admin account:** seed it once against the production database. From a machine whose `.env` points at production, set `SEED_ADMIN_PASSWORD` (12+ characters) and run `npm run db:seed`. Running it again with a new `SEED_ADMIN_PASSWORD` changes the password.
 
 ## Every deployment after that
 

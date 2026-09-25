@@ -30,7 +30,11 @@ npm run db:seed           # create the admin account
 npm run dev               # http://localhost:3000
 ```
 
-**Default admin** (Admin tab on `/login`): `glen.licayan@carsu.edu.ph`. The seed prints the password. Change it on any shared database.
+**Admin account** (Admin tab on `/login`): `glen.licayan@carsu.edu.ph`.
+- Set `SEED_ADMIN_PASSWORD` (12+ characters) in `.env` before seeding.
+- If you don't, the seed generates a password and prints it once.
+- To change the password later, set `SEED_ADMIN_PASSWORD` and run `npm run db:seed` again.
+- The seed never resets an existing admin's password otherwise.
 
 **Uploads** (avatars, covers, deliverables) need `BLOB_READ_WRITE_TOKEN` from the Vercel project. Without it, everything else works and uploads return an error.
 
