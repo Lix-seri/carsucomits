@@ -2,7 +2,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, ClipboardList, AlertTriangle, FileText, Settings, ShieldCheck } from "lucide-react";
+import { Home, Users, ClipboardList, AlertTriangle, FileText, ShieldCheck } from "lucide-react";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,6 @@ const NAV = [
   { href: "/admin/reports", label: "Reports & Flags", icon: AlertTriangle },
   { href: "/admin/logs", label: "System Logs", icon: FileText },
   { href: "/admin/security", label: "Security (MFA)", icon: ShieldCheck },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
