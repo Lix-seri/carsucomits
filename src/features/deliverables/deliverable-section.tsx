@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Upload, FileText, CheckCircle2, XCircle, Clock, MessageSquare } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { Dialog } from "@/components/ui/dialog";
+import { Field } from "@/components/ui/form";
+import { api } from "@/lib/api";
 
 type Deliverable = {
   id: string;
@@ -69,26 +72,25 @@ export function DeliverableSection({
     }
   }
 
+  // Revision notes are asked for in a dialog; errors show next to the buttons.
+  const [revisionFor, setRevisionFor] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
+  const [notesError, setNotesError] = useState<string | null>(null);
+  const [decideError, setDecideError] = useState<{ id: string; message: string } | null>(null);
+
   async function decide(deliverableId: string, action: "APPROVE" | "REQUEST_REVISION") {
-    let notes: string | undefined;
-    if (action === "REQUEST_REVISION") {
-      const input = window.prompt("What needs to change?");
-      if (!input || input.trim().length < 5) return;
-      notes = input.trim();
-    }
     setBusy(true);
-    try {
-      const res = await fetch(`/api/deliverables/${deliverableId}/decision`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, notes }),
-      });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error ?? "Failed."); return; }
-      router.refresh();
-    } finally {
-      setBusy(false);
+    setDecideError(null);
+    const res = await api(`/api/deliverables/${deliverableId}/decision`, { json: { action, notes: action === "REQUEST_REVISION" ? notes.trim() : undefined } });
+    setBusy(false);
+    if (!res.ok) {
+      if (action === "REQUEST_REVISION") setNotesError(res.error);
+      else setDecideError({ id: deliverableId, message: res.error });
+      return;
     }
+    setRevisionFor(null);
+    setNotes("");
+    router.refresh();
   }
 
   const canSubmit = isAwardedStudent && (commissionStatus === "IN_PROGRESS" || commissionStatus === "AWAITING_REVIEW");
@@ -184,7 +186,7 @@ export function DeliverableSection({
                     <CheckCircle2 className="mr-1 inline h-3.5 w-3.5" /> Approve
                   </button>
                   <button
-                    onClick={() => decide(d.id, "REQUEST_REVISION")}
+                    onClick={() => { setNotes(""); setNotesError(null); setRevisionFor(d.id); }}
                     disabled={busy}
                     className="rounded-lg border border-red-200 bg-white px-4 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
                   >
@@ -192,10 +194,23 @@ export function DeliverableSection({
                   </button>
                 </div>
               )}
+              {decideError?.id === d.id && <p role="alert" className="mt-2 text-xs text-red-600">{decideError.message}</p>}
             </li>
           ))}
         </ul>
       )}
+
+      <Dialog open={revisionFor !== null} onClose={() => !busy && setRevisionFor(null)} title="Request a revision" description="Tell the student what to change. They'll see this with the deliverable.">
+        <form noValidate onSubmit={(e) => { e.preventDefault(); if (revisionFor) decide(revisionFor, "REQUEST_REVISION"); }} className="space-y-4">
+          <Field label="What needs to change?" error={notesError}>
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className="input min-h-28" maxLength={1000} autoFocus />
+          </Field>
+          <div className="flex justify-end gap-2">
+            <button type="button" className="btn-ghost" onClick={() => setRevisionFor(null)} disabled={busy}>Cancel</button>
+            <button type="submit" className="btn-primary" disabled={busy}>{busy ? "Sending…" : "Request revision"}</button>
+          </div>
+        </form>
+      </Dialog>
     </section>
   );
 }

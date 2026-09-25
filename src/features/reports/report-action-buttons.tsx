@@ -2,6 +2,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { api } from "@/lib/api";
 
 type Action = "RESOLVE" | "ESCALATE" | "REOPEN";
 
@@ -18,26 +19,22 @@ export function ReportActionButtons({
   const router = useRouter();
   const [busy, setBusy] = useState<Action | null>(null);
   const [current, setCurrent] = useState(status);
+  const [error, setError] = useState<string | null>(null);
 
   async function run(action: Action) {
     setBusy(action);
-    try {
-      const res = await fetch(`/api/admin/reports/${reportId}/action`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error ?? "Action failed."); return; }
-      setCurrent(data.status);
-      router.refresh();
-    } finally {
-      setBusy(null);
-    }
+    setError(null);
+    const res = await api<{ status: string }>(`/api/admin/reports/${reportId}/action`, { json: { action } });
+    setBusy(null);
+    if (!res.ok) return setError(res.error);
+    setCurrent(res.data.status);
+    router.refresh();
   }
+  const errorNote = error && <p role="alert" className="mt-1 text-xs text-red-600">{error}</p>;
 
   if (current === "RESOLVED" || current === "ESCALATED") {
     return (
+      <div>
       <div className="flex items-center gap-2">
         <span className={`pill ${STATUS_PILL[current]}`}>{current.replaceAll("_", " ")}</span>
         <button
@@ -48,10 +45,13 @@ export function ReportActionButtons({
           Reopen
         </button>
       </div>
+      {errorNote}
+      </div>
     );
   }
 
   return (
+    <div>
     <div className="flex gap-2">
       <button
         onClick={() => run("RESOLVE")}
@@ -67,6 +67,8 @@ export function ReportActionButtons({
       >
         {busy === "ESCALATE" ? "…" : "Escalate"}
       </button>
+    </div>
+    {errorNote}
     </div>
   );
 }

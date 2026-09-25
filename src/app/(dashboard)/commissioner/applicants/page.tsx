@@ -55,7 +55,7 @@ export default async function ApplicantsPage({
                     </div>
                   </div>
                   {a.status === "PENDING" && a.commission.status === "OPEN" && (
-                    <ApplicantDecisionButtons applicationId={a.id} />
+                    <ApplicantDecisionButtons applicationId={a.id} applicantName={a.applicant.fullName} />
                   )}
                 </li>
               );

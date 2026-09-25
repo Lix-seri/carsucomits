@@ -107,7 +107,7 @@ export default async function CommissionerHome() {
                       {a.coverLetter && <p className="mt-1 text-xs italic text-slate-600">&ldquo;{a.coverLetter}&rdquo;</p>}
                     </div>
                   </div>
-                  <ApplicantDecisionButtons applicationId={a.id} />
+                  <ApplicantDecisionButtons applicationId={a.id} applicantName={a.applicant.fullName} />
                 </li>
               );
             })}

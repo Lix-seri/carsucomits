@@ -15,6 +15,8 @@ export const colors = {
     800: "#085526",
     900: "#063D1B",
   },
+  // Errors and destructive actions.
+  danger: { 50: "#FEF2F2", 100: "#FEE2E2", 600: "#DC2626", 700: "#B91C1C" },
   ink: "#0F172A",
   muted: "#64748B",
   surface: "#FAFAF7",

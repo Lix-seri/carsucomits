@@ -1,33 +1,25 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { X } from "lucide-react";
+import { api } from "@/lib/api";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 
 export function WithdrawButton({ applicationId }: { applicationId: string }) {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
-
-  async function withdraw() {
-    if (!window.confirm("Withdraw your application? You can re-apply later if the commission is still open.")) return;
-    setBusy(true);
-    try {
-      const res = await fetch(`/api/applications/${applicationId}/withdraw`, { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error ?? "Failed to withdraw."); return; }
-      router.refresh();
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
-    <button
-      onClick={withdraw}
-      disabled={busy}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+    <ConfirmButton
+      title="Withdraw your application?"
+      message="You can apply again later while the commission is still open."
+      confirmLabel="Withdraw"
+      danger
+      onConfirm={async () => {
+        const res = await api(`/api/applications/${applicationId}/withdraw`, { method: "POST" });
+        if (!res.ok) return res.error;
+        router.refresh();
+      }}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-danger-100 bg-white px-4 py-2 text-sm font-semibold text-danger-600 hover:bg-danger-50"
     >
-      <X className="h-4 w-4" /> {busy ? "Withdrawing…" : "Withdraw application"}
-    </button>
+      <X className="h-4 w-4" /> Withdraw application
+    </ConfirmButton>
   );
 }
