@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -155,19 +154,19 @@ function MessagesViewInner() {
   }
 
   return (
-    <div className="grid h-[calc(100vh-7rem)] gap-4 lg:grid-cols-[320px_1fr]">
+    <div className="grid h-conversation gap-4 lg:grid-cols-aside-content">
       {/* On phones, one pane at a time: the list, or the open conversation. */}
-      <aside className={`${activeId ? "hidden lg:flex" : "flex"} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white`}>
-        <div className="border-b border-slate-100 p-4">
+      <aside className={`${activeId ? "hidden lg:flex" : "flex"} flex-col overflow-hidden rounded-2xl border border-line bg-white`}>
+        <div className="border-b border-line p-4">
           <h2 className="text-lg font-bold">Messages</h2>
-          <p className="text-xs text-slate-500">Your conversations</p>
+          <p className="text-xs text-muted">Your conversations</p>
         </div>
         <div className="flex-1 overflow-y-auto">
           {loadingThreads ? (
-            <p className="p-6 text-center text-sm text-slate-500">Loading…</p>
+            <p className="p-6 text-center text-sm text-muted">Loading…</p>
           ) : threads.length === 0 ? (
-            <div className="p-6 text-center text-sm text-slate-500">
-              <MessageCircle className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+            <div className="p-6 text-center text-sm text-muted">
+              <MessageCircle className="mx-auto mb-2 h-8 w-8 text-faint" />
               <p>No conversations yet.</p>
               <p className="mt-1 text-xs">Click &quot;Message&quot; on any user&apos;s profile to start one.</p>
             </div>
@@ -177,7 +176,7 @@ function MessagesViewInner() {
                 <li key={t.otherId}>
                   <button
                     onClick={() => pickThread(t.otherId)}
-                    className={`flex w-full items-start gap-3 border-b border-slate-100 p-4 text-left transition hover:bg-slate-50 ${
+                    className={`flex w-full items-start gap-3 border-b border-line p-4 text-left transition hover:bg-sunken ${
                       activeId === t.otherId ? "bg-brand-50" : ""
                     }`}
                   >
@@ -185,15 +184,15 @@ function MessagesViewInner() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
                         <p className="truncate text-sm font-semibold">{t.otherName}</p>
-                        <span className="shrink-0 text-[10px] text-slate-400">{timeAgoShort(t.lastAt)}</span>
+                        <span className="shrink-0 text-xs text-muted">{timeAgoShort(t.lastAt)}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <p className="truncate text-xs text-slate-500">
-                          {t.lastFromMe && <span className="text-slate-400">You: </span>}
+                        <p className="truncate text-xs text-muted">
+                          {t.lastFromMe && <span className="text-muted">You: </span>}
                           {t.lastBody}
                         </p>
                         {t.unread > 0 && (
-                          <span className="shrink-0 rounded-full bg-brand-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                          <span className="shrink-0 rounded-full bg-brand-500 px-1.5 py-0.5 text-xs font-bold text-white">
                             {t.unread}
                           </span>
                         )}
@@ -207,21 +206,21 @@ function MessagesViewInner() {
         </div>
       </aside>
 
-      <section className={`${activeId ? "flex" : "hidden lg:flex"} flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white`}>
+      <section className={`${activeId ? "flex" : "hidden lg:flex"} flex-col overflow-hidden rounded-2xl border border-line bg-white`}>
         {!activeId ? (
           <div className="grid flex-1 place-items-center px-6 text-center">
             <div>
-              <MessageCircle className="mx-auto mb-2 h-10 w-10 text-slate-300" />
-              <p className="text-sm text-slate-500">Select a conversation to start chatting.</p>
+              <MessageCircle className="mx-auto mb-2 h-10 w-10 text-faint" />
+              <p className="text-sm text-muted">Select a conversation to start chatting.</p>
             </div>
           </div>
         ) : !other ? (
-          <p className="p-6 text-center text-sm text-slate-500">
+          <p className="p-6 text-center text-sm text-muted">
             {loadingMessages ? "Loading conversation…" : convError ?? "Conversation not available."}
           </p>
         ) : (
           <>
-            <div className="flex items-center gap-3 border-b border-slate-100 bg-gradient-to-r from-brand-500 to-brand-600 p-4 text-white">
+            <div className="flex items-center gap-3 border-b border-line bg-gradient-to-r from-brand-500 to-brand-600 p-4 text-white">
               <button onClick={() => setActiveId(null)} className="rounded-full p-1 hover:bg-white/20 lg:hidden" aria-label="Back to conversations">
                 <ArrowLeft className="h-4 w-4" />
               </button>
@@ -233,7 +232,7 @@ function MessagesViewInner() {
             </div>
             <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto p-4">
               {messages.length === 0 ? (
-                <p className="py-12 text-center text-sm text-slate-500">
+                <p className="py-12 text-center text-sm text-muted">
                   No messages yet. Send the first one!
                 </p>
               ) : (
@@ -242,12 +241,12 @@ function MessagesViewInner() {
                   return (
                     <div key={m.id} className={`flex ${fromOther ? "justify-start" : "justify-end"}`}>
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-2 text-sm ${
-                          fromOther ? "bg-slate-100 text-ink" : "bg-brand-500 text-white"
+                        className={`max-w-bubble rounded-2xl px-4 py-2 text-sm ${
+                          fromOther ? "bg-sunken text-ink" : "bg-brand-500 text-white"
                         }`}
                       >
                         {m.body}
-                        <p className={`mt-0.5 text-[10px] ${fromOther ? "text-slate-400" : "text-white/70"}`}>
+                        <p className={`mt-0.5 text-xs ${fromOther ? "text-muted" : "text-white/70"}`}>
                           {timeAgoShort(m.createdAt)}
                         </p>
                       </div>
@@ -256,8 +255,8 @@ function MessagesViewInner() {
                 })
               )}
             </div>
-            {sendError && <p role="alert" className="border-t border-slate-100 px-3 pt-2 text-xs text-red-600">{sendError}</p>}
-            <form onSubmit={send} className="flex items-center gap-2 border-t border-slate-100 p-3">
+            {sendError && <p role="alert" className="border-t border-line px-3 pt-2 text-xs text-danger-600">{sendError}</p>}
+            <form onSubmit={send} className="flex items-center gap-2 border-t border-line p-3">
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
@@ -279,7 +278,7 @@ function MessagesViewInner() {
 
 export function MessagesView() {
   return (
-    <Suspense fallback={<p className="p-6 text-center text-sm text-slate-500">Loading messages…</p>}>
+    <Suspense fallback={<p className="p-6 text-center text-sm text-muted">Loading messages…</p>}>
       <MessagesViewInner />
     </Suspense>
   );

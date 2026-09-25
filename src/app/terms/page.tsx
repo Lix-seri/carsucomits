@@ -77,7 +77,7 @@ export default function TermsPage() {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-3xl px-6 py-16">
+      <main id="main" className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="text-4xl font-bold">Terms of Use</h1>
         <p className="mt-3 text-muted">
           The rules for using CarsuComits. By creating an account you agree to them. Questions go to the admins through{" "}

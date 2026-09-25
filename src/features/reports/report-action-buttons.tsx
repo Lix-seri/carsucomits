@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -7,10 +6,10 @@ import { api } from "@/lib/api";
 type Action = "RESOLVE" | "ESCALATE" | "REOPEN";
 
 const STATUS_PILL: Record<string, string> = {
-  PENDING:              "bg-amber-100 text-amber-700",
-  UNDER_INVESTIGATION:  "bg-blue-100 text-blue-700",
-  RESOLVED:             "bg-emerald-100 text-emerald-700",
-  ESCALATED:            "bg-red-100 text-red-700",
+  PENDING:              "bg-warning-100 text-warning-700",
+  UNDER_INVESTIGATION:  "bg-info-100 text-info-700",
+  RESOLVED:             "bg-brand-100 text-brand-700",
+  ESCALATED:            "bg-danger-100 text-danger-700",
 };
 
 export function ReportActionButtons({
@@ -30,7 +29,7 @@ export function ReportActionButtons({
     setCurrent(res.data.status);
     router.refresh();
   }
-  const errorNote = error && <p role="alert" className="mt-1 text-xs text-red-600">{error}</p>;
+  const errorNote = error && <p role="alert" className="mt-1 text-xs text-danger-600">{error}</p>;
 
   if (current === "RESOLVED" || current === "ESCALATED") {
     return (
@@ -40,7 +39,7 @@ export function ReportActionButtons({
         <button
           onClick={() => run("REOPEN")}
           disabled={busy === "REOPEN"}
-          className="rounded-md border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50"
+          className="rounded-md border border-line-strong px-3 py-1 text-xs font-semibold text-ink hover:bg-sunken disabled:opacity-50"
         >
           Reopen
         </button>
@@ -56,14 +55,14 @@ export function ReportActionButtons({
       <button
         onClick={() => run("RESOLVE")}
         disabled={busy !== null}
-        className="rounded-md bg-emerald-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-600 disabled:opacity-50"
+        className="rounded-md bg-brand-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-600 disabled:opacity-50"
       >
         {busy === "RESOLVE" ? "…" : "Resolve"}
       </button>
       <button
         onClick={() => run("ESCALATE")}
         disabled={busy !== null}
-        className="rounded-md bg-red-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-red-600 disabled:opacity-50"
+        className="rounded-md bg-danger-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-danger-600 disabled:opacity-50"
       >
         {busy === "ESCALATE" ? "…" : "Escalate"}
       </button>

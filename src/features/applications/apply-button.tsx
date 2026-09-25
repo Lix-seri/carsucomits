@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -27,7 +26,7 @@ export function ApplyButton({ commissionId, disabled, label = "Apply Now" }: { c
 
   if (disabled) {
     return (
-      <button disabled className="rounded-lg bg-slate-200 px-5 py-2 text-sm font-semibold text-slate-500">
+      <button disabled className="rounded-lg bg-line px-5 py-2 text-sm font-semibold text-muted">
         {label}
       </button>
     );

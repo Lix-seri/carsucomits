@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -53,9 +52,9 @@ export function PostCommissionForm() {
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="mb-1 text-2xl font-bold">Post a Commission</h1>
-      <p className="mb-6 text-sm text-slate-500">Describe the task you need done and pick a fair fare.</p>
+      <p className="mb-6 text-sm text-muted">Describe the task you need done and pick a fair fare.</p>
 
-      <div className="mb-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      <div className="mb-5 flex gap-3 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-800">
         <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
         <p>
           <strong>No graded academic work.</strong> Theses, capstones, research papers, essays, assignments and exams done for
@@ -64,7 +63,7 @@ export function PostCommissionForm() {
         </p>
       </div>
 
-      <form noValidate onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+      <form noValidate onSubmit={submit} className="space-y-5 rounded-2xl border border-line bg-white p-6 shadow-card">
         <Field label="Title" error={errorFor("title")}>
           <input name="title" className="input" placeholder="e.g. Logo design for student org" maxLength={120} />
         </Field>
@@ -81,10 +80,10 @@ export function PostCommissionForm() {
               {LEVEL_OPTIONS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
             </select>
           </Field>
-          <Field label={<>Subcategory <span className="font-normal text-slate-400">(optional)</span></>} error={errorFor("subcategory")}>
+          <Field label={<>Subcategory <span className="font-normal text-muted">(optional)</span></>} error={errorFor("subcategory")}>
             <input name="subcategory" className="input" placeholder="e.g. Graphic Design, Web" maxLength={60} />
           </Field>
-          <Field label={<>Deadline <span className="font-normal text-slate-400">(optional)</span></>} error={errorFor("deadline")}>
+          <Field label={<>Deadline <span className="font-normal text-muted">(optional)</span></>} error={errorFor("deadline")}>
             <input type="date" name="deadline" className="input" />
           </Field>
         </div>
@@ -93,7 +92,7 @@ export function PostCommissionForm() {
           <Field label="Fare (min) ₱" error={errorFor("fareMin")}>
             <input type="number" inputMode="numeric" name="fareMin" className="input" placeholder="500" />
           </Field>
-          <Field label={<>Fare (max) <span className="font-normal text-slate-400">(optional)</span></>} error={errorFor("fareMax")}>
+          <Field label={<>Fare (max) <span className="font-normal text-muted">(optional)</span></>} error={errorFor("fareMax")}>
             <input type="number" inputMode="numeric" name="fareMax" className="input" placeholder="1500" />
           </Field>
           <Field label="Unit" error={errorFor("fareUnit")}>
@@ -110,14 +109,14 @@ export function PostCommissionForm() {
           <textarea name="description" className="input min-h-36" maxLength={5000} />
         </Field>
 
-        <Field label={<>Cover image <span className="font-normal text-slate-400">(optional)</span></>} hint="JPG/PNG/WebP up to 5 MB. Shows on browse cards and the detail page.">
+        <Field label={<>Cover image <span className="font-normal text-muted">(optional)</span></>} hint="JPG/PNG/WebP up to 5 MB. Shows on browse cards and the detail page.">
           <input name="coverImage" type="file" accept="image/jpeg,image/png,image/webp" className="block w-full text-sm" />
         </Field>
 
         <FormError message={error && !FIELDS.includes(error.field ?? "") ? error.message : null} />
 
         <div className="flex gap-3">
-          <button type="button" onClick={() => router.back()} className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-medium hover:bg-slate-50">Cancel</button>
+          <button type="button" onClick={() => router.back()} className="flex-1 rounded-lg border border-line py-2.5 text-sm font-medium hover:bg-sunken">Cancel</button>
           <button type="submit" disabled={submitting} className="btn-primary flex-1">
             {submitting ? "Posting…" : "Post Commission"}
           </button>

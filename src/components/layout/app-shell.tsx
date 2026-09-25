@@ -47,7 +47,7 @@ export function AppShell({ sidebar, header, children }: { sidebar: React.ReactNo
           </button>
           <div className="min-w-0 flex-1">{header}</div>
         </div>
-        <main className="min-w-0 flex-1 p-4 sm:p-6">{children}</main>
+        <main id="main" className="min-w-0 flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

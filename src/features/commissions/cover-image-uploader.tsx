@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/navigation";
@@ -47,12 +46,12 @@ export function CoverImageUploader({
   return (
     <div>
       {url ? (
-        <div className="relative overflow-hidden rounded-xl border border-slate-200">
+        <div className="relative overflow-hidden rounded-xl border border-line">
           <img src={url} alt="Cover" className="h-40 w-full object-cover" />
         </div>
       ) : (
-        <div className="grid h-40 place-items-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50">
-          <div className="text-center text-slate-400">
+        <div className="grid h-40 place-items-center rounded-xl border-2 border-dashed border-line-strong bg-sunken">
+          <div className="text-center text-muted">
             <ImageIcon className="mx-auto mb-1 h-8 w-8" />
             <p className="text-sm">No cover image set</p>
           </div>
@@ -78,14 +77,14 @@ export function CoverImageUploader({
           <button
             type="button"
             onClick={onRemove}
-            className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+            className="inline-flex items-center gap-1 rounded-lg border border-danger-200 px-3 py-2 text-sm font-semibold text-danger-600 hover:bg-danger-50"
           >
             <Trash2 className="h-4 w-4" /> Remove
           </button>
         )}
       </div>
-      <p className="mt-2 text-xs text-slate-500">JPG/PNG/WebP up to 5 MB. Shown on browse cards and the commission detail page.</p>
-      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+      <p className="mt-2 text-xs text-muted">JPG/PNG/WebP up to 5 MB. Shown on browse cards and the commission detail page.</p>
+      {error && <p className="mt-2 text-xs text-danger-600">{error}</p>}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -37,16 +36,16 @@ export function BrowseContent() {
   const visible = items;
 
   return (
-    <main className="bg-slate-50">
+    <main id="main" className="bg-sunken">
       <div className="mx-auto max-w-7xl px-6 py-12">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Browse Commissions</h1>
-          <p className="mt-2 text-slate-600">Find tasks that match your skills.</p>
+          <p className="mt-2 text-muted">Find tasks that match your skills.</p>
         </div>
 
         <div className="card mb-8 space-y-4">
-          <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
-            <Search className="h-5 w-5 text-slate-400" />
+          <div className="flex items-center gap-3 rounded-lg border border-line bg-white px-3 py-2.5">
+            <Search className="h-5 w-5 text-muted" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -54,7 +53,7 @@ export function BrowseContent() {
               aria-label="Search commissions"
               className="flex-1 bg-transparent text-sm outline-none"
             />
-            {q && <button onClick={() => setQ("")} aria-label="Clear search"><X className="h-4 w-4 text-slate-400" /></button>}
+            {q && <button onClick={() => setQ("")} aria-label="Clear search"><X className="h-4 w-4 text-muted" /></button>}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -67,7 +66,7 @@ export function BrowseContent() {
                     onClick={() => setCat(cat === c.value ? null : c.value)}
                     aria-pressed={cat === c.value}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                      cat === c.value ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      cat === c.value ? "bg-brand-500 text-white" : "bg-sunken text-ink hover:bg-line"
                     }`}
                   >
                     {c.label}
@@ -84,7 +83,7 @@ export function BrowseContent() {
                     onClick={() => setLvl(lvl === l.value ? null : l.value)}
                     aria-pressed={lvl === l.value}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                      lvl === l.value ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      lvl === l.value ? "bg-brand-500 text-white" : "bg-sunken text-ink hover:bg-line"
                     }`}
                   >
                     {l.label}
@@ -105,10 +104,10 @@ export function BrowseContent() {
         </div>
 
         {loading ? (
-          <p className="py-12 text-center text-slate-500">Loading commissions…</p>
+          <p className="py-12 text-center text-muted">Loading commissions…</p>
         ) : (
           <>
-            <p className="mb-4 text-sm text-slate-600">
+            <p className="mb-4 text-sm text-muted">
               <SlidersHorizontal className="mr-1 inline h-4 w-4" />
               Showing <strong>{visible.length}</strong> open commission{visible.length === 1 ? "" : "s"}
             </p>
@@ -118,8 +117,8 @@ export function BrowseContent() {
                 {visible.map((c) => <CommissionCard key={c.id} c={c} />)}
               </div>
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white py-16 text-center">
-                <p className="text-slate-500">
+              <div className="rounded-xl border border-line bg-white py-16 text-center">
+                <p className="text-muted">
                   {hasFilter
                     ? "No open commissions match these filters. Try clearing one."
                     : "No commissions posted yet. Check back soon — or post one yourself!"}

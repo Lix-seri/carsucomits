@@ -1,15 +1,14 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { Logo } from "./logo";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-slate-950 text-slate-300">
+    <footer className="bg-ink text-faint">
       <div className="mx-auto max-w-7xl px-6 py-14">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="space-y-3">
             <div className="text-white"><Logo /></div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-muted">
               Caraga State University&apos;s trusted marketplace for student commissions and services.
             </p>
           </div>
@@ -30,13 +29,13 @@ export function SiteFooter() {
           </div>
           <div>
             <h4 className="mb-4 font-semibold text-white">Caraga State University</h4>
-            <p className="text-sm leading-6 text-slate-400">
+            <p className="text-sm leading-6 text-muted">
               Ampayon, Butuan City<br />Agusan del Norte, Philippines
             </p>
-            <p className="mt-3 text-sm text-slate-400">Official student marketplace</p>
+            <p className="mt-3 text-sm text-muted">Official student marketplace</p>
           </div>
         </div>
-        <div className="mt-12 border-t border-slate-800 pt-6 text-center text-sm text-slate-500">
+        <div className="mt-12 border-t border-line-strong pt-6 text-center text-sm text-muted">
           © {new Date().getFullYear()} CarsuComits. All rights reserved. Powered by CSU Students. · v{process.env.APP_VERSION}
         </div>
       </div>

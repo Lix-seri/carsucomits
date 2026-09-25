@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { pageSession } from "@/lib/session";
@@ -18,20 +17,20 @@ export default async function ApplicantsPage({
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-bold">All Applicants</h1>
-        <p className="text-sm text-slate-500">Review applications across your commissions.</p>
+        <p className="text-sm text-muted">Review applications across your commissions.</p>
       </div>
 
       {applications.length === 0 ? (
-        <p className="rounded-2xl border border-slate-200 bg-white px-4 py-12 text-center text-slate-500 shadow-card">
+        <p className="rounded-2xl border border-line bg-white px-4 py-12 text-center text-muted shadow-card">
           No applications yet. Once students apply to your commissions, they&apos;ll show up here.
         </p>
       ) : (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+        <div className="rounded-2xl border border-line bg-white p-6 shadow-card">
           <ul className="space-y-2">
             {applications.map((a) => {
               const avg = ratingMap.get(a.applicantId);
               return (
-                <li key={a.id} className="flex items-center justify-between rounded-lg bg-slate-50 p-3">
+                <li key={a.id} className="flex items-center justify-between rounded-lg bg-sunken p-3">
                   <div className="flex items-center gap-3">
                     <Link href={`/u/${a.applicant.id}`} className="shrink-0">
                       <Avatar name={a.applicant.fullName} src={a.applicant.avatarUrl} size="sm" />
@@ -40,18 +39,18 @@ export default async function ApplicantsPage({
                       <Link href={`/u/${a.applicant.id}`} className="text-sm font-semibold hover:text-brand-600 hover:underline">
                         {a.applicant.fullName}
                       </Link>
-                      <p className="text-xs text-slate-500">
-                        {avg != null ? <><Star className="mr-1 inline h-3 w-3 fill-amber-400 text-amber-400" /> {avg.toFixed(1)}</> : "No reviews yet"}
+                      <p className="text-xs text-muted">
+                        {avg != null ? <><Star className="mr-1 inline h-3 w-3 fill-warning-400 text-warning-400" /> {avg.toFixed(1)}</> : "No reviews yet"}
                         <span className="mx-1">·</span>
                         for <Link href={`/commission/${a.commission.id}`} className="text-brand-600 hover:underline">{a.commission.title}</Link>
                         <span className="mx-1">·</span>
                         <span className={`pill ml-1 ${
-                          a.status === "PENDING" ? "bg-amber-100 text-amber-700" :
-                          a.status === "ACCEPTED" ? "bg-emerald-100 text-emerald-700" :
-                          a.status === "REJECTED" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-700"
+                          a.status === "PENDING" ? "bg-warning-100 text-warning-700" :
+                          a.status === "ACCEPTED" ? "bg-brand-100 text-brand-700" :
+                          a.status === "REJECTED" ? "bg-danger-100 text-danger-700" : "bg-sunken text-ink"
                         }`}>{a.status}</span>
                       </p>
-                      {a.coverLetter && <p className="mt-1 text-xs italic text-slate-600">&ldquo;{a.coverLetter}&rdquo;</p>}
+                      {a.coverLetter && <p className="mt-1 text-xs italic text-muted">&ldquo;{a.coverLetter}&rdquo;</p>}
                     </div>
                   </div>
                   {a.status === "PENDING" && a.commission.status === "OPEN" && (

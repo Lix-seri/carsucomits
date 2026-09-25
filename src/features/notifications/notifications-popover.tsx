@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -44,15 +43,15 @@ export function NotificationsPopover({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div ref={ref} className="absolute right-0 top-12 z-50 w-80 rounded-xl border border-slate-200 bg-white p-3 shadow-card">
+    <div ref={ref} className="absolute right-0 top-12 z-50 w-80 rounded-xl border border-line bg-white p-3 shadow-card">
       <div className="mb-2 flex items-center justify-between px-1 py-1">
         <p className="text-sm font-semibold">Notifications</p>
         <div className="flex items-center gap-2">
           {unread > 0 && (
-            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-600">{unread} new</span>
+            <span className="rounded-full bg-danger-100 px-2 py-0.5 text-xs font-semibold text-danger-600">{unread} new</span>
           )}
           {items.length > 0 && unread > 0 && (
-            <button onClick={markAllRead} className="text-[11px] font-semibold text-brand-600 hover:underline">
+            <button onClick={markAllRead} className="text-xs font-semibold text-brand-600 hover:underline">
               Mark all read
             </button>
           )}
@@ -60,17 +59,17 @@ export function NotificationsPopover({ onClose }: { onClose: () => void }) {
       </div>
 
       {loading ? (
-        <p className="px-3 py-6 text-center text-sm text-slate-500">Loading…</p>
+        <p className="px-3 py-6 text-center text-sm text-muted">Loading…</p>
       ) : items.length === 0 ? (
-        <p className="px-3 py-6 text-center text-sm text-slate-500">You&apos;re all caught up.</p>
+        <p className="px-3 py-6 text-center text-sm text-muted">You&apos;re all caught up.</p>
       ) : (
         <ul className="space-y-1">
           {items.map((n) => {
             const inner = (
-              <div className={`rounded-lg px-3 py-2 text-sm ${!n.readAt ? "bg-brand-50/50" : "hover:bg-slate-50"}`}>
+              <div className={`rounded-lg px-3 py-2 text-sm ${!n.readAt ? "bg-brand-50/50" : "hover:bg-sunken"}`}>
                 <p className="leading-snug">{n.title}</p>
-                {n.body && <p className="mt-0.5 line-clamp-2 text-xs text-slate-600">{n.body}</p>}
-                <p className="mt-1 text-xs text-slate-500">{timeAgoShort(n.createdAt)}</p>
+                {n.body && <p className="mt-0.5 line-clamp-2 text-xs text-muted">{n.body}</p>}
+                <p className="mt-1 text-xs text-muted">{timeAgoShort(n.createdAt)}</p>
               </div>
             );
             return (

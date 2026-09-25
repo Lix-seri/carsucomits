@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { useRouter } from "next/navigation";
@@ -79,10 +78,10 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
   if (enabled && step !== "backup" && step !== "disable") {
     return (
       <div className="space-y-3">
-        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
           <ShieldCheck className="mr-1 inline h-4 w-4" /> MFA is active for <strong>{email}</strong>.
         </p>
-        <button onClick={() => setStep("disable")} className="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50">
+        <button onClick={() => setStep("disable")} className="rounded-lg border border-danger-200 bg-white px-4 py-2 text-sm font-semibold text-danger-600 hover:bg-danger-50">
           <ShieldOff className="mr-1 inline h-4 w-4" /> Disable MFA
         </button>
       </div>
@@ -92,7 +91,7 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
   if (step === "disable") {
     return (
       <form noValidate onSubmit={disable} className="space-y-3">
-        <p className="text-sm text-slate-600">Enter your account password to confirm.</p>
+        <p className="text-sm text-muted">Enter your account password to confirm.</p>
         <input
           type="password"
           value={password}
@@ -102,10 +101,10 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
           autoComplete="current-password"
           className="input"
         />
-        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-sm text-danger-600">{error}</p>}
         <div className="flex gap-2">
-          <button type="button" onClick={() => { setStep("idle"); setError(null); }} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">Cancel</button>
-          <button type="submit" disabled={busy} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
+          <button type="button" onClick={() => { setStep("idle"); setError(null); }} className="rounded-lg border border-line px-4 py-2 text-sm font-medium hover:bg-sunken">Cancel</button>
+          <button type="submit" disabled={busy} className="rounded-lg bg-danger-500 px-4 py-2 text-sm font-semibold text-white hover:bg-danger-600 disabled:opacity-50">
             {busy ? "Disabling…" : "Disable MFA"}
           </button>
         </div>
@@ -117,16 +116,16 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
     return (
       <div className="space-y-3">
         <p className="text-sm font-semibold">⚠️ Save these backup codes</p>
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-muted">
           Use any of these to sign in if you lose access to your authenticator app. Each code works once.
           <strong> Save them somewhere safe — they won&apos;t be shown again.</strong>
         </p>
-        <ul className="grid grid-cols-2 gap-2 rounded-lg bg-slate-50 p-4 font-mono text-sm">
+        <ul className="grid grid-cols-2 gap-2 rounded-lg bg-sunken p-4 font-mono text-sm">
           {backupCodes.map((c) => (<li key={c} className="rounded bg-white px-3 py-1.5 text-center">{c}</li>))}
         </ul>
         <button
           onClick={() => navigator.clipboard.writeText(backupCodes.join("\n"))}
-          className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50"
+          className="rounded-lg border border-line px-4 py-2 text-sm font-medium hover:bg-sunken"
         >
           Copy all codes
         </button>
@@ -138,14 +137,14 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
   if (step === "qr" && qr) {
     return (
       <form noValidate onSubmit={confirmCode} className="space-y-4">
-        <ol className="list-decimal space-y-2 pl-5 text-sm text-slate-700">
+        <ol className="list-decimal space-y-2 pl-5 text-sm text-ink">
           <li>Open your authenticator app (Google Authenticator, Authy, 1Password, etc.).</li>
           <li>Tap &quot;Add account&quot; and scan this QR code:</li>
         </ol>
         <div className="grid place-items-center rounded-xl bg-white p-4">
           <img src={qr} alt="MFA QR code" className="h-48 w-48" />
         </div>
-        <details className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+        <details className="rounded-lg bg-sunken px-3 py-2 text-xs text-muted">
           <summary className="cursor-pointer font-semibold">Can&apos;t scan? Enter the secret manually</summary>
           <p className="mt-2 break-all font-mono text-sm">{secret}</p>
         </details>
@@ -158,13 +157,13 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
             id="mfa-code"
             inputMode="numeric"
             autoComplete="one-time-code"
-            className="input text-center text-2xl tracking-[0.5em]"
+            className="input text-center text-2xl tracking-code"
             autoFocus
           />
         </div>
-        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-sm text-danger-600">{error}</p>}
         <div className="flex gap-2">
-          <button type="button" onClick={() => { setStep("idle"); setError(null); }} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">Cancel</button>
+          <button type="button" onClick={() => { setStep("idle"); setError(null); }} className="rounded-lg border border-line px-4 py-2 text-sm font-medium hover:bg-sunken">Cancel</button>
           <button type="submit" disabled={busy} className="btn-primary flex-1">
             {busy ? "Verifying…" : "Verify & Enable"}
           </button>

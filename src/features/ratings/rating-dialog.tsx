@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -51,7 +50,7 @@ export function RatingDialog({
   return (
     <Dialog open={open} onClose={() => !busy && onClose()} title={title} description={<>&ldquo;{subtitle}&rdquo;</>}>
       <form noValidate onSubmit={submit} className="space-y-4">
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">{note}</p>
+        <p className="rounded-lg border border-warning-200 bg-warning-50 px-3 py-2 text-xs text-warning-800">{note}</p>
         <div>
           <p id="rating-label" className="label">How was it working with {rateeName}?</p>
           <div role="radiogroup" aria-labelledby="rating-label" className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
@@ -64,9 +63,9 @@ export function RatingDialog({
                 aria-label={`${n} star${n === 1 ? "" : "s"}`}
                 onMouseEnter={() => setHover(n)}
                 onClick={() => setStars(n)}
-                className="rounded-md p-1 hover:bg-amber-50"
+                className="rounded-md p-1 hover:bg-warning-50"
               >
-                <Star className={`h-8 w-8 transition ${n <= shown ? "fill-amber-400 text-amber-400" : "text-slate-300"}`} />
+                <Star className={`h-8 w-8 transition ${n <= shown ? "fill-warning-400 text-warning-400" : "text-faint"}`} />
               </button>
             ))}
             <span className="ml-2 text-sm font-semibold">{stars}/5</span>

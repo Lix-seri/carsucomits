@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { trustTier } from "@/lib/trust";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +11,7 @@ export function TrustBadge({
 }) {
   const tier = trustTier(avg, reviewCount);
   const sizeClass =
-    size === "sm" ? "px-2 py-0.5 text-[11px]" :
+    size === "sm" ? "px-2 py-0.5 text-xs" :
     size === "lg" ? "px-3.5 py-1.5 text-sm" :
     "px-3 py-1 text-xs";
 
@@ -26,7 +25,7 @@ export function TrustBadge({
         <span>{tier.emoji}</span> {tier.label}
       </span>
       {showDescription && (
-        <p className="text-xs text-slate-500">{tier.description}</p>
+        <p className="text-xs text-muted">{tier.description}</p>
       )}
     </div>
   );

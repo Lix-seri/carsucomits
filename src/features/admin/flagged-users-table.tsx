@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { Star } from "lucide-react";
 import { ROLE_LABEL } from "@/lib/labels";
 import { UserActionButtons } from "./user-action-buttons";
@@ -14,17 +13,17 @@ type FlaggedUser = {
 /** Users with an open report against them, with moderation buttons. */
 export function FlaggedUsersTable({ users, avgMap, emptyText }: { users: FlaggedUser[]; avgMap: Map<string, number | null>; emptyText: string }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+    <section className="rounded-2xl border border-line bg-white p-6 shadow-card">
       <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
         Flagged Users
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-red-500 text-xs font-bold text-white">{users.length}</span>
+        <span className="grid h-6 w-6 place-items-center rounded-full bg-danger-500 text-xs font-bold text-white">{users.length}</span>
       </h2>
       {users.length === 0 ? (
-        <p className="rounded-lg bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">{emptyText}</p>
+        <p className="rounded-lg bg-sunken px-4 py-6 text-center text-sm text-muted">{emptyText}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wider text-slate-500">
+            <thead className="text-left text-xs uppercase tracking-wider text-muted">
               <tr>
                 <th className="py-2 font-semibold">User Name</th>
                 <th className="py-2 font-semibold">Role</th>
@@ -34,19 +33,19 @@ export function FlaggedUsersTable({ users, avgMap, emptyText }: { users: Flagged
                 <th className="py-2 font-semibold">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-line">
               {users.map((u) => {
                 const latestReport = u.receivedReports[0];
                 const avg = avgMap.get(u.id);
                 return (
                   <tr key={u.id}>
                     <td className="py-3 font-semibold">{u.fullName}</td>
-                    <td className="py-3 text-slate-600">{ROLE_LABEL[u.role] ?? u.role}</td>
+                    <td className="py-3 text-muted">{ROLE_LABEL[u.role] ?? u.role}</td>
                     <td className="py-3">{latestReport?.reason ?? "—"}</td>
-                    <td className="py-3 text-amber-500">
-                      {avg != null ? <><Star className="mr-1 inline h-3.5 w-3.5 fill-amber-400" /> {avg.toFixed(1)}</> : <span className="text-slate-400">—</span>}
+                    <td className="py-3 text-warning-500">
+                      {avg != null ? <><Star className="mr-1 inline h-3.5 w-3.5 fill-warning-400" /> {avg.toFixed(1)}</> : <span className="text-muted">—</span>}
                     </td>
-                    <td className="py-3 text-slate-600">{latestReport ? new Date(latestReport.createdAt).toLocaleDateString() : "—"}</td>
+                    <td className="py-3 text-muted">{latestReport ? new Date(latestReport.createdAt).toLocaleDateString() : "—"}</td>
                     <td className="py-3"><UserActionButtons userId={u.id} status={u.status} /></td>
                   </tr>
                 );

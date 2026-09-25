@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { ArrowRight, BookOpen, CheckCircle2, ClipboardList, Code2, ShoppingCart, Target, Users } from "lucide-react";
 
@@ -24,7 +23,7 @@ export function LandingContent({ latest }: { latest: React.ReactNode }) {
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight md:text-6xl">
             Find Skilled Students, <span className="text-brand-500">Get Things Done</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 md:text-lg">
+          <p className="mx-auto mt-5 max-w-2xl text-base text-muted md:text-lg">
             CSU&apos;s trusted commission marketplace for technical work, tutoring, errands and admin help.
           </p>
           <div className="mt-8">
@@ -42,24 +41,24 @@ export function LandingContent({ latest }: { latest: React.ReactNode }) {
             <Link
               key={value}
               href={`/browse?category=${value}`}
-              className="flex flex-col items-start rounded-xl border border-slate-200 bg-white p-6 transition hover:border-brand-300 hover:shadow-card"
+              className="flex flex-col items-start rounded-xl border border-line bg-white p-6 transition hover:border-brand-300 hover:shadow-card"
             >
               <span className="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-brand-50 text-brand-600">
                 <Icon className="h-6 w-6" strokeWidth={2} />
               </span>
               <span className="mb-1 text-lg font-bold text-ink">{name}</span>
-              <span className="text-sm text-slate-600">{description}</span>
+              <span className="text-sm text-muted">{description}</span>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="bg-slate-50">
+      <section className="bg-sunken">
         <div className="mx-auto max-w-7xl px-6 py-20">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-3xl font-bold">Latest Commissions</h2>
-              <p className="mt-2 text-slate-600">Open now, newest first.</p>
+              <p className="mt-2 text-muted">Open now, newest first.</p>
             </div>
             <Link href="/browse" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700">
               See all <ArrowRight className="h-4 w-4" />
@@ -81,7 +80,7 @@ export function LandingContent({ latest }: { latest: React.ReactNode }) {
                 </span>
               </div>
               <h3 className="mb-2 text-lg font-bold">{title}</h3>
-              <p className="text-sm text-slate-600">{desc}</p>
+              <p className="text-sm text-muted">{desc}</p>
             </div>
           ))}
         </div>

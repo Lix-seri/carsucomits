@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useState } from "react";
 import { Star } from "lucide-react";
@@ -8,7 +7,7 @@ export function RateCommissionerButton({ commissionId, commissionTitle, commissi
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button onClick={() => setOpen(true)} className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-white hover:bg-amber-600">
+      <button onClick={() => setOpen(true)} className="rounded-lg bg-warning-500 px-4 py-2 text-sm font-bold text-white hover:bg-warning-600">
         <Star className="mr-1 inline h-3.5 w-3.5 fill-white" /> Rate the commissioner
       </button>
       <RatingDialog

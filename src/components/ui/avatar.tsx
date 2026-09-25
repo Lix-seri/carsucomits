@@ -1,8 +1,7 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { cn } from "@/lib/utils";
 
 const SIZE_CLASS: Record<string, string> = {
-  xs: "h-7 w-7 text-[10px]",
+  xs: "h-7 w-7 text-xs",
   sm: "h-9 w-9 text-xs",
   md: "h-12 w-12 text-sm",
   lg: "h-16 w-16 text-base",

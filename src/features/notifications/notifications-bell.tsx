@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
@@ -28,12 +27,12 @@ export function NotificationsBell() {
     <div className="relative">
       <button
         onClick={() => setShowNotif(!showNotif)}
-        className="relative rounded-lg border border-slate-200 p-2 hover:bg-slate-50"
+        className="relative rounded-lg border border-line p-2 hover:bg-sunken"
         aria-label="Notifications"
       >
         <Bell className="h-4 w-4" />
         {unread > 0 && (
-          <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+          <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger-500 px-1 text-xs font-bold text-white">
             {unread > 9 ? "9+" : unread}
           </span>
         )}

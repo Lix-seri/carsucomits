@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -36,17 +35,17 @@ export function RegisterForm() {
   }
 
   return (
-    <main className="min-h-screen bg-brand-50/40">
+    <main id="main" className="min-h-screen bg-brand-50/40">
       <Link href="/" className="absolute left-6 top-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700">
         <ArrowLeft className="h-4 w-4" /> Back to Home
       </Link>
 
       <div className="grid min-h-screen place-items-center px-6 py-16">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-card">
+        <div className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-card">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
             <h1 className="mt-5 text-2xl font-bold">Create Your Account</h1>
-            <p className="mt-1 text-sm text-slate-500">Join the CSU Commission Marketplace</p>
+            <p className="mt-1 text-sm text-muted">Join the CSU Commission Marketplace</p>
           </div>
 
           <form noValidate onSubmit={handleSubmit} className="space-y-4">
@@ -69,7 +68,7 @@ export function RegisterForm() {
               {loading ? "Creating account…" : "Create Account"}
             </button>
 
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-sm text-muted">
               Already have an account?{" "}
               <Link href="/login" className="font-semibold text-brand-600 hover:text-brand-700">Login</Link>
             </p>
@@ -77,7 +76,7 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <p className="pb-6 text-center text-xs text-slate-500">© {new Date().getFullYear()} CarsuComits · Caraga State University</p>
+      <p className="pb-6 text-center text-xs text-muted">© {new Date().getFullYear()} CarsuComits · Caraga State University</p>
     </main>
   );
 }

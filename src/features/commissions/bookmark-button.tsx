@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -43,11 +42,11 @@ export function BookmarkButton({
       disabled={busy}
       aria-label={saved ? "Remove bookmark" : "Save commission"}
       title={saved ? "Saved — click to remove" : "Save for later"}
-      className={`rounded-lg border ${saved ? "border-brand-500 bg-brand-50 text-brand-600" : "border-slate-200 bg-white text-slate-500"} p-2 transition hover:bg-slate-50 disabled:opacity-50`}
+      className={`rounded-lg border ${saved ? "border-brand-500 bg-brand-50 text-brand-600" : "border-line bg-white text-muted"} p-2 transition hover:bg-sunken disabled:opacity-50`}
     >
       <Bookmark className={`${iconSize} ${saved ? "fill-brand-500" : ""}`} />
     </button>
-    {error && <span role="alert" className="absolute right-0 top-full mt-1 w-48 rounded-md bg-white p-2 text-xs text-red-600 shadow-card">{error}</span>}
+    {error && <span role="alert" className="absolute right-0 top-full mt-1 w-48 rounded-md bg-white p-2 text-xs text-danger-600 shadow-card">{error}</span>}
     </span>
   );
 }

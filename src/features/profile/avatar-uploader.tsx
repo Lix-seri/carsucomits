@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -78,13 +77,13 @@ export function AvatarUploader({
           <button
             type="button"
             onClick={onRemove}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-danger-600 hover:underline"
           >
             <Trash2 className="h-3 w-3" /> Remove
           </button>
         )}
       </div>
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-danger-600">{error}</p>}
     </div>
   );
 }

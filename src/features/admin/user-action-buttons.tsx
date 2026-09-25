@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,10 +7,10 @@ import { ConfirmButton } from "@/components/ui/confirm-button";
 type Action = "WARN" | "SUSPEND" | "BAN" | "REINSTATE";
 
 const STATUS_PILL: Record<string, string> = {
-  ACTIVE: "bg-emerald-100 text-emerald-700",
-  WARNED: "bg-amber-100 text-amber-700",
-  SUSPENDED: "bg-orange-100 text-orange-700",
-  BANNED: "bg-red-100 text-red-700",
+  ACTIVE: "bg-brand-100 text-brand-700",
+  WARNED: "bg-warning-100 text-warning-700",
+  SUSPENDED: "bg-warning-100 text-warning-700",
+  BANNED: "bg-danger-100 text-danger-700",
 };
 
 export function UserActionButtons({ userId, status }: { userId: string; status: string }) {
@@ -36,11 +35,11 @@ export function UserActionButtons({ userId, status }: { userId: string; status: 
     <div>
       {current !== "ACTIVE" ? (
         <div className="flex items-center gap-2">
-          <span className={`pill ${STATUS_PILL[current] ?? "bg-slate-100 text-slate-700"}`}>{current}</span>
+          <span className={`pill ${STATUS_PILL[current] ?? "bg-sunken text-ink"}`}>{current}</span>
           <button
             onClick={() => runInline("REINSTATE")}
             disabled={busy !== null}
-            className="rounded-md bg-emerald-500 px-3 py-1 text-xs font-bold text-white hover:bg-emerald-600 disabled:opacity-50"
+            className="rounded-md bg-brand-500 px-3 py-1 text-xs font-bold text-white hover:bg-brand-600 disabled:opacity-50"
           >
             {busy === "REINSTATE" ? "…" : "Reinstate"}
           </button>
@@ -50,7 +49,7 @@ export function UserActionButtons({ userId, status }: { userId: string; status: 
           <button
             onClick={() => runInline("WARN")}
             disabled={busy !== null}
-            className="rounded-md bg-amber-400 px-3 py-1 text-xs font-bold text-white hover:bg-amber-500 disabled:opacity-50"
+            className="rounded-md bg-warning-400 px-3 py-1 text-xs font-bold text-white hover:bg-warning-500 disabled:opacity-50"
           >
             {busy === "WARN" ? "…" : "Warn"}
           </button>
@@ -61,7 +60,7 @@ export function UserActionButtons({ userId, status }: { userId: string; status: 
             danger
             onConfirm={() => run("SUSPEND")}
             disabled={busy !== null}
-            className="rounded-md bg-orange-500 px-3 py-1 text-xs font-bold text-white hover:bg-orange-600 disabled:opacity-50"
+            className="rounded-md bg-warning-500 px-3 py-1 text-xs font-bold text-white hover:bg-warning-600 disabled:opacity-50"
           >
             Suspend
           </ConfirmButton>
@@ -72,13 +71,13 @@ export function UserActionButtons({ userId, status }: { userId: string; status: 
             danger
             onConfirm={() => run("BAN")}
             disabled={busy !== null}
-            className="rounded-md bg-red-500 px-3 py-1 text-xs font-bold text-white hover:bg-red-600 disabled:opacity-50"
+            className="rounded-md bg-danger-500 px-3 py-1 text-xs font-bold text-white hover:bg-danger-600 disabled:opacity-50"
           >
             Ban
           </ConfirmButton>
         </div>
       )}
-      {error && <p role="alert" className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p role="alert" className="mt-1 text-xs text-danger-600">{error}</p>}
     </div>
   );
 }

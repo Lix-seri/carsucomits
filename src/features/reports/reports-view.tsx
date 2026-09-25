@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useEffect, useState } from "react";
 import { AlertTriangle, FileText, Plus } from "lucide-react";
@@ -17,10 +16,10 @@ type Report = {
 type FiledReport = Report & { reportee: { fullName: string } };
 
 const STATUS_PILL: Record<string, string> = {
-  PENDING:              "bg-amber-100 text-amber-700",
-  UNDER_INVESTIGATION:  "bg-blue-100 text-blue-700",
-  RESOLVED:             "bg-emerald-100 text-emerald-700",
-  ESCALATED:            "bg-red-100 text-red-700",
+  PENDING:              "bg-warning-100 text-warning-700",
+  UNDER_INVESTIGATION:  "bg-info-100 text-info-700",
+  RESOLVED:             "bg-brand-100 text-brand-700",
+  ESCALATED:            "bg-danger-100 text-danger-700",
 };
 
 export function ReportsView() {
@@ -62,7 +61,7 @@ export function ReportsView() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="overflow-hidden rounded-2xl bg-white shadow-card">
-        <div className="bg-gradient-to-r from-red-500 to-orange-500 p-5 text-white">
+        <div className="bg-gradient-to-r from-danger-500 to-warning-500 p-5 text-white">
           <h2 className="flex items-center gap-2 text-lg font-bold"><AlertTriangle className="h-5 w-5" /> Reports Center</h2>
           <p className="text-sm text-white/85">Manage your reports and flags</p>
         </div>
@@ -71,20 +70,20 @@ export function ReportsView() {
           <section>
             <h3 className="mb-3 flex items-center gap-2 text-sm font-bold">🚩 Reports About You</h3>
             {loading ? (
-              <p className="text-sm text-slate-500">Loading…</p>
+              <p className="text-sm text-muted">Loading…</p>
             ) : aboutMe.length === 0 ? (
-              <p className="rounded-lg bg-emerald-50 px-4 py-4 text-center text-sm text-emerald-700">
+              <p className="rounded-lg bg-brand-50 px-4 py-4 text-center text-sm text-brand-700">
                 ✓ No reports filed against you. Keep it up!
               </p>
             ) : (
               <ul className="space-y-2">
                 {aboutMe.map((r) => (
-                  <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-red-50/60 p-3">
+                  <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-danger-50/60 p-3">
                     <div>
                       <p className="text-sm font-semibold">A user reported you</p>
-                      <p className="text-xs text-slate-600">Reason: {r.reason}</p>
-                      {r.details && <p className="text-xs italic text-slate-500">&quot;{r.details}&quot;</p>}
-                      <p className="text-[11px] text-slate-500">Filed {new Date(r.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-muted">Reason: {r.reason}</p>
+                      {r.details && <p className="text-xs italic text-muted">&quot;{r.details}&quot;</p>}
+                      <p className="text-xs text-muted">Filed {new Date(r.createdAt).toLocaleDateString()}</p>
                     </div>
                     <span className={`pill ${STATUS_PILL[r.status]} h-fit`}>{r.status.replaceAll("_", " ")}</span>
                   </li>
@@ -96,20 +95,20 @@ export function ReportsView() {
           <section>
             <h3 className="mb-3 flex items-center gap-2 text-sm font-bold"><FileText className="h-4 w-4" /> Reports You Filed</h3>
             {loading ? (
-              <p className="text-sm text-slate-500">Loading…</p>
+              <p className="text-sm text-muted">Loading…</p>
             ) : filed.length === 0 ? (
-              <p className="rounded-lg bg-slate-50 px-4 py-4 text-center text-sm text-slate-500">
+              <p className="rounded-lg bg-sunken px-4 py-4 text-center text-sm text-muted">
                 You haven&apos;t filed any reports yet.
               </p>
             ) : (
               <ul className="space-y-2">
                 {filed.map((r) => (
-                  <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-blue-50/60 p-3">
+                  <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-info-50/60 p-3">
                     <div>
                       <p className="text-sm font-semibold">You reported {r.reportee.fullName}</p>
-                      <p className="text-xs text-slate-600">Reason: {r.reason}</p>
-                      {r.details && <p className="text-xs italic text-slate-500">&quot;{r.details}&quot;</p>}
-                      <p className="text-[11px] text-slate-500">Filed {new Date(r.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-muted">Reason: {r.reason}</p>
+                      {r.details && <p className="text-xs italic text-muted">&quot;{r.details}&quot;</p>}
+                      <p className="text-xs text-muted">Filed {new Date(r.createdAt).toLocaleDateString()}</p>
                     </div>
                     <span className={`pill ${STATUS_PILL[r.status]} h-fit`}>{r.status.replaceAll("_", " ")}</span>
                   </li>
@@ -119,7 +118,7 @@ export function ReportsView() {
           </section>
 
           <div>
-            <button onClick={() => setShowNew(true)} className="w-full rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600">
+            <button onClick={() => setShowNew(true)} className="w-full rounded-lg bg-danger-500 py-2.5 text-sm font-semibold text-white hover:bg-danger-600">
               <Plus className="mr-1 inline h-4 w-4" /> Submit New Report
             </button>
           </div>
@@ -142,8 +141,8 @@ export function ReportsView() {
           </Field>
           <FormError message={fieldError && !["reporteeEmail", "reason", "details"].includes(fieldError.field ?? "") ? fieldError.message : null} />
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={() => setShowNew(false)} className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-medium hover:bg-slate-50">Cancel</button>
-            <button type="submit" disabled={submitting} className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">{submitting ? "Submitting…" : "Submit"}</button>
+            <button type="button" onClick={() => setShowNew(false)} className="flex-1 rounded-lg border border-line py-2.5 text-sm font-medium hover:bg-sunken">Cancel</button>
+            <button type="submit" disabled={submitting} className="flex-1 rounded-lg bg-danger-500 py-2.5 text-sm font-semibold text-white hover:bg-danger-600 disabled:opacity-50">{submitting ? "Submitting…" : "Submit"}</button>
           </div>
         </form>
       </Dialog>

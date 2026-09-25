@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 // Trust badge tiers based on a user's average rating + review volume.
 // Used on profile pages, public profiles, and the dashboard sidebar card.
 
@@ -16,7 +15,7 @@ export function trustTier(avg: number | null, reviewCount: number): TrustTier {
       level: "NEW",
       label: "New Member",
       description: "No reviews yet — give them a chance to prove themselves.",
-      color: "bg-slate-100 text-slate-700 border-slate-200",
+      color: "bg-sunken text-ink border-line",
       emoji: "✨",
     };
   }
@@ -25,7 +24,7 @@ export function trustTier(avg: number | null, reviewCount: number): TrustTier {
       level: "NEW",
       label: "New Member",
       description: "No ratings yet.",
-      color: "bg-slate-100 text-slate-700 border-slate-200",
+      color: "bg-sunken text-ink border-line",
       emoji: "✨",
     };
   }
@@ -34,7 +33,7 @@ export function trustTier(avg: number | null, reviewCount: number): TrustTier {
       level: "CAUTION",
       label: "Use Caution",
       description: `Average ${avg.toFixed(1)}★ over ${reviewCount} reviews — flagged for low ratings.`,
-      color: "bg-red-100 text-red-700 border-red-200",
+      color: "bg-danger-100 text-danger-700 border-danger-200",
       emoji: "⚠️",
     };
   }
@@ -43,7 +42,7 @@ export function trustTier(avg: number | null, reviewCount: number): TrustTier {
       level: "HIGHLY_TRUSTED",
       label: "Highly Trusted",
       description: `Outstanding ${avg.toFixed(1)}★ over ${reviewCount} reviews.`,
-      color: "bg-emerald-100 text-emerald-700 border-emerald-200",
+      color: "bg-brand-100 text-brand-700 border-brand-200",
       emoji: "🏆",
     };
   }
@@ -52,7 +51,7 @@ export function trustTier(avg: number | null, reviewCount: number): TrustTier {
       level: "TRUSTED",
       label: "Trusted",
       description: `Solid ${avg.toFixed(1)}★ over ${reviewCount} reviews.`,
-      color: "bg-blue-100 text-blue-700 border-blue-200",
+      color: "bg-info-100 text-info-700 border-info-200",
       emoji: "✓",
     };
   }
@@ -60,7 +59,7 @@ export function trustTier(avg: number | null, reviewCount: number): TrustTier {
     level: "RISING",
     label: "Rising",
     description: `${avg.toFixed(1)}★ over ${reviewCount} review${reviewCount === 1 ? "" : "s"} — building reputation.`,
-    color: "bg-amber-100 text-amber-700 border-amber-200",
+    color: "bg-warning-100 text-warning-700 border-warning-200",
     emoji: "📈",
   };
 }

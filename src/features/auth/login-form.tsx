@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -77,17 +76,17 @@ export function LoginForm() {
   }
 
   return (
-    <main className="min-h-screen bg-brand-50/40">
+    <main id="main" className="min-h-screen bg-brand-50/40">
       <Link href="/" className="absolute left-6 top-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700">
         <ArrowLeft className="h-4 w-4" /> Back to Home
       </Link>
 
       <div className="grid min-h-screen place-items-center px-6">
-        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-card">
+        <div className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-card">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
             <h1 className="mt-5 text-2xl font-bold">{needMfa ? "Two-factor authentication" : "Welcome Back!"}</h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-muted">
               {needMfa
                 ? "Enter the 6-digit code from your authenticator app."
                 : "Login to your CSU commission account"}
@@ -96,7 +95,7 @@ export function LoginForm() {
 
           {needMfa ? (
             <form noValidate onSubmit={handleMfaSubmit} className="space-y-4">
-              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-50 text-amber-600">
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-warning-50 text-warning-600">
                 <KeyRound className="h-7 w-7" />
               </div>
               <Field label="6-digit code (or backup code)">
@@ -107,7 +106,7 @@ export function LoginForm() {
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   autoFocus
-                  className="input text-center text-2xl tracking-[0.5em]"
+                  className="input text-center text-2xl tracking-code"
                 />
               </Field>
               <FormError message={error} />
@@ -117,21 +116,21 @@ export function LoginForm() {
               <button
                 type="button"
                 onClick={() => { setNeedMfa(false); setMfaCode(""); setError(null); }}
-                className="w-full text-center text-sm font-semibold text-slate-500 hover:text-slate-700"
+                className="w-full text-center text-sm font-semibold text-muted hover:text-ink"
               >
                 Use a different account
               </button>
             </form>
           ) : (
             <>
-              <div className="mb-5 grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1">
+              <div className="mb-5 grid grid-cols-2 gap-2 rounded-lg bg-sunken p-1">
                 <button
                   type="button"
                   aria-pressed={role === "STUDENT"}
                   onClick={() => setRole("STUDENT")}
                   className={cn(
                     "flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-semibold transition",
-                    role === "STUDENT" ? "bg-white text-ink shadow-card" : "text-slate-500 hover:text-slate-700",
+                    role === "STUDENT" ? "bg-white text-ink shadow-card" : "text-muted hover:text-ink",
                   )}
                 >
                   <GraduationCap className="h-4 w-4" /> Student
@@ -142,7 +141,7 @@ export function LoginForm() {
                   onClick={() => setRole("ADMIN")}
                   className={cn(
                     "flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-semibold transition",
-                    role === "ADMIN" ? "bg-white text-ink shadow-card" : "text-slate-500 hover:text-slate-700",
+                    role === "ADMIN" ? "bg-white text-ink shadow-card" : "text-muted hover:text-ink",
                   )}
                 >
                   <Shield className="h-4 w-4" /> Admin
@@ -185,9 +184,9 @@ export function LoginForm() {
               {role === "STUDENT" && (
                 <>
                   <div className="my-6 flex items-center gap-4">
-                    <div className="h-px flex-1 bg-slate-200" />
-                    <span className="text-xs text-slate-500">Don&apos;t have an account yet?</span>
-                    <div className="h-px flex-1 bg-slate-200" />
+                    <div className="h-px flex-1 bg-line" />
+                    <span className="text-xs text-muted">Don&apos;t have an account yet?</span>
+                    <div className="h-px flex-1 bg-line" />
                   </div>
                   <Link href="/register" className="btn-outline w-full !py-3">Register</Link>
                 </>
@@ -197,7 +196,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <p className="pb-6 text-center text-xs text-slate-500">© {new Date().getFullYear()} CarsuComits · Caraga State University</p>
+      <p className="pb-6 text-center text-xs text-muted">© {new Date().getFullYear()} CarsuComits · Caraga State University</p>
     </main>
   );
 }

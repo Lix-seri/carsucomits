@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -53,23 +52,23 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
   return (
     <div>
       {skills.length === 0 ? (
-        <p className="mb-4 rounded-lg bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+        <p className="mb-4 rounded-lg bg-sunken px-4 py-6 text-center text-sm text-muted">
           No skills yet. Add your first one below — commissioners will see it on your profile.
         </p>
       ) : (
         <div className="mb-4 grid gap-3 sm:grid-cols-2">
           {skills.map((s) => (
-            <div key={s.id} className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
+            <div key={s.id} className="flex items-center justify-between rounded-lg border border-line p-3">
               <div>
                 <p className="text-sm font-medium">{s.name}</p>
-                <span className={`pill ${LEVEL_PILL[s.level] ?? "bg-slate-100 text-slate-700"} mt-0.5`}>
+                <span className={`pill ${LEVEL_PILL[s.level] ?? "bg-sunken text-ink"} mt-0.5`}>
                   {LEVEL_LABEL[s.level] ?? s.level}
                 </span>
               </div>
               <button
                 onClick={() => remove(s.id)}
                 disabled={busy}
-                className="rounded-md p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+                className="rounded-md p-1.5 text-muted hover:bg-danger-50 hover:text-danger-600 disabled:opacity-50"
                 aria-label={`Remove ${s.name}`}
               >
                 <X className="h-4 w-4" />
@@ -79,9 +78,9 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
         </div>
       )}
 
-      <form onSubmit={add} className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+      <form onSubmit={add} className="rounded-lg border border-dashed border-line-strong bg-sunken p-4">
         <p className="mb-3 text-sm font-semibold">Add a new skill</p>
-        <div className="grid gap-2 sm:grid-cols-[1fr_180px_auto]">
+        <div className="grid gap-2 sm:grid-cols-field-select-action">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -103,7 +102,7 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
             <Plus className="h-4 w-4" /> Add
           </button>
         </div>
-        {error && <p role="alert" className="mt-2 text-xs text-red-600">{error}</p>}
+        {error && <p role="alert" className="mt-2 text-xs text-danger-600">{error}</p>}
       </form>
     </div>
   );

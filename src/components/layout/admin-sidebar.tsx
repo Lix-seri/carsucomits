@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,8 +17,8 @@ const NAV = [
 export function AdminSidebar() {
   const pathname = usePathname();
   return (
-    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-slate-200 bg-white">
-      <div className="border-b border-slate-100 p-5">
+    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-line bg-white">
+      <div className="border-b border-line p-5">
         <Link href="/" className="flex items-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 text-sm font-bold text-white">CC</span>
           <span className="text-base font-bold">CarsuComits</span>
@@ -35,7 +34,7 @@ export function AdminSidebar() {
                   href={href}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition",
-                    active ? "bg-brand-50 text-brand-700" : "text-slate-700 hover:bg-slate-50"
+                    active ? "bg-brand-50 text-brand-700" : "text-ink hover:bg-sunken"
                   )}
                 >
                   <Icon className="h-5 w-5" />
@@ -47,15 +46,15 @@ export function AdminSidebar() {
           })}
         </ul>
       </nav>
-      <div className="border-t border-slate-100 p-3">
+      <div className="border-t border-line p-3">
         <div className="flex items-center gap-3 rounded-lg p-2">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-emerald-500 text-xs font-bold text-white">AU</span>
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-brand-500 text-xs font-bold text-white">AU</span>
           <div className="min-w-0">
             <p className="text-sm font-semibold">Admin USG</p>
-            <p className="text-xs text-slate-500">System Administrator</p>
+            <p className="text-xs text-muted">System Administrator</p>
           </div>
         </div>
-        <LogoutButton className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50" />
+        <LogoutButton className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-danger-600 hover:bg-danger-50" />
 
       </div>
     </aside>
