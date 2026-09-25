@@ -286,3 +286,10 @@ model PasswordResetToken {
   @@index([userId])
 }
 
+// Admin-configurable limits (claude/decisions/0010). A missing row means the default in code.
+model Setting {
+  key         String   @id
+  value       Int
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}

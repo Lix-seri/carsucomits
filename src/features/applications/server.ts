@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/db";
+import { audit, statusChange } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { notify } from "@/features/notifications/server";
 import { averageRatings } from "@/features/ratings/server";
+import { applyBlockedReason, getLimits } from "@/features/settings/server";
 import type { ApplyInput } from "./schemas";
 
 export async function applyToCommission(session: Session, commissionId: string, input: ApplyInput) {
@@ -17,6 +19,10 @@ export async function applyToCommission(session: Session, commissionId: string, 
     where: { commissionId_applicantId: { commissionId, applicantId: session.userId } },
   });
   if (existing && existing.status !== "WITHDRAWN") throw new HttpError(409, "You have already applied to this commission.");
+
+  // Item 3: caps on pending applications and unfinished jobs (admin setting, decision 0010).
+  const blocked = applyBlockedReason(await workload(session.userId), await getLimits());
+  if (blocked) throw new HttpError(409, blocked);
 
   const fields = { coverLetter: input.coverLetter, proposedRate: input.proposedRate, status: "PENDING" as const };
   const application = existing
@@ -34,6 +40,17 @@ export async function applyToCommission(session: Session, commissionId: string, 
   return { application };
 }
 
+/** Unfinished jobs are hired commissions not yet completed; they count against the hold cap. */
+const ACTIVE_JOB_STATUSES = ["IN_PROGRESS", "AWAITING_REVIEW"] as const;
+
+async function workload(userId: string) {
+  const [pending, active] = await Promise.all([
+    prisma.application.count({ where: { applicantId: userId, status: "PENDING" } }),
+    prisma.commission.count({ where: { awardedToId: userId, status: { in: [...ACTIVE_JOB_STATUSES] } } }),
+  ]);
+  return { pending, active };
+}
+
 async function pendingApplicationOnMyCommission(session: Session, id: string, verb: string) {
   const application = await prisma.application.findUnique({ where: { id }, include: { commission: true } });
   if (!application) throw new HttpError(404, "Application not found.");
@@ -48,6 +65,12 @@ async function pendingApplicationOnMyCommission(session: Session, id: string, ve
 export async function acceptApplication(session: Session, id: string) {
   const application = await pendingApplicationOnMyCommission(session, id, "accept");
   if (application.commission.status !== "OPEN") throw new HttpError(400, "This commission has already been awarded.");
+  // The hold cap also applies at hiring, so applying early can't get around it.
+  const { active } = await workload(application.applicantId);
+  const { MAX_ACTIVE_JOBS } = await getLimits();
+  if (active >= MAX_ACTIVE_JOBS) {
+    throw new HttpError(409, `This student is already working on ${active} commission${active === 1 ? "" : "s"}, the most allowed at once. Try another applicant or ask them to finish one first.`);
+  }
 
   await prisma.$transaction([
     prisma.application.update({ where: { id }, data: { status: "ACCEPTED" } }),
@@ -59,6 +82,8 @@ export async function acceptApplication(session: Session, id: string) {
       where: { id: application.commissionId },
       data: { status: "IN_PROGRESS", awardedToId: application.applicantId },
     }),
+    audit({ actorId: session.userId, action: "APPLICATION_ACCEPTED", target: application.applicantId, before: { status: "PENDING" }, after: { status: "ACCEPTED" }, meta: { applicationId: id, commissionId: application.commissionId } }),
+    audit(statusChange(session.userId, application.commissionId, "OPEN", "IN_PROGRESS")),
   ]);
 
   await notify({
@@ -89,7 +114,10 @@ export async function acceptApplication(session: Session, id: string) {
 /** REQ-4.3 */
 export async function declineApplication(session: Session, id: string) {
   const application = await pendingApplicationOnMyCommission(session, id, "decline");
-  await prisma.application.update({ where: { id }, data: { status: "REJECTED" } });
+  await prisma.$transaction([
+    prisma.application.update({ where: { id }, data: { status: "REJECTED" } }),
+    audit({ actorId: session.userId, action: "APPLICATION_DECLINED", target: application.applicantId, before: { status: "PENDING" }, after: { status: "REJECTED" }, meta: { applicationId: id, commissionId: application.commissionId } }),
+  ]);
   await notify({
     userId: application.applicantId,
     type: "APPLICATION_DECLINED",

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, Flag, Home, ScrollText, ShieldCheck, Users } from "lucide-react";
+import { ClipboardList, Flag, Home, ScrollText, Settings, ShieldCheck, Users } from "lucide-react";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ const NAV = [
   { href: "/admin/listings", label: "Commissions", icon: ClipboardList },
   { href: "/admin/reports", label: "Reports", icon: Flag },
   { href: "/admin/logs", label: "Activity log", icon: ScrollText },
+  { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/security", label: "Security", icon: ShieldCheck },
 ];
 
