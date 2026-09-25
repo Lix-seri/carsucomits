@@ -1,7 +1,7 @@
 import { ShieldCheck, ShieldAlert } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { MfaSetup } from "@/components/admin/mfa-setup";
+import { MfaSetup } from "@/features/auth/mfa-setup";
 
 export default async function AdminSecurityPage() {
   const session = await getSession();
