@@ -39,3 +39,28 @@ test.describe("audit fixes: auth and reports", () => {
     expect(mine.aboutMe[0].reporter).toBeUndefined();
   });
 });
+
+test.describe("audit fixes: sign-in throttling", () => {
+  test.skip(({ isMobile }) => isMobile, "API checks run once");
+
+  test("H6: five wrong passwords lock the account for 15 minutes, even for the right password", async () => {
+    const me = await newUser("Locked");
+    for (let i = 0; i < 5; i++) {
+      expect((await me.api.post("/api/auth/login", { data: { email: me.email, password: "wrong-password" } })).status()).toBe(401);
+    }
+    const res = await me.api.post("/api/auth/login", { data: { email: me.email, password: "password123" } });
+    expect(res.status()).toBe(429);
+    expect((await res.json()).error).toMatch(/Too many failed sign-in attempts/);
+  });
+
+  test("H6: a successful sign-in resets the count", async () => {
+    const me = await newUser("Reset");
+    const wrong = () => me.api.post("/api/auth/login", { data: { email: me.email, password: "wrong-password" } });
+    const right = () => me.api.post("/api/auth/login", { data: { email: me.email, password: "password123" } });
+    for (let i = 0; i < 4; i++) await wrong();
+    expect((await right()).ok()).toBeTruthy();
+    // 8 failures in the window, but only 4 since the last success: still allowed.
+    for (let i = 0; i < 4; i++) expect((await wrong()).status()).toBe(401);
+    expect((await right()).ok()).toBeTruthy();
+  });
+});

@@ -12,14 +12,41 @@ function findByEmail(email: string) {
   return prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
 }
 
+const LOCKOUT_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 15;
+
+/**
+ * Failed sign-ins (wrong password or wrong MFA code) for this account since the later
+ * of the lockout window's start and its last successful sign-in. Stored in the audit
+ * log, so the limit holds across serverless instances.
+ */
+async function recentFailures(userId: string) {
+  const lastLogin = await prisma.auditLog.findFirst({
+    where: { action: "LOGIN", target: userId },
+    orderBy: { createdAt: "desc" },
+    select: { createdAt: true },
+  });
+  const windowStart = new Date(Date.now() - LOCKOUT_MINUTES * 60_000);
+  const since = lastLogin && lastLogin.createdAt > windowStart ? lastLogin.createdAt : windowStart;
+  return prisma.auditLog.count({ where: { action: "LOGIN_FAILED", target: userId, createdAt: { gt: since } } });
+}
+
+async function failLogin(userId: string, message: string): Promise<never> {
+  await prisma.auditLog.create({ data: { actorId: userId, action: "LOGIN_FAILED", target: userId } });
+  throw new HttpError(401, message);
+}
 
 /** Verifies credentials (and MFA when enabled), then sets the session cookie. */
 export async function login({ email, password, expectedRole, mfaCode }: z.infer<typeof loginSchema>) {
   const user = await findByEmail(email);
   if (!user) throw new HttpError(401, "Invalid credentials.");
+  if ((await recentFailures(user.id)) >= LOCKOUT_ATTEMPTS) {
+    throw new HttpError(429, `Too many failed sign-in attempts. Try again in ${LOCKOUT_MINUTES} minutes.`);
+  }
+  if (!(await bcrypt.compare(password, user.passwordHash))) await failLogin(user.id, "Invalid credentials.");
+  // Status only after the password, so strangers can't probe whether an account is banned.
   if (user.status === "BANNED") throw new HttpError(403, "This account is banned.");
   if (user.status === "SUSPENDED") throw new HttpError(403, "This account is suspended.");
-  if (!(await bcrypt.compare(password, user.passwordHash))) throw new HttpError(401, "Invalid credentials.");
 
   // Enforce the role chosen on the login screen.
   if (expectedRole === "ADMIN" && user.role !== "ADMIN") {
@@ -40,7 +67,7 @@ export async function login({ email, password, expectedRole, mfaCode }: z.infer<
         codeOk = true;
       }
     }
-    if (!codeOk) throw new HttpError(401, "Invalid 6-digit code or backup code.");
+    if (!codeOk) await failLogin(user.id, "Invalid 6-digit code or backup code.");
   }
 
   await setSession(user);

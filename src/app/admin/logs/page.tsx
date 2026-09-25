@@ -4,6 +4,7 @@ import { listAuditLogs } from "@/features/admin/server";
 
 const ACTION_STYLE: Record<string, { bar: string; tag: string }> = {
   LOGIN:              { bar: "border-l-emerald-500", tag: "text-emerald-600" },
+  LOGIN_FAILED:       { bar: "border-l-amber-500",   tag: "text-amber-600" },
   LOGOUT:             { bar: "border-l-slate-500",   tag: "text-slate-600" },
   REGISTER:           { bar: "border-l-emerald-500", tag: "text-emerald-600" },
   WARN:               { bar: "border-l-amber-500",   tag: "text-amber-600" },
