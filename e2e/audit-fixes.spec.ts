@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { hiredCommission, newUser, testDb } from "./helpers";
+import { hiredCommission, newUser, postCommission, testDb } from "./helpers";
 
 // Regression tests for the Phase 2 audit fixes (claude/audits/AUDIT_2026-09-25.md). API-level, desktop only.
 test.describe("audit fixes", () => {
@@ -74,5 +74,23 @@ test.describe("audit fixes: ratings", () => {
     expect((await poster.api.post(`/api/commissions/${c.id}/rate-now`, { data: { stars: 1, comment: "Changed my mind entirely." } })).status()).toBe(409);
     expect((await worker.api.post(`/api/ratings/commissioner`, { data: { commissionId: c.id, stars: 4 } })).ok()).toBeTruthy();
     expect((await worker.api.post(`/api/ratings/commissioner`, { data: { commissionId: c.id, stars: 5 } })).status()).toBe(409);
+  });
+});
+
+test.describe("audit fixes: applications", () => {
+  test.skip(({ isMobile }) => isMobile, "API checks run once");
+
+  test("M7: withdrawing and re-applying reopens the application", async () => {
+    const poster = await newUser("Poster");
+    const worker = await newUser("Worker");
+    const c = await postCommission(poster.api);
+    const first = await (await worker.api.post(`/api/commissions/${c.id}/apply`, { data: {} })).json();
+    expect((await worker.api.post(`/api/applications/${first.application.id}/withdraw`)).ok()).toBeTruthy();
+    const again = await worker.api.post(`/api/commissions/${c.id}/apply`, { data: { coverLetter: "Back again." } });
+    expect(again.ok(), await again.text()).toBeTruthy();
+    const body = await again.json();
+    expect(body.application.id).toBe(first.application.id);
+    expect(body.application.status).toBe("PENDING");
+    expect((await worker.api.post(`/api/commissions/${c.id}/apply`, { data: {} })).status()).toBe(409);
   });
 });

@@ -39,7 +39,7 @@ export default async function CommissionDetail({ params }: { params: Promise<{ i
   const { commission, commissionerAvg, myApplication, saved: initialSaved, awardeeName } = detail;
 
   const isOwner = session?.userId === commission.commissionerId;
-  const alreadyApplied = !!myApplication;
+  const alreadyApplied = !!myApplication && myApplication.status !== "WITHDRAWN";
   const canWithdraw = !!myApplication && myApplication.status === "PENDING";
   const isAwardedStudent = session?.userId === commission.awardedToId;
   const deliverables = isOwner || isAwardedStudent ? await listDeliverables(commission.id) : [];

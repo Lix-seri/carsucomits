@@ -12,20 +12,16 @@ export async function applyToCommission(session: Session, commissionId: string, 
   if (commission.commissionerId === session.userId) throw new HttpError(400, "You cannot apply to your own commission.");
 
   // REQ-3.4: one application per person per commission (also a unique index).
+  // A withdrawn application can be reopened; anything else is a duplicate.
   const existing = await prisma.application.findUnique({
     where: { commissionId_applicantId: { commissionId, applicantId: session.userId } },
   });
-  if (existing) throw new HttpError(409, "You have already applied to this commission.");
+  if (existing && existing.status !== "WITHDRAWN") throw new HttpError(409, "You have already applied to this commission.");
 
-  const application = await prisma.application.create({
-    data: {
-      commissionId,
-      applicantId: session.userId,
-      coverLetter: input.coverLetter,
-      proposedRate: input.proposedRate,
-      status: "PENDING",
-    },
-  });
+  const fields = { coverLetter: input.coverLetter, proposedRate: input.proposedRate, status: "PENDING" as const };
+  const application = existing
+    ? await prisma.application.update({ where: { id: existing.id }, data: fields })
+    : await prisma.application.create({ data: { commissionId, applicantId: session.userId, ...fields } });
 
   // REQ-3.3: tell the commissioner.
   await notify({
