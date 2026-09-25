@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 import { listApplicantsForMe } from "@/features/applications/server";
 import { Avatar } from "@/components/ui/avatar";
 import { ApplicantDecisionButtons } from "@/features/applications/applicant-decision-buttons";
@@ -9,15 +9,7 @@ import { ApplicantDecisionButtons } from "@/features/applications/applicant-deci
 export default async function ApplicantsPage({
   searchParams,
 }: { searchParams: Promise<{ commissionId?: string }> }) {
-  const session = await getSession();
-  if (!session) {
-    return (
-      <p className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-        Please <Link href="/login" className="text-brand-600 hover:underline">log in</Link> to view applicants.
-      </p>
-    );
-  }
-
+  const session = await pageSession();
   const { commissionId } = await searchParams;
 
   const { applications, avgRating: ratingMap } = await listApplicantsForMe(session, { commissionId });

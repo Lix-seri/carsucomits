@@ -3,7 +3,7 @@
 // Every read re-loads the user from the database, so bans, suspensions and
 // role changes take effect on the next request instead of when the cookie expires.
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import type { Role } from "@prisma/client";
@@ -76,7 +76,10 @@ export async function requireSession(): Promise<Session> {
  */
 export async function pageSession(opts: { admin?: boolean } = {}): Promise<Session> {
   const session = await getSession();
-  if (!session) redirect(opts.admin ? "/login?reason=admin-only" : "/login");
+  if (!session) {
+    const here = (await headers()).get("x-pathname") ?? "/dashboard";
+    redirect(`/login?next=${encodeURIComponent(here)}`);
+  }
   if (opts.admin && session.role !== "ADMIN") redirect("/dashboard?error=admin-only");
   return session;
 }

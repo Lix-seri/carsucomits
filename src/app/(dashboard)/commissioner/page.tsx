@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { ClipboardList, Users, CheckCircle2, Plus, Eye, Star } from "lucide-react";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 import { getCommissionerHome } from "@/features/hub/server";
 import { Avatar } from "@/components/ui/avatar";
 import { ApplicantDecisionButtons } from "@/features/applications/applicant-decision-buttons";
@@ -22,16 +22,8 @@ const STATUS_PILL: Record<string, string> = {
 };
 
 export default async function CommissionerHome() {
-  const session = await getSession();
-  const firstName = (session?.fullName ?? "Guest").split(" ")[0];
-
-  if (!session) {
-    return (
-      <p className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-        Please <Link href="/login" className="text-brand-600 hover:underline">log in</Link> to view your commissioner dashboard.
-      </p>
-    );
-  }
+  const session = await pageSession();
+  const firstName = session.fullName.split(" ")[0];
 
   const { activeListings, totalApplicants, completedTasks, listings, recentApplicants, ratingMap } = await getCommissionerHome(session);
 

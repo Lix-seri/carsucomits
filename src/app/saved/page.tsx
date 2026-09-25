@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { Bookmark, ArrowRight } from "lucide-react";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 import { getSavedCommissions } from "@/features/commissions/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -16,21 +16,7 @@ const CAT_PILL: Record<string, string> = {
 };
 
 export default async function SavedPage() {
-  const session = await getSession();
-  if (!session) {
-    return (
-      <>
-        <SiteHeader />
-        <main className="mx-auto max-w-3xl px-6 py-16">
-          <p className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-            Please <Link href="/login" className="text-brand-600 hover:underline">log in</Link> to view your saved commissions.
-          </p>
-        </main>
-        <SiteFooter />
-      </>
-    );
-  }
-
+  const session = await pageSession();
   const saved = await getSavedCommissions(session.userId);
 
   return (

@@ -1,16 +1,18 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, Eye, EyeOff, GraduationCap, Shield, KeyRound } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
+import { safeNextPath } from "@/lib/redirect";
 
 type LoginRole = "STUDENT" | "ADMIN";
 
 export function LoginForm() {
   const router = useRouter();
+  const next = safeNextPath(useSearchParams().get("next"));
   const [role, setRole] = useState<LoginRole>("STUDENT");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,7 +46,7 @@ export function LoginForm() {
         return;
       }
       if (!res.ok) { setError(data.error ?? "Login failed."); return; }
-      const dest = data.user?.role === "ADMIN" ? "/admin" : "/dashboard";
+      const dest = next ?? (data.user?.role === "ADMIN" ? "/admin" : "/dashboard");
       router.replace(dest);
       router.refresh();
     } catch {
@@ -61,7 +63,7 @@ export function LoginForm() {
     try {
       const { res, data } = await attemptLogin({ email, password, expectedRole: role, mfaCode });
       if (!res.ok) { setError(data.error ?? "Code rejected."); return; }
-      const dest = data.user?.role === "ADMIN" ? "/admin" : "/dashboard";
+      const dest = next ?? (data.user?.role === "ADMIN" ? "/admin" : "/dashboard");
       router.replace(dest);
       router.refresh();
     } finally {

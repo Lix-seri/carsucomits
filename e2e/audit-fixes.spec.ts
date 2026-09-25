@@ -94,3 +94,18 @@ test.describe("audit fixes: applications", () => {
     expect((await worker.api.post(`/api/commissions/${c.id}/apply`, { data: {} })).status()).toBe(409);
   });
 });
+
+test.describe("audit fixes: routing", () => {
+  test("M1: signed-out visitors go to login and come back to the page they wanted", async ({ page }) => {
+    const me = await newUser("Next");
+    await page.goto("/hub");
+    await expect(page).toHaveURL(/\/login\?next=%2Fhub$/);
+    await page.getByPlaceholder("youremail@carsu.edu.ph").fill(me.email);
+    await page.getByPlaceholder("Enter your password").fill("password123");
+    await page.getByRole("button", { name: "Login as Student" }).click();
+    await expect(page).toHaveURL(/\/hub$/);
+    // Signed in, the login page sends you home instead.
+    await page.goto("/login");
+    await expect(page).toHaveURL(/\/dashboard$/);
+  });
+});

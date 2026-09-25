@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { Eye, Plus } from "lucide-react";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 import { getMyListings } from "@/features/commissions/server";
 
 const CAT_PILL: Record<string, string> = {
@@ -20,15 +20,7 @@ const STATUS_PILL: Record<string, string> = {
 };
 
 export default async function ListingsPage() {
-  const session = await getSession();
-  if (!session) {
-    return (
-      <p className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-        Please <Link href="/login" className="text-brand-600 hover:underline">log in</Link>.
-      </p>
-    );
-  }
-
+  const session = await pageSession();
   const listings = await getMyListings(session.userId);
 
   return (

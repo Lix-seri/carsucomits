@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { Star } from "lucide-react";
 import { ROLE_LABEL } from "@/lib/labels";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 import { getProfileDetails } from "@/features/profile/server";
 import { SkillsManager } from "@/features/profile/skills-manager";
 import { AvatarUploader } from "@/features/profile/avatar-uploader";
@@ -10,13 +10,11 @@ import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
 import { Stat } from "@/components/ui/stat";
 
 export default async function ProfilePage() {
-  const session = await getSession();
-  const fullName = session?.fullName ?? "Guest";
-  const email = session?.email ?? "—";
+  const session = await pageSession();
+  const fullName = session.fullName;
+  const email = session.email;
 
-  const { skills, stats, reviews, distribution } = session
-    ? await getProfileDetails(session.userId, 5)
-    : { skills: [], stats: { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null }, reviews: [], distribution: {} };
+  const { skills, stats, reviews, distribution } = await getProfileDetails(session.userId, 5);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -24,12 +22,12 @@ export default async function ProfilePage() {
         <div className="h-28 bg-gradient-to-r from-brand-500 to-emerald-500" />
         <div className="-mt-12 p-6">
           <div className="flex flex-col items-start gap-4 md:flex-row md:items-end">
-            <AvatarUploader fullName={fullName} initialUrl={session?.avatarUrl ?? null} />
+            <AvatarUploader fullName={fullName} initialUrl={session.avatarUrl} />
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-bold">{fullName}</h1>
               </div>
-              <p className="text-sm text-slate-500">{session ? ROLE_LABEL[session.role] : ""}</p>
+              <p className="text-sm text-slate-500">{ROLE_LABEL[session.role]}</p>
               <p className="text-xs text-slate-400">{email}</p>
               <p className="mt-1 text-sm">
                 <Star className="mr-1 inline h-4 w-4 fill-amber-400 text-amber-400" />

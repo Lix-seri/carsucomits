@@ -1,7 +1,7 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 import { getHub } from "@/features/hub/server";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { RateNowButton } from "@/features/ratings/rate-now-button";
@@ -24,15 +24,7 @@ const APP_STATUS_PILL: Record<string, string> = {
 };
 
 export default async function HubPage() {
-  const session = await getSession();
-  if (!session) {
-    return (
-      <p className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-        Please <Link href="/login" className="text-brand-600 hover:underline">log in</Link> to view your hub.
-      </p>
-    );
-  }
-
+  const session = await pageSession();
   const { doing, posted, applications, unratedCompleted, completedAsStudent, awardedMap } = await getHub(session);
 
   return (

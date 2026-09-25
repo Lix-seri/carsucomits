@@ -1,5 +1,7 @@
+import { pageSession } from "@/lib/session";
 import { PostCommissionForm } from "@/features/commissions/post-commission-form";
 
-export default function PostCommissionPage() {
+export default async function PostCommissionPage() {
+  await pageSession();
   return <PostCommissionForm />;
 }

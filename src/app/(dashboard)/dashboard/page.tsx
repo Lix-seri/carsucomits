@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Hand, TrendingUp, Users, Star, ArrowRight, ChevronRight, CheckCircle2 } from "lucide-react";
 import { ProfileCard } from "@/features/profile/profile-card";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 import { getDashboard } from "@/features/hub/server";
 import { ROLE_LABEL } from "@/lib/labels";
 import { formatFare } from "@/lib/format";
@@ -17,25 +17,13 @@ const CAT_PILL: Record<string, string> = {
 };
 
 export default async function DashboardHome() {
-  const session = await getSession();
-  const fullName = session?.fullName ?? "Guest";
+  const session = await pageSession();
+  const fullName = session.fullName;
   const firstName = fullName.split(" ")[0];
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: CAMPUS_TZ });
   const hello = greeting();
 
-  const { skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName } = session
-    ? await getDashboard(session)
-    : {
-        skills: [],
-        stats: { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null },
-        reviews: [],
-        featured: [],
-        doingTask: null,
-        postedTask: null,
-        inProgressCount: 0,
-        applicantsWaiting: 0,
-        awardedToName: "the student",
-      };
+  const { skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName } = await getDashboard(session);
 
   return (
     <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -185,13 +173,13 @@ export default async function DashboardHome() {
         <ProfileCard
           user={{
             fullName,
-            role: session ? ROLE_LABEL[session.role] : "",
+            role: ROLE_LABEL[session.role],
             rating: stats.rating,
             reviews: stats.reviewCount,
             done: stats.done,
             posted: stats.posted,
             rate: stats.successRate,
-            avatarUrl: session?.avatarUrl ?? null,
+            avatarUrl: session.avatarUrl,
           }}
           skills={skills}
           reviews={reviews}
