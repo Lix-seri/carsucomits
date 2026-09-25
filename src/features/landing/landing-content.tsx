@@ -1,32 +1,31 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
-"use client";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ArrowRight, Target, Users, CheckCircle2, X } from "lucide-react";
-import { CategoryCard } from "@/features/landing/category-card";
-import { CommissionCard } from "@/features/landing/commission-card";
-import { CATEGORIES, COMMISSIONS, ACADEMIC_SUBCATEGORIES, type Category } from "@/features/landing/mock-data";
+import { ArrowRight, BookOpen, CheckCircle2, ClipboardList, Code2, ShoppingCart, Target, Users } from "lucide-react";
 
-export function LandingContent() {
-  const [category, setCategory] = useState<Category | null>("Academic");
-  const [sub, setSub] = useState<string | null>(null);
+const CATEGORIES = [
+  { value: "ACADEMIC", name: "Academic", description: "Tutoring and study help", icon: BookOpen },
+  { value: "TECHNICAL", name: "Technical", description: "Programming, design, tech", icon: Code2 },
+  { value: "GENERAL_ERRANDS", name: "General Errands", description: "Deliveries, purchases, campus tasks", icon: ShoppingCart },
+  { value: "ADMINISTRATIVE", name: "Administrative", description: "Documents, data entry, events", icon: ClipboardList },
+];
 
-  const filtered = useMemo(() => {
-    return COMMISSIONS.filter((c) =>
-      (!category || c.category === category) && (!sub || c.subcategory === sub)
-    );
-  }, [category, sub]);
+const STEPS = [
+  { icon: Target, title: "Post a Task", desc: "Describe what you need and set your budget" },
+  { icon: Users, title: "Find a Student", desc: "Review applications from skilled CSU students" },
+  { icon: CheckCircle2, title: "Get It Done", desc: "Work together and complete your commission" },
+];
 
+/** Home page sections. `latest` is the grid of real open commissions, composed by the page. */
+export function LandingContent({ latest }: { latest: React.ReactNode }) {
   return (
     <>
       <section className="bg-brand-50/60">
         <div className="mx-auto max-w-7xl px-6 py-24 text-center">
           <h1 className="text-5xl font-extrabold leading-tight tracking-tight md:text-6xl">
-            Find Skilled Students,{" "}
-            <span className="text-brand-500">Get Things Done</span>
+            Find Skilled Students, <span className="text-brand-500">Get Things Done</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 md:text-lg">
-            CSU&apos;s trusted commission marketplace — academic, technical, and general errands.
+            CSU&apos;s trusted commission marketplace for technical work, tutoring, errands and admin help.
           </p>
           <div className="mt-8">
             <Link href="/browse" className="btn-primary !px-7 !py-3 text-base">
@@ -38,94 +37,47 @@ export function LandingContent() {
 
       <section className="mx-auto max-w-7xl px-6 py-20">
         <h2 className="mb-10 text-center text-3xl font-bold">Browse by Category</h2>
-        <div className="grid gap-5 md:grid-cols-3">
-          {CATEGORIES.map((c) => (
-            <CategoryCard
-              key={c.name}
-              name={c.name}
-              description={c.description}
-              icon={c.icon}
-              selected={category === c.name}
-              onSelect={() => { setCategory(category === c.name ? null : (c.name as Category)); setSub(null); }}
-            />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {CATEGORIES.map(({ value, name, description, icon: Icon }) => (
+            <Link
+              key={value}
+              href={`/browse?category=${value}`}
+              className="flex flex-col items-start rounded-xl border border-slate-200 bg-white p-6 transition hover:border-brand-300 hover:shadow-card"
+            >
+              <span className="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-brand-50 text-brand-600">
+                <Icon className="h-6 w-6" strokeWidth={2} />
+              </span>
+              <span className="mb-1 text-lg font-bold text-ink">{name}</span>
+              <span className="text-sm text-slate-600">{description}</span>
+            </Link>
           ))}
         </div>
       </section>
 
       <section className="bg-slate-50">
         <div className="mx-auto max-w-7xl px-6 py-20">
-          <div className="mb-3 text-center">
-            <h2 className="text-3xl font-bold">
-              {category ? `${category} Commissions` : "All Commissions"}
-            </h2>
-            <p className="mt-2 text-slate-600">
-              {category === "Academic"
-                ? "Browse academic opportunities from students looking for help"
-                : category === "Technical"
-                ? "Programming, design, and technical work"
-                : category === "General Errands"
-                ? "Quick tasks and errands around campus"
-                : "All available commissions across categories"}
-            </p>
-          </div>
-
-          {(category || sub) && (
-            <div className="mb-8 flex justify-center">
-              <button
-                onClick={() => { setCategory(null); setSub(null); }}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50"
-              >
-                <X className="h-4 w-4" /> Clear Filter
-              </button>
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-3xl font-bold">Latest Commissions</h2>
+              <p className="mt-2 text-slate-600">Open now, newest first.</p>
             </div>
-          )}
-
-          {category === "Academic" && (
-            <div className="mb-8 rounded-xl border border-slate-200 bg-white p-5">
-              <p className="mb-3 text-xs font-medium text-slate-500">Filter by subcategory:</p>
-              <div className="flex flex-wrap gap-2">
-                {ACADEMIC_SUBCATEGORIES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSub(sub === s ? null : s)}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                      sub === s ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {filtered.map((c) => (
-              <CommissionCard key={c.id} c={c} />
-            ))}
+            <Link href="/browse" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700">
+              See all <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-
-          {filtered.length === 0 && (
-            <p className="py-12 text-center text-slate-500">
-              No commissions match your filter. Try clearing it.
-            </p>
-          )}
+          {latest}
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-24">
+      <section id="how-it-works" className="mx-auto max-w-7xl scroll-mt-20 px-6 py-24">
         <h2 className="mb-14 text-center text-3xl font-bold">How It Works</h2>
         <div className="grid gap-12 md:grid-cols-3">
-          {[
-            { n: 1, icon: Target, title: "Post a Task", desc: "Describe what you need and set your budget" },
-            { n: 2, icon: Users, title: "Find a Student", desc: "Review applications from skilled CSU students" },
-            { n: 3, icon: CheckCircle2, title: "Get It Done", desc: "Work together and complete your commission" },
-          ].map(({ n, icon: Icon, title, desc }) => (
-            <div key={n} className="text-center">
+          {STEPS.map(({ icon: Icon, title, desc }, i) => (
+            <div key={title} className="text-center">
               <div className="relative mx-auto mb-5 grid h-20 w-20 place-items-center rounded-full bg-brand-50 text-brand-600">
                 <Icon className="h-9 w-9" strokeWidth={2} />
                 <span className="absolute -right-1 -top-1 grid h-7 w-7 place-items-center rounded-full bg-brand-500 text-sm font-bold text-white">
-                  {n}
+                  {i + 1}
                 </span>
               </div>
               <h3 className="mb-2 text-lg font-bold">{title}</h3>

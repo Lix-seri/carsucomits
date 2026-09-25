@@ -8,7 +8,7 @@ import { deleteBlob } from "@/features/profile/server";
 import { IMAGE_TYPES, type CreateCommissionInput, type listCommissionsSchema } from "./schemas";
 
 /** Browse listing: filter by category, level, free text and status (default OPEN). */
-export async function listCommissions(filters: z.infer<typeof listCommissionsSchema>) {
+export async function listCommissions(filters: z.infer<typeof listCommissionsSchema>, take = 50) {
   const { category, level, q, status } = filters;
   const commissions = await prisma.commission.findMany({
     where: {
@@ -30,7 +30,7 @@ export async function listCommissions(filters: z.infer<typeof listCommissionsSch
       commissioner: { select: { fullName: true, avatarUrl: true } },
       _count: { select: { applications: true } },
     },
-    take: 50,
+    take,
   });
   return { commissions };
 }

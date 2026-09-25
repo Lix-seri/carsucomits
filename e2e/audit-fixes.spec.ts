@@ -126,3 +126,18 @@ test.describe("audit fixes: links", () => {
     }
   });
 });
+
+test.describe("audit fixes: home page", () => {
+  test("H3: the home page lists real open commissions, and category cards filter Browse", async ({ page }) => {
+    const poster = await newUser("Home");
+    const c = await postCommission(poster.api, { title: `Home page listing ${Date.now()}` });
+    await page.goto("/");
+    await page.getByRole("link", { name: /View & Apply/ }).first().waitFor();
+    await expect(page.getByRole("heading", { name: c.title })).toBeVisible();
+    await expect(page.getByText("Research Paper Writing")).toHaveCount(0);
+
+    await page.getByRole("link", { name: /Technical/ }).first().click();
+    await expect(page).toHaveURL(/\/browse\?category=TECHNICAL$/);
+    await expect(page.getByRole("heading", { name: c.title })).toBeVisible();
+  });
+});

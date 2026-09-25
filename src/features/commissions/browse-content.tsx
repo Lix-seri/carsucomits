@@ -1,42 +1,19 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, X, SlidersHorizontal, ArrowRight } from "lucide-react";
-import { formatFare } from "@/lib/format";
-import { CATEGORY_OPTIONS, LEVEL_OPTIONS, LEVEL_PILL } from "@/lib/labels";
-
-const CAT_PILL: Record<string, string> = {
-  ACADEMIC: "bg-emerald-500 text-white",
-  TECHNICAL: "bg-blue-500 text-white",
-  GENERAL_ERRANDS: "bg-amber-500 text-white",
-  ADMINISTRATIVE: "bg-purple-500 text-white",
-};
-type Commission = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  subcategory: string | null;
-  requiredLevel: string;
-  fareMin: number;
-  fareMax: number | null;
-  fareUnit: string | null;
-  coverImageUrl: string | null;
-  status: string;
-  createdAt: string;
-  commissioner: { fullName: string; avatarUrl: string | null };
-  _count: { applications: number };
-};
+import { Search, X, SlidersHorizontal } from "lucide-react";
+import { CATEGORY_OPTIONS, LEVEL_OPTIONS } from "@/lib/labels";
+import { CommissionCard, type CommissionCardData } from "./commission-card";
 
 export function BrowseContent() {
   const params = useSearchParams();
   const initialQ = params.get("q") ?? "";
   const [q, setQ] = useState(initialQ);
-  const [cat, setCat] = useState<string | null>(null);
-  const [lvl, setLvl] = useState<string | null>(null);
-  const [items, setItems] = useState<Commission[]>([]);
+  // Deep links from the home page: /browse?category=TECHNICAL
+  const [cat, setCat] = useState<string | null>(params.get("category"));
+  const [lvl, setLvl] = useState<string | null>(params.get("level"));
+  const [items, setItems] = useState<CommissionCardData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -135,40 +112,13 @@ export function BrowseContent() {
 
             {visible.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {visible.map((c) => (
-                  <article key={c.id} id={c.id} className="flex h-full scroll-mt-24 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-soft">
-                    {c.coverImageUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.coverImageUrl} alt="" className="h-32 w-full object-cover" />
-                    )}
-                    <div className="flex flex-1 flex-col p-5">
-                    <div className="mb-3 flex items-start justify-between gap-2">
-                      <span className={`pill ${CAT_PILL[c.category] ?? "bg-slate-500 text-white"}`}>
-                        {c.category.replace("_", " ")}
-                      </span>
-                      <span className={`pill ${LEVEL_PILL[c.requiredLevel]}`}>{c.requiredLevel}</span>
-                    </div>
-                    {c.subcategory && (
-                      <span className="pill mb-3 w-fit bg-slate-100 text-slate-700">{c.subcategory}</span>
-                    )}
-                    <h3 className="mb-1.5 line-clamp-2 text-base font-bold text-ink">{c.title}</h3>
-                    <p className="mb-4 line-clamp-2 text-sm text-slate-600">{c.description}</p>
-                    <p className="mb-4 text-base font-bold text-brand-600">{formatFare(c)}</p>
-                    <p className="mb-3 text-xs text-slate-500">
-                      Posted by {c.commissioner.fullName} · {c._count.applications} applicant{c._count.applications === 1 ? "" : "s"}
-                    </p>
-                    <Link href={`/commission/${c.id}`} className="btn-primary mt-auto w-full">
-                      View &amp; Apply <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                    </div>
-                  </article>
-                ))}
+                {visible.map((c) => <CommissionCard key={c.id} c={c} />)}
               </div>
             ) : (
               <div className="rounded-xl border border-slate-200 bg-white py-16 text-center">
                 <p className="text-slate-500">
                   {hasFilter
-                    ? "Walang available na commission sa filter mo. Try clearing one."
+                    ? "No open commissions match these filters. Try clearing one."
                     : "No commissions posted yet. Check back soon — or post one yourself!"}
                 </p>
               </div>
