@@ -1,44 +1,35 @@
 import Link from "next/link";
 import { Logo } from "./logo";
 
+const LINKS = [
+  { href: "/browse", label: "Browse commissions" },
+  { href: "/commissioner/post", label: "Post a commission" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/about", label: "Trust & safety" },
+  { href: "/terms", label: "Terms of use" },
+];
+
 export function SiteFooter() {
   return (
-    <footer className="bg-ink text-faint">
-      <div className="mx-auto max-w-7xl px-6 py-14">
-        <div className="grid gap-10 md:grid-cols-4">
-          <div className="space-y-3">
-            <div className="text-white"><Logo /></div>
-            <p className="text-sm text-muted">
-              Caraga State University&apos;s trusted marketplace for student commissions and services.
-            </p>
-          </div>
-          <div>
-            <h4 className="mb-4 font-semibold text-white">Quick Links</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/browse" className="hover:text-white">Browse Commissions</Link></li>
-              <li><Link href="/commissioner/post" className="hover:text-white">Post a Commission</Link></li>
-              <li><Link href="/#how-it-works" className="hover:text-white">How It Works</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-4 font-semibold text-white">Support</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-white">Trust &amp; Safety</Link></li>
-              <li><Link href="/terms" className="hover:text-white">Terms of Use</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="mb-4 font-semibold text-white">Caraga State University</h4>
-            <p className="text-sm leading-6 text-muted">
-              Ampayon, Butuan City<br />Agusan del Norte, Philippines
-            </p>
-            <p className="mt-3 text-sm text-muted">Official student marketplace</p>
-          </div>
+    <footer className="border-t border-line bg-white">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row md:justify-between">
+        <div className="max-w-sm space-y-3">
+          <Logo size="sm" />
+          <p className="text-sm text-muted">
+            A commission marketplace for students of Caraga State University – Main Campus, Ampayon, Butuan City.
+          </p>
         </div>
-        <div className="mt-12 border-t border-line-strong pt-6 text-center text-sm text-muted">
-          © {new Date().getFullYear()} CarsuComits. All rights reserved. Powered by CSU Students. · v{process.env.APP_VERSION}
-        </div>
+        <nav aria-label="Footer">
+          <ul className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+            {LINKS.map((l) => (
+              <li key={l.href}><Link href={l.href} className="text-muted hover:text-ink">{l.label}</Link></li>
+            ))}
+          </ul>
+        </nav>
       </div>
+      <p className="mx-auto max-w-7xl border-t border-line px-4 py-5 text-xs text-muted sm:px-6">
+        © {new Date().getFullYear()} CarsuComits · Built by CSU students · v{process.env.APP_VERSION}
+      </p>
     </footer>
   );
 }

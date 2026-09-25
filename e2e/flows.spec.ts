@@ -36,7 +36,7 @@ test.describe("flows through the UI", () => {
     await page.getByRole("heading", { name: c.title }).waitFor();
     await shot(page, "visitor-browse-filtered");
     await page.goto(`/commission/${c.id}`);
-    await page.getByRole("link", { name: "Login to apply" }).click();
+    await page.getByRole("link", { name: "Sign in to apply" }).click();
     await expect(page).toHaveURL(/\/login/);
   });
 
@@ -155,7 +155,7 @@ test.describe("flows through the UI", () => {
     await page.getByRole("button", { name: "Admin" }).click();
     await page.getByLabel("CSU Email Address").fill(ADMIN.email);
     await page.getByLabel("Password", { exact: true }).fill(ADMIN.password);
-    await page.getByRole("button", { name: "Login as Admin" }).click();
+    await page.getByRole("button", { name: "Sign in as Admin" }).click();
     await expect(page).toHaveURL(/\/admin$/);
 
     // Admin rows can't be moderated.

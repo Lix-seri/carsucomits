@@ -35,48 +35,48 @@ export function RegisterForm() {
   }
 
   return (
-    <main id="main" className="min-h-screen bg-brand-50/40">
-      <Link href="/" className="absolute left-6 top-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700">
-        <ArrowLeft className="h-4 w-4" /> Back to Home
+    <main id="main" className="flex min-h-screen flex-col">
+      <Link href="/" className="m-4 inline-flex items-center gap-1.5 self-start rounded-lg px-2 py-1 text-sm font-medium text-muted hover:text-ink sm:m-6">
+        <ArrowLeft className="h-4 w-4" /> Home
       </Link>
 
-      <div className="grid min-h-screen place-items-center px-6 py-16">
-        <div className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-card">
+      <div className="grid flex-1 place-items-center px-4 pb-10">
+        <div className="w-full max-w-md rounded-xl border border-line bg-white p-6 shadow-card sm:p-8">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
-            <h1 className="mt-5 text-2xl font-bold">Create Your Account</h1>
-            <p className="mt-1 text-sm text-muted">Join the CSU Commission Marketplace</p>
+            <h1 className="mt-5 text-2xl font-bold">Create your account</h1>
+            <p className="mt-1 text-sm text-muted">For CSU Main students with an @carsu.edu.ph email.</p>
           </div>
 
           <form noValidate onSubmit={handleSubmit} className="space-y-4">
-            <Field label="Full Name" error={errorFor("fullName")}>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name" autoComplete="name" className="input" />
+            <Field label="Full name" error={errorFor("fullName")}>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Juan Dela Cruz" autoComplete="name" className="input" />
             </Field>
-            <Field label="CSU Email Address" error={errorFor("email")}>
+            <Field label="CSU email address" error={errorFor("email")}>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@carsu.edu.ph" autoComplete="email" className="input" />
             </Field>
             <Field label="Password" error={errorFor("password")} hint="At least 8 characters.">
               <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a password" autoComplete="new-password" />
             </Field>
-            <Field label="Confirm Password" error={errorFor("confirm")}>
+            <Field label="Confirm password" error={errorFor("confirm")}>
               <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Re-enter your password" autoComplete="new-password" />
             </Field>
 
             <FormError message={error && !["fullName", "email", "password", "confirm"].includes(error.field ?? "") ? error.message : null} />
 
             <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
-              {loading ? "Creating account…" : "Create Account"}
+              {loading ? "Creating account…" : "Create account"}
             </button>
 
             <p className="text-center text-sm text-muted">
               Already have an account?{" "}
-              <Link href="/login" className="font-semibold text-brand-600 hover:text-brand-700">Login</Link>
+              <Link href="/login" className="font-semibold text-brand-700 hover:underline">Sign in</Link>
             </p>
           </form>
         </div>
       </div>
 
-      <p className="pb-6 text-center text-xs text-muted">© {new Date().getFullYear()} CarsuComits · Caraga State University</p>
+      <p className="pb-6 text-center text-xs text-muted">CarsuComits · Caraga State University – Main Campus</p>
     </main>
   );
 }

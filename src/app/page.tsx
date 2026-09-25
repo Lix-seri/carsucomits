@@ -1,30 +1,32 @@
 import Link from "next/link";
+import { ClipboardList } from "lucide-react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { EmptyState } from "@/components/ui/empty-state";
 import { LandingContent } from "@/features/landing/landing-content";
 import { CommissionCard } from "@/features/commissions/commission-card";
 import { listCommissions } from "@/features/commissions/server";
 
 export default async function HomePage() {
-  const { commissions } = await listCommissions({ status: "OPEN" }, 8);
+  const { commissions } = await listCommissions({ status: "OPEN" }, 6);
   return (
     <>
       <SiteHeader />
-      <LandingContent
-        latest={
-          commissions.length > 0 ? (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {commissions.map((c) => (
-                <CommissionCard key={c.id} c={c} />
-              ))}
-            </div>
-          ) : (
-            <p className="rounded-xl border border-dashed border-brand-200 bg-white py-12 text-center text-muted">
-              No open commissions yet. <Link href="/commissioner/post" className="font-semibold text-brand-600 hover:underline">Post the first one</Link>.
-            </p>
-          )
-        }
-      />
+      <main id="main">
+        <LandingContent
+          latest={
+            commissions.length > 0 ? (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {commissions.map((c) => (
+                  <CommissionCard key={c.id} c={c} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState icon={ClipboardList} title="No open commissions yet" action={<Link href="/commissioner/post" className="btn-primary">Post the first one</Link>} />
+            )
+          }
+        />
+      </main>
       <SiteFooter />
     </>
   );

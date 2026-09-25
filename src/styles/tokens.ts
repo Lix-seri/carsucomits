@@ -72,4 +72,5 @@ export const gridTemplateColumns = {
 };
 export const height = { conversation: "calc(100dvh - 8rem)" };
 export const letterSpacing = { code: "0.5em" };
-export const maxWidth = { bubble: "70%" };
+export const maxWidth = { bubble: "70%", popover: "calc(100vw - 2rem)" };
+export const maxHeight = { popover: "min(28rem, calc(100dvh - 6rem))" };

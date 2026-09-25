@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, CheckCircle2, ClipboardList, Code2, ShoppingCart, Target, Users } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardList, Code2, ShoppingCart } from "lucide-react";
 
 const CATEGORIES = [
   { value: "ACADEMIC", name: "Academic", description: "Tutoring and study help", icon: BookOpen },
@@ -8,82 +8,82 @@ const CATEGORIES = [
   { value: "ADMINISTRATIVE", name: "Administrative", description: "Documents, data entry, events", icon: ClipboardList },
 ];
 
+// The commission lifecycle is the product; the hero shows it instead of a stock illustration.
 const STEPS = [
-  { icon: Target, title: "Post a Task", desc: "Describe what you need and set your budget" },
-  { icon: Users, title: "Find a Student", desc: "Review applications from skilled CSU students" },
-  { icon: CheckCircle2, title: "Get It Done", desc: "Work together and complete your commission" },
+  { title: "Post what you need", desc: "A title, a fare and a deadline. Students see it right away." },
+  { title: "Hire an applicant", desc: "Compare cover letters, ratings and finished work." },
+  { title: "Review the delivery", desc: "Approve it or ask for a revision, all in one place." },
+  { title: "Complete and rate", desc: "Both sides rate each other, so reputations are earned." },
 ];
 
 /** Home page sections. `latest` is the grid of real open commissions, composed by the page. */
 export function LandingContent({ latest }: { latest: React.ReactNode }) {
   return (
     <>
-      <section className="bg-brand-50/60">
-        <div className="mx-auto max-w-7xl px-6 py-24 text-center">
-          <h1 className="text-5xl font-extrabold leading-tight tracking-tight md:text-6xl">
-            Find Skilled Students, <span className="text-brand-500">Get Things Done</span>
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-muted md:text-lg">
-            CSU&apos;s trusted commission marketplace for technical work, tutoring, errands and admin help.
-          </p>
-          <div className="mt-8">
-            <Link href="/browse" className="btn-primary !px-7 !py-3 text-base">
-              Explore Commissions <ArrowRight className="h-5 w-5" />
-            </Link>
+      <section className="border-b border-line bg-white">
+        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2 lg:items-center">
+          <div>
+            <p className="text-sm font-semibold text-brand-700">For students of CSU Main</p>
+            <h1 className="mt-3 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+              Get it done by a fellow CSU student.
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-muted">
+              Post a task, hire a classmate who&apos;s good at it, and pay what you agreed. Tutoring, tech work, errands and paperwork, all inside campus.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/browse" className="btn-primary">
+                Browse commissions <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/commissioner/post" className="btn-secondary">Post a commission</Link>
+            </div>
           </div>
+
+          <ol id="how-it-works" aria-label="How it works" className="scroll-mt-20 rounded-xl border border-line bg-canvas p-2">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="flex gap-4 rounded-lg p-4">
+                <span className="tabular grid h-8 w-8 shrink-0 place-items-center rounded-full border border-brand-200 bg-white text-sm font-semibold text-brand-700">
+                  {i + 1}
+                </span>
+                <div>
+                  <p className="font-semibold">{s.title}</p>
+                  <p className="text-sm text-muted">{s.desc}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-20">
-        <h2 className="mb-10 text-center text-3xl font-bold">Browse by Category</h2>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <section aria-labelledby="categories" className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
+        <h2 id="categories" className="mb-5 text-2xl font-semibold tracking-tight">Browse by category</h2>
+        <div className="grid overflow-hidden rounded-xl border border-line bg-white sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORIES.map(({ value, name, description, icon: Icon }) => (
             <Link
               key={value}
               href={`/browse?category=${value}`}
-              className="flex flex-col items-start rounded-xl border border-line bg-white p-6 transition hover:border-brand-300 hover:shadow-card"
+              className="group flex items-start gap-3 border-b border-line p-5 transition-colors hover:bg-sunken sm:border-r lg:border-b-0"
             >
-              <span className="mb-4 grid h-12 w-12 place-items-center rounded-lg bg-brand-50 text-brand-600">
-                <Icon className="h-6 w-6" strokeWidth={2} />
+              <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
+              <span>
+                <span className="block font-semibold group-hover:text-brand-700">{name}</span>
+                <span className="block text-sm text-muted">{description}</span>
               </span>
-              <span className="mb-1 text-lg font-bold text-ink">{name}</span>
-              <span className="text-sm text-muted">{description}</span>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="bg-sunken">
-        <div className="mx-auto max-w-7xl px-6 py-20">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-3xl font-bold">Latest Commissions</h2>
-              <p className="mt-2 text-muted">Open now, newest first.</p>
-            </div>
-            <Link href="/browse" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700">
-              See all <ArrowRight className="h-4 w-4" />
-            </Link>
+      <section aria-labelledby="latest" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 id="latest" className="text-2xl font-semibold tracking-tight">Open now</h2>
+            <p className="mt-1 text-muted">The newest commissions waiting for someone.</p>
           </div>
-          {latest}
+          <Link href="/browse" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline">
+            See all <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-      </section>
-
-      <section id="how-it-works" className="mx-auto max-w-7xl scroll-mt-20 px-6 py-24">
-        <h2 className="mb-14 text-center text-3xl font-bold">How It Works</h2>
-        <div className="grid gap-12 md:grid-cols-3">
-          {STEPS.map(({ icon: Icon, title, desc }, i) => (
-            <div key={title} className="text-center">
-              <div className="relative mx-auto mb-5 grid h-20 w-20 place-items-center rounded-full bg-brand-50 text-brand-600">
-                <Icon className="h-9 w-9" strokeWidth={2} />
-                <span className="absolute -right-1 -top-1 grid h-7 w-7 place-items-center rounded-full bg-brand-500 text-sm font-bold text-white">
-                  {i + 1}
-                </span>
-              </div>
-              <h3 className="mb-2 text-lg font-bold">{title}</h3>
-              <p className="text-sm text-muted">{desc}</p>
-            </div>
-          ))}
-        </div>
+        {latest}
       </section>
     </>
   );

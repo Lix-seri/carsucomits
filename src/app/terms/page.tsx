@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 
-export const metadata: Metadata = { title: "Terms of Use — CarsuComits" };
+export const metadata: Metadata = { title: "Terms of use" };
 
 const SECTIONS: { id: string; title: string; body: React.ReactNode }[] = [
   {

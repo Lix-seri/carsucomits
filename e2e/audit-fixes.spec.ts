@@ -102,7 +102,7 @@ test.describe("audit fixes: routing", () => {
     await expect(page).toHaveURL(/\/login\?next=%2Fhub$/);
     await page.getByPlaceholder("youremail@carsu.edu.ph").fill(me.email);
     await page.getByPlaceholder("Enter your password").fill("password123");
-    await page.getByRole("button", { name: "Login as Student" }).click();
+    await page.getByRole("button", { name: "Sign in as Student" }).click();
     await expect(page).toHaveURL(/\/hub$/);
     // Signed in, the login page sends you home instead.
     await page.goto("/login");

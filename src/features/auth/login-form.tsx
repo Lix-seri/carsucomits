@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, GraduationCap, Shield, KeyRound } from "lucide-react";
+import { ArrowLeft, GraduationCap, Shield } from "lucide-react";
 import { Field, FormError } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Logo } from "@/components/layout/logo";
@@ -76,29 +76,26 @@ export function LoginForm() {
   }
 
   return (
-    <main id="main" className="min-h-screen bg-brand-50/40">
-      <Link href="/" className="absolute left-6 top-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:text-brand-700">
-        <ArrowLeft className="h-4 w-4" /> Back to Home
+    <main id="main" className="flex min-h-screen flex-col">
+      <Link href="/" className="m-4 inline-flex items-center gap-1.5 self-start rounded-lg px-2 py-1 text-sm font-medium text-muted hover:text-ink sm:m-6">
+        <ArrowLeft className="h-4 w-4" /> Home
       </Link>
 
-      <div className="grid min-h-screen place-items-center px-6">
-        <div className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-card">
+      <div className="grid flex-1 place-items-center px-4 pb-10">
+        <div className="w-full max-w-md rounded-xl border border-line bg-white p-6 shadow-card sm:p-8">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
-            <h1 className="mt-5 text-2xl font-bold">{needMfa ? "Two-factor authentication" : "Welcome Back!"}</h1>
+            <h1 className="mt-5 text-2xl font-bold">{needMfa ? "Two-factor sign-in" : "Sign in"}</h1>
             <p className="mt-1 text-sm text-muted">
               {needMfa
                 ? "Enter the 6-digit code from your authenticator app."
-                : "Login to your CSU commission account"}
+                : "Use your @carsu.edu.ph account."}
             </p>
           </div>
 
           {needMfa ? (
             <form noValidate onSubmit={handleMfaSubmit} className="space-y-4">
-              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-warning-50 text-warning-600">
-                <KeyRound className="h-7 w-7" />
-              </div>
-              <Field label="6-digit code (or backup code)">
+                            <Field label="6-digit code (or backup code)">
                 <input
                   value={mfaCode}
                   onChange={(e) => setMfaCode(e.target.value)}
@@ -111,7 +108,7 @@ export function LoginForm() {
               </Field>
               <FormError message={error} />
               <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
-                {loading ? "Verifying…" : "Verify & Sign in"}
+                {loading ? "Verifying…" : "Verify and sign in"}
               </button>
               <button
                 type="button"
@@ -148,14 +145,12 @@ export function LoginForm() {
                 </button>
               </div>
 
-              <p className="mb-4 rounded-lg bg-brand-50 px-3 py-2 text-center text-xs font-medium text-brand-700">
-                {role === "STUDENT"
-                  ? "Logging in as a student or commissioner."
-                  : "Admin access only — for USG officers and system administrators."}
-              </p>
+              {role === "ADMIN" && (
+                <p className="mb-4 text-center text-xs text-muted">For USG officers and system administrators only.</p>
+              )}
 
               <form noValidate onSubmit={handleSubmit} className="space-y-4">
-                <Field label="CSU Email Address" error={emailError}>
+                <Field label="CSU email address" error={emailError}>
                   <input
                     type="email"
                     autoComplete="email"
@@ -177,26 +172,21 @@ export function LoginForm() {
                 <FormError message={error} />
 
                 <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
-                  {loading ? "Signing in…" : `Login as ${role === "STUDENT" ? "Student" : "Admin"}`}
+                  {loading ? "Signing in…" : `Sign in as ${role === "STUDENT" ? "Student" : "Admin"}`}
                 </button>
               </form>
 
               {role === "STUDENT" && (
-                <>
-                  <div className="my-6 flex items-center gap-4">
-                    <div className="h-px flex-1 bg-line" />
-                    <span className="text-xs text-muted">Don&apos;t have an account yet?</span>
-                    <div className="h-px flex-1 bg-line" />
-                  </div>
-                  <Link href="/register" className="btn-outline w-full !py-3">Register</Link>
-                </>
+                <p className="mt-6 text-center text-sm text-muted">
+                  New to CarsuComits? <Link href="/register" className="font-semibold text-brand-700 hover:underline">Create an account</Link>
+                </p>
               )}
             </>
           )}
         </div>
       </div>
 
-      <p className="pb-6 text-center text-xs text-muted">© {new Date().getFullYear()} CarsuComits · Caraga State University</p>
+      <p className="pb-6 text-center text-xs text-muted">CarsuComits · Caraga State University – Main Campus</p>
     </main>
   );
 }

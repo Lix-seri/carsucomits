@@ -26,7 +26,7 @@ export function ApplyButton({ commissionId, disabled, label = "Apply Now" }: { c
 
   if (disabled) {
     return (
-      <button disabled className="rounded-lg bg-line px-5 py-2 text-sm font-semibold text-muted">
+      <button disabled className="btn-secondary">
         {label}
       </button>
     );

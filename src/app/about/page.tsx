@@ -1,63 +1,59 @@
 import Link from "next/link";
-import { ShieldCheck, Star, Mail, Users } from "lucide-react";
+import { Mail, ShieldCheck, Star, Users } from "lucide-react";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 
+export const metadata = { title: "About" };
+
 const VALUES = [
-  { icon: Mail, title: "CSU Email Required", desc: "Every account must use an official @carsu.edu.ph address, so the marketplace stays inside the university." },
-  { icon: Star, title: "Reputation-Based Trust", desc: "Two-way ratings and reviews make accountability real. Accounts whose average falls below 3 stars are flagged for admin review." },
-  { icon: ShieldCheck, title: "Anti-Ghosting Protection", desc: "Anyone can report ghosting, scams or misconduct, and admins can warn, suspend or ban accounts." },
-  { icon: Users, title: "Built by CSU, for CSU", desc: "A university-exclusive gig economy that empowers students with professional experience and supplementary income." },
+  { icon: Mail, title: "CSU email required", desc: "Every account must use an official @carsu.edu.ph address, so the marketplace stays inside the university." },
+  { icon: Star, title: "Reputation-based trust", desc: "Two-way ratings and reviews make accountability real. Accounts whose average falls below 3 stars are flagged for admin review." },
+  { icon: ShieldCheck, title: "Protection against ghosting", desc: "Anyone can report ghosting, scams or misconduct, and admins can warn, suspend or ban accounts." },
+  { icon: Users, title: "Built by CSU, for CSU", desc: "A university-exclusive gig economy that gives students professional experience and extra income." },
 ];
 
 export default function AboutPage() {
   return (
     <>
       <SiteHeader />
-      <main id="main">
-        <section className="bg-brand-50/60">
-          <div className="mx-auto max-w-4xl px-6 py-20 text-center">
-            <h1 className="text-4xl font-bold md:text-5xl">About CarsuComits</h1>
-            <p className="mt-4 text-lg text-muted">
-              Caraga State University&apos;s official, secure commission marketplace.
-            </p>
-          </div>
-        </section>
+      <main id="main" className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+        <h1 className="text-4xl font-bold tracking-tight">About CarsuComits</h1>
+        <p className="mt-4 text-lg text-muted">
+          Caraga State University&apos;s official, secure commission marketplace.
+        </p>
 
-        <section className="mx-auto max-w-5xl px-6 py-16">
-          <h2 className="mb-4 text-2xl font-bold">Our Mission</h2>
-          <p className="text-ink">
-            Many CSU students have valuable, marketable skills — graphic design, programming, tutoring, and more.
-            But there&apos;s no formal place to offer them safely. Random Facebook posts and word-of-mouth lead to
-            scams, ghosting, and lost opportunities. CarsuComits centralizes the commissioning process through a
-            unified dashboard, requires a CSU email for every account, and standardizes skill levels and fair fares — so
+        <section aria-labelledby="mission" className="mt-12">
+          <h2 id="mission" className="mb-3 text-2xl font-semibold tracking-tight">Our mission</h2>
+          <p className="leading-7">
+            Many CSU students have valuable, marketable skills: graphic design, programming, tutoring and more.
+            But there&apos;s no formal place to offer them safely. Random Facebook posts and word of mouth lead to
+            scams, ghosting and lost opportunities. CarsuComits centralizes the commissioning process in one
+            dashboard, requires a CSU email for every account, and standardizes skill levels and fair fares, so
             students can build reputation and income in a trusted, university-exclusive environment.
           </p>
         </section>
 
-        <section className="bg-sunken">
-          <div className="mx-auto max-w-6xl px-6 py-16">
-            <h2 className="mb-10 text-center text-3xl font-bold">What Makes Us Different</h2>
-            <div className="grid gap-6 md:grid-cols-2">
-              {VALUES.map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="card">
-                  <div className="mb-3 grid h-11 w-11 place-items-center rounded-lg bg-brand-50 text-brand-600">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <h3 className="mb-1 text-lg font-bold">{title}</h3>
-                  <p className="text-sm text-muted">{desc}</p>
+        <section aria-labelledby="different" className="mt-12">
+          <h2 id="different" className="mb-5 text-2xl font-semibold tracking-tight">What makes us different</h2>
+          <dl className="divide-y divide-line rounded-xl border border-line bg-white">
+            {VALUES.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex gap-4 p-5">
+                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
+                <div>
+                  <dt className="font-semibold">{title}</dt>
+                  <dd className="mt-1 text-sm text-muted">{desc}</dd>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            ))}
+          </dl>
         </section>
 
-        <section className="mx-auto max-w-3xl px-6 py-20 text-center">
-          <h2 className="text-3xl font-bold">Ready to join?</h2>
-          <p className="mt-3 text-muted">Sign up with your CSU email and start posting or applying for commissions today.</p>
-          <div className="mt-6 flex justify-center gap-3">
-            <Link href="/register" className="btn-primary">Create an Account</Link>
-            <Link href="/browse" className="btn-outline">Browse Commissions</Link>
+        <section aria-labelledby="join" className="mt-12 rounded-xl border border-line bg-white p-6">
+          <h2 id="join" className="text-xl font-semibold">Ready to join?</h2>
+          <p className="mt-1 text-muted">Sign up with your CSU email and start posting or applying for commissions.</p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link href="/register" className="btn-primary">Create an account</Link>
+            <Link href="/browse" className="btn-secondary">Browse commissions</Link>
           </div>
         </section>
       </main>

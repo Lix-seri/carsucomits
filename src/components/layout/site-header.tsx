@@ -7,7 +7,7 @@ import { getSession } from "@/lib/session";
 
 const NAV = [
   { href: "/", label: "Home" },
-  { href: "/browse", label: "Browse Commissions" },
+  { href: "/browse", label: "Browse" },
   { href: "/about", label: "About" },
   { href: "/terms", label: "Terms" },
 ];
@@ -22,12 +22,12 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           {/* Phones: the nav links live in a native disclosure menu. */}
           <details className="relative md:hidden">
-            <summary className="grid h-9 w-9 cursor-pointer list-none place-items-center rounded-lg hover:bg-brand-50 [&::-webkit-details-marker]:hidden" aria-label="Menu">
+            <summary className="grid h-9 w-9 cursor-pointer list-none place-items-center rounded-lg hover:bg-sunken [&::-webkit-details-marker]:hidden" aria-label="Menu">
               <Menu className="h-5 w-5" />
             </summary>
-            <nav className="absolute left-0 top-11 w-48 rounded-xl border border-brand-100 bg-white p-2 shadow-card">
+            <nav className="absolute left-0 top-11 w-48 rounded-xl border border-line bg-white p-2 shadow-card">
               {NAV.map((n) => (
-                <Link key={n.href} href={n.href} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-brand-50">
+                <Link key={n.href} href={n.href} className="block rounded-lg px-3 py-2 text-sm font-medium hover:bg-sunken">
                   {n.label}
                 </Link>
               ))}
@@ -37,7 +37,7 @@ export async function SiteHeader() {
         </div>
         <nav className="hidden items-center gap-8 md:flex">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className="text-sm font-medium text-ink hover:text-brand-500">
+            <Link key={n.href} href={n.href} className="text-sm font-medium text-muted hover:text-ink">
               {n.label}
             </Link>
           ))}
@@ -48,16 +48,16 @@ export async function SiteHeader() {
               <Link href={dashHref} className="hidden items-center gap-1.5 text-sm font-semibold text-ink hover:text-brand-600 sm:inline-flex">
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </Link>
-              <Link href={dashHref} className="flex items-center gap-2 rounded-full bg-brand-50 px-2 py-1 pr-3 hover:bg-brand-100">
+              <Link href={dashHref} className="flex items-center gap-2 rounded-full border border-line px-2 py-1 pr-3 hover:bg-sunken">
                 <Avatar name={session.fullName} src={session.avatarUrl} size="xs" />
-                <span className="text-sm font-semibold text-brand-700">{session.fullName.split(" ")[0]}</span>
+                <span className="text-sm font-semibold">{session.fullName.split(" ")[0]}</span>
               </Link>
-              <LogoutButton className="text-sm font-medium text-muted hover:text-danger-600" showIcon={false} redirectTo="/" />
+              <LogoutButton className="text-sm font-medium text-muted hover:text-ink" showIcon={false} redirectTo="/" />
             </>
           ) : (
             <>
-              <Link href="/login" className="text-sm font-semibold text-brand-500 hover:text-brand-600">Login</Link>
-              <Link href="/register" className="btn-primary !py-2">Register</Link>
+              <Link href="/login" className="btn-ghost">Sign in</Link>
+              <Link href="/register" className="btn-primary">Create account</Link>
             </>
           )}
         </div>
