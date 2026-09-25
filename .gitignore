@@ -12,3 +12,5 @@ public/avatars/*
 !public/avatars/.gitkeep
 .data
 tsconfig.tsbuildinfo
+test-results
+playwright-report
