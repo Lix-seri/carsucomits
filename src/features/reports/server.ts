@@ -21,12 +21,19 @@ export async function fileReport(session: Session, { reporteeEmail, reason, deta
   return { report };
 }
 
-/** Reports I filed and reports about me. */
+/** Reports I filed, and reports about me without the reporter (so reports can't invite retaliation). */
 export async function listMyReports(session: Session) {
-  const include = { reportee: { select: { fullName: true } }, reporter: { select: { fullName: true } } };
   const [filed, aboutMe] = await Promise.all([
-    prisma.report.findMany({ where: { reporterId: session.userId }, orderBy: { createdAt: "desc" }, include }),
-    prisma.report.findMany({ where: { reporteeId: session.userId }, orderBy: { createdAt: "desc" }, include }),
+    prisma.report.findMany({
+      where: { reporterId: session.userId },
+      orderBy: { createdAt: "desc" },
+      include: { reportee: { select: { fullName: true } } },
+    }),
+    prisma.report.findMany({
+      where: { reporteeId: session.userId },
+      orderBy: { createdAt: "desc" },
+      select: { id: true, reason: true, details: true, status: true, createdAt: true },
+    }),
   ]);
   return { filed, aboutMe };
 }

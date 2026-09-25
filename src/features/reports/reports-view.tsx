@@ -10,9 +10,8 @@ type Report = {
   details: string | null;
   status: string;
   createdAt: string;
-  reportee: { fullName: string };
-  reporter: { fullName: string };
 };
+type FiledReport = Report & { reportee: { fullName: string } };
 
 const STATUS_PILL: Record<string, string> = {
   PENDING:              "bg-amber-100 text-amber-700",
@@ -24,7 +23,7 @@ const STATUS_PILL: Record<string, string> = {
 export function ReportsView() {
   const router = useRouter();
   const [showNew, setShowNew] = useState(false);
-  const [filed, setFiled] = useState<Report[]>([]);
+  const [filed, setFiled] = useState<FiledReport[]>([]);
   const [aboutMe, setAboutMe] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -84,7 +83,7 @@ export function ReportsView() {
                 {aboutMe.map((r) => (
                   <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-red-50/60 p-3">
                     <div>
-                      <p className="text-sm font-semibold">{r.reporter.fullName} reported you</p>
+                      <p className="text-sm font-semibold">A user reported you</p>
                       <p className="text-xs text-slate-600">Reason: {r.reason}</p>
                       {r.details && <p className="text-xs italic text-slate-500">&quot;{r.details}&quot;</p>}
                       <p className="text-[11px] text-slate-500">Filed {new Date(r.createdAt).toLocaleDateString()}</p>
