@@ -1,14 +1,41 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, X, SlidersHorizontal } from "lucide-react";
+import { SearchX, Search, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { CATEGORY_OPTIONS, LEVEL_OPTIONS } from "@/lib/labels";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CommissionCard, type CommissionCardData } from "./commission-card";
+
+function Chips({ label, options, value, onChange }: { label: string; options: { value: string; label: string }[]; value: string | null; onChange: (v: string | null) => void }) {
+  return (
+    <fieldset>
+      <legend className="mb-2 text-xs font-semibold text-muted">{label}</legend>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            onClick={() => onChange(value === o.value ? null : o.value)}
+            aria-pressed={value === o.value}
+            className={cn(
+              "rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+              value === o.value ? "border-brand-500 bg-brand-500 text-white" : "border-line bg-white text-ink hover:border-brand-300",
+            )}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
 
 export function BrowseContent() {
   const params = useSearchParams();
-  const initialQ = params.get("q") ?? "";
-  const [q, setQ] = useState(initialQ);
+  const [q, setQ] = useState(params.get("q") ?? "");
   // Deep links from the home page: /browse?category=TECHNICAL
   const [cat, setCat] = useState<string | null>(params.get("category"));
   const [lvl, setLvl] = useState<string | null>(params.get("level"));
@@ -27,107 +54,65 @@ export function BrowseContent() {
       .finally(() => setLoading(false));
   }, [q, cat, lvl]);
 
-  useEffect(() => {
-    const next = params.get("q") ?? "";
-    setQ(next);
-  }, [params]);
+  useEffect(() => setQ(params.get("q") ?? ""), [params]);
 
   const hasFilter = cat || lvl || q;
-  const visible = items;
+  const clear = () => { setQ(""); setCat(null); setLvl(null); };
 
   return (
-    <main id="main" className="bg-sunken">
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">Browse Commissions</h1>
-          <p className="mt-2 text-muted">Find tasks that match your skills.</p>
-        </div>
+    <div className="mx-auto max-w-7xl">
+      <PageHeader title="Browse commissions" description="Open work posted by CSU students. Filter by category and the skill level asked for." />
 
-        <div className="card mb-8 space-y-4">
-          <div className="flex items-center gap-3 rounded-lg border border-line bg-white px-3 py-2.5">
-            <Search className="h-5 w-5 text-muted" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search commissions, skills, students…"
-              aria-label="Search commissions"
-              className="flex-1 bg-transparent text-sm outline-none"
-            />
-            {q && <button onClick={() => setQ("")} aria-label="Clear search"><X className="h-4 w-4 text-muted" /></button>}
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="label !mb-2">Category</p>
-              <div className="flex flex-wrap gap-2">
-                {CATEGORY_OPTIONS.map((c) => (
-                  <button
-                    key={c.value}
-                    onClick={() => setCat(cat === c.value ? null : c.value)}
-                    aria-pressed={cat === c.value}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                      cat === c.value ? "bg-brand-500 text-white" : "bg-sunken text-ink hover:bg-line"
-                    }`}
-                  >
-                    {c.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="label !mb-2">Skill Level</p>
-              <div className="flex flex-wrap gap-2">
-                {LEVEL_OPTIONS.map((l) => (
-                  <button
-                    key={l.value}
-                    onClick={() => setLvl(lvl === l.value ? null : l.value)}
-                    aria-pressed={lvl === l.value}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                      lvl === l.value ? "bg-brand-500 text-white" : "bg-sunken text-ink hover:bg-line"
-                    }`}
-                  >
-                    {l.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {hasFilter && (
-            <button
-              onClick={() => { setQ(""); setCat(null); setLvl(null); }}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-brand-600 hover:underline"
-            >
-              <X className="h-4 w-4" /> Clear all filters
+      <div className="mb-6 space-y-4 rounded-xl border border-line bg-white p-4 sm:p-5">
+        <div className="flex items-center gap-3 rounded-lg border border-line px-3 py-2.5 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100">
+          <Search className="h-5 w-5 text-faint" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search titles, descriptions, skills…"
+            aria-label="Search commissions"
+            className="flex-1 bg-transparent text-sm outline-none"
+          />
+          {q && (
+            <button onClick={() => setQ("")} aria-label="Clear search" className="text-muted hover:text-ink">
+              <X className="h-4 w-4" />
             </button>
           )}
         </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Chips label="Category" options={CATEGORY_OPTIONS} value={cat} onChange={setCat} />
+          <Chips label="Skill level" options={LEVEL_OPTIONS} value={lvl} onChange={setLvl} />
+        </div>
+      </div>
 
-        {loading ? (
-          <p className="py-12 text-center text-muted">Loading commissions…</p>
-        ) : (
-          <>
-            <p className="mb-4 text-sm text-muted">
-              <SlidersHorizontal className="mr-1 inline h-4 w-4" />
-              Showing <strong>{visible.length}</strong> open commission{visible.length === 1 ? "" : "s"}
-            </p>
-
-            {visible.length > 0 ? (
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {visible.map((c) => <CommissionCard key={c.id} c={c} />)}
-              </div>
-            ) : (
-              <div className="rounded-xl border border-line bg-white py-16 text-center">
-                <p className="text-muted">
-                  {hasFilter
-                    ? "No open commissions match these filters. Try clearing one."
-                    : "No commissions posted yet. Check back soon — or post one yourself!"}
-                </p>
-              </div>
-            )}
-          </>
+      <div className="mb-4 flex min-h-8 items-center justify-between gap-3" aria-live="polite">
+        <p className="text-sm text-muted">
+          {loading ? "Loading…" : <><span className="font-semibold text-ink">{items.length}</span> open commission{items.length === 1 ? "" : "s"}</>}
+        </p>
+        {hasFilter && (
+          <button onClick={clear} className="btn-ghost btn-sm">
+            <X className="h-3.5 w-3.5" /> Clear filters
+          </button>
         )}
       </div>
-    </main>
+
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-56" />)}
+        </div>
+      ) : items.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {items.map((c) => <CommissionCard key={c.id} c={c} />)}
+        </div>
+      ) : (
+        <EmptyState
+          icon={SearchX}
+          title={hasFilter ? "Nothing matches these filters" : "No open commissions yet"}
+          action={hasFilter ? <button onClick={clear} className="btn-secondary">Clear filters</button> : undefined}
+        >
+          {hasFilter ? "Try another category or skill level, or a shorter search." : "Check back soon, or post one yourself."}
+        </EmptyState>
+      )}
+    </div>
   );
 }

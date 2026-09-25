@@ -1,8 +1,12 @@
-// Display labels and option lists shared by several features.
+// Display labels, option lists and status tones shared by several features.
+// One vocabulary: a "commission" is posted by a student and done by a student.
 
+export type Tone = "brand" | "info" | "warning" | "danger" | "neutral";
+
+// Posting and doing aren't separate account types, so both show as "Student".
 export const ROLE_LABEL: Record<string, string> = {
-  STUDENT_EMPLOYEE: "Student Employee",
-  COMMISSIONER: "Commissioner",
+  STUDENT_EMPLOYEE: "Student",
+  COMMISSIONER: "Student",
   ADMIN: "Admin",
 };
 
@@ -13,20 +17,51 @@ export const LEVEL_LABEL: Record<string, string> = {
   EXPERT: "Expert",
 };
 
-export const CATEGORY_OPTIONS = [
-  { value: "ACADEMIC", label: "Academic" },
-  { value: "TECHNICAL", label: "Technical" },
-  { value: "GENERAL_ERRANDS", label: "General Errands" },
-  { value: "ADMINISTRATIVE", label: "Administrative" },
-];
+export const CATEGORY_LABEL: Record<string, string> = {
+  ACADEMIC: "Academic",
+  TECHNICAL: "Technical",
+  GENERAL_ERRANDS: "General Errands",
+  ADMINISTRATIVE: "Administrative",
+};
+export const CATEGORY_OPTIONS = Object.entries(CATEGORY_LABEL).map(([value, label]) => ({ value, label }));
 
 export const LEVEL_OPTIONS = Object.entries(LEVEL_LABEL).map(([value, label]) => ({ value, label }));
 
-export const LEVEL_PILL: Record<string, string> = {
-  BEGINNER: "bg-sunken text-ink",
-  INTERMEDIATE: "bg-warning-100 text-warning-800",
-  ADVANCED: "bg-info-100 text-info-800",
-  EXPERT: "bg-info-100 text-info-800",
+/** Commission lifecycle. Colour means state: open = brand, working = info, needs you = warning. */
+export const COMMISSION_STATUS: Record<string, { label: string; tone: Tone }> = {
+  OPEN: { label: "Open", tone: "brand" },
+  IN_PROGRESS: { label: "In progress", tone: "info" },
+  AWAITING_REVIEW: { label: "Awaiting review", tone: "warning" },
+  COMPLETED: { label: "Completed", tone: "neutral" },
+  CANCELLED: { label: "Cancelled", tone: "danger" },
+  DISPUTED: { label: "Disputed", tone: "danger" },
+};
+
+export const APPLICATION_STATUS: Record<string, { label: string; tone: Tone }> = {
+  PENDING: { label: "Pending", tone: "warning" },
+  ACCEPTED: { label: "Accepted", tone: "brand" },
+  REJECTED: { label: "Not selected", tone: "neutral" },
+  WITHDRAWN: { label: "Withdrawn", tone: "neutral" },
+};
+
+export const REPORT_STATUS: Record<string, { label: string; tone: Tone }> = {
+  PENDING: { label: "Pending", tone: "warning" },
+  UNDER_INVESTIGATION: { label: "Investigating", tone: "info" },
+  RESOLVED: { label: "Resolved", tone: "brand" },
+  ESCALATED: { label: "Escalated", tone: "danger" },
+};
+
+export const ACCOUNT_STATUS: Record<string, { label: string; tone: Tone }> = {
+  ACTIVE: { label: "Active", tone: "brand" },
+  WARNED: { label: "Warned", tone: "warning" },
+  SUSPENDED: { label: "Suspended", tone: "danger" },
+  BANNED: { label: "Banned", tone: "danger" },
+};
+
+export const DELIVERABLE_STATUS: Record<string, { label: string; tone: Tone }> = {
+  SUBMITTED: { label: "Waiting for review", tone: "warning" },
+  APPROVED: { label: "Approved", tone: "brand" },
+  REVISION_REQUESTED: { label: "Revision requested", tone: "danger" },
 };
 
 export const REPORT_REASONS = [

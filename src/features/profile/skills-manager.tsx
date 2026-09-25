@@ -2,7 +2,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
-import { LEVEL_LABEL, LEVEL_PILL } from "@/lib/labels";
+import { LEVEL_LABEL } from "@/lib/labels";
+import { LevelBadge } from "@/components/ui/badge";
 
 const LEVELS = ["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"] as const;
 type Skill = { id: string; name: string; level: string };
@@ -53,7 +54,7 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
     <div>
       {skills.length === 0 ? (
         <p className="mb-4 rounded-lg bg-sunken px-4 py-6 text-center text-sm text-muted">
-          No skills yet. Add your first one below — commissioners will see it on your profile.
+          No skills yet. Add your first one below; people hiring will see it on your profile.
         </p>
       ) : (
         <div className="mb-4 grid gap-3 sm:grid-cols-2">
@@ -61,9 +62,7 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
             <div key={s.id} className="flex items-center justify-between rounded-lg border border-line p-3">
               <div>
                 <p className="text-sm font-medium">{s.name}</p>
-                <span className={`pill ${LEVEL_PILL[s.level] ?? "bg-sunken text-ink"} mt-0.5`}>
-                  {LEVEL_LABEL[s.level] ?? s.level}
-                </span>
+                <div className="mt-1"><LevelBadge level={s.level} /></div>
               </div>
               <button
                 onClick={() => remove(s.id)}

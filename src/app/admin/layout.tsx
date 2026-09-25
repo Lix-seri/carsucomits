@@ -3,9 +3,9 @@ import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { pageSession } from "@/lib/session";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await pageSession({ admin: true });
+  const session = await pageSession({ admin: true });
   return (
-    <AppShell sidebar={<AdminSidebar />} header={<h1 className="text-lg font-bold">Admin Control Panel</h1>}>
+    <AppShell sidebar={<AdminSidebar adminName={session.fullName} />} header={<p className="text-sm font-semibold text-muted">Admin panel</p>}>
       {children}
     </AppShell>
   );
