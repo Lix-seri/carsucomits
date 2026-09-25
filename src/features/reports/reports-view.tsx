@@ -1,8 +1,11 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { AlertTriangle, FileText, Plus } from "lucide-react";
+import { api } from "@/lib/api";
+import { Dialog } from "@/components/ui/dialog";
+import { Field, FormError } from "@/components/ui/form";
+import { REPORT_REASONS } from "@/lib/labels";
 
 type Report = {
   id: string;
@@ -21,7 +24,6 @@ const STATUS_PILL: Record<string, string> = {
 };
 
 export function ReportsView() {
-  const router = useRouter();
   const [showNew, setShowNew] = useState(false);
   const [filed, setFiled] = useState<FiledReport[]>([]);
   const [aboutMe, setAboutMe] = useState<Report[]>([]);
@@ -39,26 +41,22 @@ export function ReportsView() {
       .finally(() => setLoading(false));
   }, []);
 
+  const [form, setForm] = useState({ reporteeEmail: "", reason: "", details: "" });
+  const [fieldError, setFieldError] = useState<{ field?: string; message: string } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const errorFor = (name: string) => (fieldError?.field === name ? fieldError.message : null);
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const f = e.target as HTMLFormElement;
-    const reporteeEmail = (f.elements.namedItem("reporteeEmail") as HTMLInputElement).value;
-    const reason = (f.elements.namedItem("reason") as HTMLSelectElement).value;
-    const details = (f.elements.namedItem("details") as HTMLTextAreaElement).value;
-
-    const res = await fetch("/api/reports", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reporteeEmail, reason, details }),
-    });
-    const data = await res.json();
-    if (!res.ok) { alert(data.error ?? "Failed to submit report."); return; }
+    setSubmitting(true);
+    const res = await api("/api/reports", { json: form });
+    setSubmitting(false);
+    if (!res.ok) return setFieldError({ field: res.field, message: res.error });
+    setFieldError(null);
+    setForm({ reporteeEmail: "", reason: "", details: "" });
     setShowNew(false);
-    router.refresh();
-    // re-fetch
-    const r = await fetch("/api/reports/mine");
-    const d = await r.json();
-    if (d.ok) { setFiled(d.filed); setAboutMe(d.aboutMe); }
+    const mine = await api<{ filed: FiledReport[]; aboutMe: Report[] }>("/api/reports/mine");
+    if (mine.ok) { setFiled(mine.data.filed); setAboutMe(mine.data.aboutMe); }
   }
 
   return (
@@ -128,46 +126,27 @@ export function ReportsView() {
         </div>
       </div>
 
-      {showNew && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={() => setShowNew(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-4 text-lg font-bold">Submit New Report</h3>
-            <form onSubmit={submit} className="space-y-3">
-              <div>
-                <label className="label">Reported user email</label>
-                <input
-                  name="reporteeEmail"
-                  type="email"
-                  className="input"
-                  placeholder="theiremail@carsu.edu.ph"
-                  required
-                />
-              </div>
-              <div>
-                <label className="label">Reason</label>
-                <select name="reason" className="input" required defaultValue="">
-                  <option value="" disabled>Choose a reason</option>
-                  <option>Ghosting</option>
-                  <option>Scam</option>
-                  <option>Fraud Report</option>
-                  <option>Payment Dispute</option>
-                  <option>Inappropriate Content</option>
-                  <option>Off-platform Solicitation</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="label">Details</label>
-                <textarea name="details" className="input min-h-[100px]" placeholder="What happened?" required />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowNew(false)} className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-medium hover:bg-slate-50">Cancel</button>
-                <button type="submit" className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600">Submit</button>
-              </div>
-            </form>
+      <Dialog open={showNew} onClose={() => !submitting && setShowNew(false)} title="Submit a report" description="Admins review every report. The person you report won't see your name.">
+        <form noValidate onSubmit={submit} className="space-y-3">
+          <Field label="Reported user's email" error={errorFor("reporteeEmail")}>
+            <input type="email" className="input" placeholder="theiremail@carsu.edu.ph" value={form.reporteeEmail} onChange={(e) => setForm({ ...form, reporteeEmail: e.target.value })} />
+          </Field>
+          <Field label="Reason" error={errorFor("reason")}>
+            <select className="input" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })}>
+              <option value="" disabled>Choose a reason</option>
+              {REPORT_REASONS.map((r) => <option key={r}>{r}</option>)}
+            </select>
+          </Field>
+          <Field label="What happened?" error={errorFor("details")} hint="At least 10 characters.">
+            <textarea className="input min-h-24" value={form.details} onChange={(e) => setForm({ ...form, details: e.target.value })} maxLength={2000} />
+          </Field>
+          <FormError message={fieldError && !["reporteeEmail", "reason", "details"].includes(fieldError.field ?? "") ? fieldError.message : null} />
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setShowNew(false)} className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-medium hover:bg-slate-50">Cancel</button>
+            <button type="submit" disabled={submitting} className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">{submitting ? "Submitting…" : "Submit"}</button>
           </div>
-        </div>
-      )}
+        </form>
+      </Dialog>
     </div>
   );
 }

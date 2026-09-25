@@ -42,6 +42,8 @@ function MessagesViewInner() {
   const [loadingThreads, setLoadingThreads] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [convError, setConvError] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   // Identify "me" from the threads list (we infer it from whichever id appears as "other").
   // For correctness, expose it via /api/notifications response which already runs on login.
@@ -62,8 +64,9 @@ function MessagesViewInner() {
     if (data.ok) {
       setOther(data.other);
       setMessages(data.messages);
-    } else if (data.error) {
-      alert(data.error);
+      setConvError(null);
+    } else {
+      setConvError(data.error ?? "Couldn't load this conversation.");
     }
     setLoadingMessages(false);
   }, []);
@@ -129,11 +132,13 @@ function MessagesViewInner() {
       });
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error ?? "Failed to send.");
-        // Roll back optimistic message
+        // Roll back the optimistic message and give the text back so nothing is lost.
         setMessages((m) => m.filter((x) => x.id !== optimistic.id));
+        setDraft(text);
+        setSendError(data.error ?? "Couldn't send. Try again.");
         return;
       }
+      setSendError(null);
       // Replace optimistic with real one and refresh threads list.
       await loadConversation(activeId);
       loadThreads();
@@ -212,7 +217,7 @@ function MessagesViewInner() {
           </div>
         ) : !other ? (
           <p className="p-6 text-center text-sm text-slate-500">
-            {loadingMessages ? "Loading conversation…" : "Conversation not available."}
+            {loadingMessages ? "Loading conversation…" : convError ?? "Conversation not available."}
           </p>
         ) : (
           <>
@@ -251,15 +256,17 @@ function MessagesViewInner() {
                 })
               )}
             </div>
+            {sendError && <p role="alert" className="border-t border-slate-100 px-3 pt-2 text-xs text-red-600">{sendError}</p>}
             <form onSubmit={send} className="flex items-center gap-2 border-t border-slate-100 p-3">
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 placeholder="Type a message…"
+                aria-label="Message"
                 className="input flex-1"
                 disabled={sending}
               />
-              <button type="submit" disabled={sending || !draft.trim()} className="btn-primary !py-2.5 disabled:opacity-50">
+              <button type="submit" disabled={sending || !draft.trim()} className="btn-primary !py-2.5 disabled:opacity-50" aria-label="Send message">
                 <Send className="h-4 w-4" />
               </button>
             </form>

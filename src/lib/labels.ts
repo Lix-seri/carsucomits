@@ -29,3 +29,13 @@ export const LEVEL_PILL: Record<string, string> = {
   ADVANCED: "bg-blue-100 text-blue-800",
   EXPERT: "bg-purple-100 text-purple-800",
 };
+
+export const REPORT_REASONS = [
+  "Ghosting",
+  "Scam",
+  "Fraud Report",
+  "Payment Dispute",
+  "Inappropriate Content",
+  "Off-platform Solicitation",
+  "Other",
+] as const;

@@ -1,14 +1,6 @@
 import { z } from "zod";
+import { REPORT_REASONS } from "@/lib/labels";
 
-export const REPORT_REASONS = [
-  "Ghosting",
-  "Scam",
-  "Fraud Report",
-  "Payment Dispute",
-  "Inappropriate Content",
-  "Off-platform Solicitation",
-  "Other",
-] as const;
 
 export const fileReportSchema = z.object({
   reporteeEmail: z.email("Enter the reported user's email address.").trim().toLowerCase(),
