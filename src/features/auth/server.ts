@@ -58,8 +58,16 @@ export async function register({ fullName, email, password }: z.infer<typeof reg
   return { user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role } };
 }
 
-/** Generates a fresh TOTP secret + QR code. MFA stays off until confirmed with enableMfa. */
+/**
+ * Generates a fresh TOTP secret + QR code; MFA stays off until confirmed with enableMfa.
+ * Refused while MFA is on: replacing the secret would switch MFA off without the
+ * password check that disableMfa requires.
+ */
 export async function startMfaSetup(session: Session) {
+  const current = await prisma.user.findUnique({ where: { id: session.userId }, select: { mfaEnabled: true } });
+  if (current?.mfaEnabled) {
+    throw new HttpError(409, "Two-factor authentication is already on. Turn it off first; that needs your password.");
+  }
   const secret = newSecret();
   const uri = totpUri(secret, session.email);
   const qrDataUrl = await QRCode.toDataURL(uri);

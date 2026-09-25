@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { hiredCommission, testDb } from "./helpers";
+import { hiredCommission, newUser, testDb } from "./helpers";
 
 // Regression tests for the Phase 2 audit fixes (claude/audits/AUDIT_2026-09-25.md). API-level, desktop only.
 test.describe("audit fixes", () => {
@@ -13,5 +13,29 @@ test.describe("audit fixes", () => {
     expect(res.ok(), await res.text()).toBeTruthy();
     expect((await db.commission.findUnique({ where: { id: c.id } }))?.status).toBe("COMPLETED");
     await db.$disconnect();
+  });
+});
+
+test.describe("audit fixes: auth and reports", () => {
+  test.skip(({ isMobile }) => isMobile, "API checks run once");
+
+  test("H7: MFA setup is refused while MFA is on", async () => {
+    const { TOTP, Secret } = await import("otpauth");
+    const me = await newUser("Mfa");
+    const setup = await (await me.api.post("/api/auth/mfa/setup")).json();
+    const code = new TOTP({ secret: Secret.fromBase32(setup.secret), digits: 6, period: 30 }).generate();
+    expect((await me.api.post("/api/auth/mfa/enable", { data: { code } })).ok()).toBeTruthy();
+    expect((await me.api.post("/api/auth/mfa/setup")).status()).toBe(409);
+  });
+
+  test("H8: a reported user doesn't learn who reported them", async () => {
+    const reporter = await newUser("Reporter");
+    const target = await newUser("Target");
+    const res = await reporter.api.post("/api/reports", { data: { reporteeEmail: target.email, reason: "Ghosting", details: "No reply for a week." } });
+    expect(res.ok(), await res.text()).toBeTruthy();
+    const mine = await (await target.api.get("/api/reports/mine")).json();
+    expect(mine.aboutMe).toHaveLength(1);
+    expect(JSON.stringify(mine.aboutMe)).not.toContain("Reporter");
+    expect(mine.aboutMe[0].reporter).toBeUndefined();
   });
 });
