@@ -6,6 +6,6 @@ export default function globalSetup() {
     ...process.env,
     DATABASE_URL: process.env.TEST_DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5433/carsucomits_test",
   };
-  execSync("npx prisma db push --force-reset --skip-generate --accept-data-loss", { env, stdio: "inherit" });
+  execSync("npx prisma migrate reset --force --skip-seed --skip-generate", { env, stdio: "inherit" });
   execSync("node prisma/seed.mjs", { env, stdio: "inherit" });
 }
