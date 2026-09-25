@@ -14,6 +14,14 @@ test.describe("marketplace flow over the API", () => {
 
     const c = await postCommission(poster.api);
 
+    // Invalid input is a 400 naming the field, never a 500.
+    const bad = await poster.api.post("/api/commissions", {
+      data: { title: "Poster job", description: "A3 poster, two revisions included.", category: "TECHNICAL", requiredLevel: "BEGINNER", fareMin: "abc" },
+    });
+    expect(bad.status()).toBe(400);
+    expect((await bad.json()).field).toBe("fareMin");
+    expect((await poster.api.post("/api/reports", { data: { reporteeEmail: other.email, reason: "Made up", details: "Not a real reason at all." } })).status()).toBe(400);
+
     // Listed on browse.
     const open = await (await worker.api.get(`/api/commissions?status=OPEN`)).json();
     expect(open.commissions.some((x: { id: string }) => x.id === c.id)).toBeTruthy();

@@ -41,8 +41,7 @@ export async function listNotifications(session: Session) {
 }
 
 /** Marks the caller's unread notifications as read: all of them, or only `ids`. */
-export async function markNotificationsRead(session: Session, ids: unknown) {
-  const only = Array.isArray(ids) ? ids.filter((x): x is string => typeof x === "string") : [];
+export async function markNotificationsRead(session: Session, only: string[] = []) {
   await prisma.notification.updateMany({
     where: { userId: session.userId, readAt: null, ...(only.length > 0 ? { id: { in: only } } : {}) },
     data: { readAt: new Date() },

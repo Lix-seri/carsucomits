@@ -6,17 +6,16 @@ import { HttpError } from "@/lib/http";
 import { assertAdmin, type Session } from "@/lib/session";
 import { averageRatings } from "@/features/ratings/server";
 
-const USER_ACTIONS: Record<string, AccountStatus> = {
+const USER_ACTIONS = {
   WARN: AccountStatus.WARNED,
   SUSPEND: AccountStatus.SUSPENDED,
   BAN: AccountStatus.BANNED,
   REINSTATE: AccountStatus.ACTIVE,
-};
+} as const;
 
-export async function moderateUser(session: Session, userId: string, action: unknown) {
+export async function moderateUser(session: Session, userId: string, action: keyof typeof USER_ACTIONS) {
   assertAdmin(session);
-  const status = typeof action === "string" ? USER_ACTIONS[action] : undefined;
-  if (!status) throw new HttpError(400, "Invalid action.");
+  const status = USER_ACTIONS[action];
 
   const target = await prisma.user.findUnique({ where: { id: userId } });
   if (!target) throw new HttpError(404, "User not found.");
@@ -25,7 +24,7 @@ export async function moderateUser(session: Session, userId: string, action: unk
 
   await prisma.user.update({ where: { id: userId }, data: { status } });
   await prisma.auditLog.create({
-    data: { actorId: session.userId, action: String(action), target: userId, meta: JSON.stringify({ targetEmail: target.email, newStatus: status }) },
+    data: { actorId: session.userId, action, target: userId, meta: JSON.stringify({ targetEmail: target.email, newStatus: status }) },
   });
   return { status };
 }

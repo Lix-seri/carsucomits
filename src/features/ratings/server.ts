@@ -4,6 +4,7 @@ import type { Session } from "@/lib/session";
 import { timeAgo } from "@/lib/format";
 import { initialsFor } from "@/components/ui/avatar";
 import { notify } from "@/features/notifications/server";
+import type { RatingInput } from "./schemas";
 
 /** Average stars and review count per user, in one query (users with no ratings are absent). */
 export async function ratingSummaries(userIds: string[]) {
@@ -42,18 +43,6 @@ export async function getRecentReviews(userId: string, take = 3) {
   }));
 }
 
-type RatingInput = { stars?: unknown; comment?: unknown };
-
-function parseRating(input: RatingInput, starsError: string) {
-  const stars = Number(input.stars);
-  if (!Number.isInteger(stars) || stars < 1 || stars > 5) throw new HttpError(400, starsError);
-  const comment = input.comment ? String(input.comment).trim() : null;
-  if (stars <= 3 && (!comment || comment.length < 10)) {
-    throw new HttpError(400, "Please leave at least 10 characters of feedback for ratings of 3 or below.");
-  }
-  return { stars, comment };
-}
-
 /** REQ-5.3: warn an ACTIVE user whose average drops below 3.0 over at least 2 ratings. */
 async function flagIfLowRating(actorId: string, rateeId: string, notifyUser: boolean) {
   const agg = await prisma.rating.aggregate({ where: { rateeId }, _avg: { stars: true }, _count: true });
@@ -90,7 +79,7 @@ const ratingNote = (comment: string | null, title: string) => (comment ? `"${com
 
 /** REQ-4.4 + REQ-5.1: the commissioner marks the job complete and rates the student in one transaction. */
 export async function completeWithRating(session: Session, commissionId: string, input: RatingInput) {
-  const { stars, comment } = parseRating(input, "A 1–5 star rating is required to mark the commission complete.");
+  const { stars, comment } = input;
   const commission = await prisma.commission.findUnique({ where: { id: commissionId } });
   if (!commission) throw new HttpError(404, "Commission not found.");
   if (commission.commissionerId !== session.userId) throw new HttpError(403, "Only the commissioner can mark this completed.");
@@ -124,7 +113,7 @@ export async function completeWithRating(session: Session, commissionId: string,
 
 /** Rate a commission that was completed before ratings were mandatory. */
 export async function rateRetroactively(session: Session, commissionId: string, input: RatingInput) {
-  const { stars, comment } = parseRating(input, "Stars must be 1–5.");
+  const { stars, comment } = input;
   const commission = await prisma.commission.findUnique({ where: { id: commissionId } });
   if (!commission) throw new HttpError(404, "Commission not found.");
   if (commission.commissionerId !== session.userId) throw new HttpError(403, "Only the commissioner can rate this.");
@@ -147,10 +136,10 @@ export async function rateRetroactively(session: Session, commissionId: string, 
 }
 
 /** The awarded student rates the commissioner after completion. */
-export async function rateCommissioner(session: Session, input: RatingInput & { commissionId?: unknown }) {
-  const { stars, comment } = parseRating(input, "Stars must be 1–5.");
-  const commissionId = typeof input.commissionId === "string" ? input.commissionId : "";
-  const commission = commissionId ? await prisma.commission.findUnique({ where: { id: commissionId } }) : null;
+export async function rateCommissioner(session: Session, input: RatingInput & { commissionId: string }) {
+  const { stars, comment } = input;
+  const { commissionId } = input;
+  const commission = await prisma.commission.findUnique({ where: { id: commissionId } });
   if (!commission) throw new HttpError(404, "Commission not found.");
   if (commission.status !== "COMPLETED") throw new HttpError(400, "You can only rate the commissioner after the job is completed.");
   if (commission.awardedToId !== session.userId) throw new HttpError(403, "Only the awarded student can rate the commissioner.");

@@ -1,9 +1,10 @@
 import { put, del } from "@vercel/blob";
-import { SkillLevel } from "@prisma/client";
+import type { SkillLevel } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { getRatingDistribution, getRecentReviews } from "@/features/ratings/server";
+import { AVATAR_TYPES } from "./schemas";
 
 export async function getUserSkills(userId: string) {
   return prisma.skill.findMany({ where: { userId }, orderBy: { createdAt: "asc" } });
@@ -40,15 +41,9 @@ export async function getPublicUser(id: string) {
   });
 }
 
-const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
-const AVATAR_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
-
 /** Uploads to Vercel Blob (public: fine for avatars) and replaces the previous avatar. */
-export async function uploadAvatar(session: Session, file: FormDataEntryValue | null) {
-  if (!(file instanceof File)) throw new HttpError(400, "No file uploaded.");
+export async function uploadAvatar(session: Session, file: File) {
   const ext = AVATAR_TYPES[file.type];
-  if (!ext) throw new HttpError(400, "Use JPG, PNG, WebP, or GIF.");
-  if (file.size > AVATAR_MAX_BYTES) throw new HttpError(400, "Max file size is 5 MB.");
 
   const uploaded = await put(`avatars/${session.userId}-${Date.now()}.${ext}`, file, { access: "public", contentType: file.type });
   await deleteBlob(session.avatarUrl);
@@ -72,11 +67,8 @@ export async function deleteBlob(url: string | null | undefined) {
   }
 }
 
-export async function addSkill(session: Session, input: { name?: unknown; level?: unknown }) {
-  const { name, level } = input;
-  if (typeof name !== "string" || name.trim().length < 2) throw new HttpError(400, "Skill name is required (min 2 chars).");
-  if (!Object.values(SkillLevel).includes(level as SkillLevel)) throw new HttpError(400, "Invalid skill level.");
-  const skill = await prisma.skill.create({ data: { userId: session.userId, name: name.trim(), level: level as SkillLevel } });
+export async function addSkill(session: Session, { name, level }: { name: string; level: SkillLevel }) {
+  const skill = await prisma.skill.create({ data: { userId: session.userId, name, level } });
   return { skill };
 }
 

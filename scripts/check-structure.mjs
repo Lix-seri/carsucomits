@@ -8,27 +8,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
 const UNVALIDATED_BASELINE = new Set([
-  // Phase 2 adds a zod schema to each of these and removes it from this list.
-  "src/app/api/admin/reports/[id]/action/route.ts",
-  "src/app/api/admin/users/[id]/action/route.ts",
-  "src/app/api/auth/login/route.ts",
-  "src/app/api/auth/mfa/disable/route.ts",
-  "src/app/api/auth/mfa/enable/route.ts",
-  "src/app/api/auth/register/route.ts",
-  "src/app/api/commissions/[id]/apply/route.ts",
-  "src/app/api/commissions/[id]/complete/route.ts",
-  "src/app/api/commissions/[id]/cover/route.ts",
-  "src/app/api/commissions/[id]/deliverables/route.ts",
-  "src/app/api/commissions/[id]/rate-now/route.ts",
-  "src/app/api/commissions/route.ts",
-  "src/app/api/deliverables/[id]/decision/route.ts",
-  "src/app/api/messages/route.ts",
-  "src/app/api/notifications/route.ts",
-  "src/app/api/profile/avatar/route.ts",
-  "src/app/api/ratings/commissioner/route.ts",
-  "src/app/api/reports/route.ts",
-  "src/app/api/search/route.ts",
-  "src/app/api/skills/route.ts",
+  // Empty: every route validates its input. Add a path here only with a reason.
 ]);
 
 const files = (dir) =>

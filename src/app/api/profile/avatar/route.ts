@@ -1,9 +1,13 @@
 import { jsonRoute } from "@/lib/http";
 import { requireSession } from "@/lib/session";
 import { removeAvatar, uploadAvatar } from "@/features/profile/server";
+import { avatarSchema } from "@/features/profile/schemas";
 
 // POST /api/profile/avatar — multipart "file"
-export const POST = jsonRoute(async (req) => uploadAvatar(await requireSession(), (await req.formData()).get("file")));
+export const POST = jsonRoute(async (req) => {
+  const session = await requireSession();
+  return uploadAvatar(session, avatarSchema.parse((await req.formData()).get("file")));
+});
 
 // DELETE /api/profile/avatar
 export const DELETE = jsonRoute(async () => removeAvatar(await requireSession()));

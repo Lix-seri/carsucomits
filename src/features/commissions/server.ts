@@ -1,27 +1,20 @@
 import { put } from "@vercel/blob";
-import { Category, CommissionStatus, SkillLevel } from "@prisma/client";
+import type { z } from "zod";
+import { CommissionStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { deleteBlob } from "@/features/profile/server";
-
-const VALID_CATS = Object.values(Category);
-const VALID_LEVELS = Object.values(SkillLevel);
-const VALID_STATUSES = Object.values(CommissionStatus);
+import { IMAGE_TYPES, type CreateCommissionInput, type listCommissionsSchema } from "./schemas";
 
 /** Browse listing: filter by category, level, free text and status (default OPEN). */
-export async function listCommissions(params: URLSearchParams) {
-  const category = params.get("category");
-  const level = params.get("level");
-  const q = params.get("q");
-  const statusParam = params.get("status") ?? "OPEN";
-  const status = VALID_STATUSES.includes(statusParam as CommissionStatus) ? (statusParam as CommissionStatus) : CommissionStatus.OPEN;
-
+export async function listCommissions(filters: z.infer<typeof listCommissionsSchema>) {
+  const { category, level, q, status } = filters;
   const commissions = await prisma.commission.findMany({
     where: {
       status,
-      ...(category && VALID_CATS.includes(category as Category) ? { category: category as Category } : {}),
-      ...(level && VALID_LEVELS.includes(level as SkillLevel) ? { requiredLevel: level as SkillLevel } : {}),
+      ...(category ? { category } : {}),
+      ...(level ? { requiredLevel: level } : {}),
       ...(q
         ? {
             OR: [
@@ -42,28 +35,11 @@ export async function listCommissions(params: URLSearchParams) {
   return { commissions };
 }
 
-type CreateInput = Record<string, unknown>;
-
-export async function createCommission(session: Session, body: CreateInput) {
-  const { title, description, category, subcategory, requiredLevel, fareMin, fareMax, fareUnit, deadline } = body;
-  if (!title || !description || !category || !requiredLevel || fareMin == null) {
-    throw new HttpError(400, "Title, description, category, skill level, and fare are required.");
-  }
-  if (!VALID_CATS.includes(category as Category)) throw new HttpError(400, "Invalid category.");
-  if (!VALID_LEVELS.includes(requiredLevel as SkillLevel)) throw new HttpError(400, "Invalid skill level.");
-  if (Number(fareMin) < 0) throw new HttpError(400, "Fare must be a positive number.");
-
+export async function createCommission(session: Session, input: CreateCommissionInput) {
   const commission = await prisma.commission.create({
     data: {
-      title: String(title).trim(),
-      description: String(description).trim(),
-      category: category as Category,
-      subcategory: subcategory ? String(subcategory).trim() : null,
-      requiredLevel: requiredLevel as SkillLevel,
-      fareMin: Number(fareMin),
-      fareMax: fareMax != null ? Number(fareMax) : null,
-      fareUnit: fareUnit ? String(fareUnit).trim() : null,
-      deadline: deadline ? new Date(String(deadline)) : null,
+      ...input,
+      deadline: input.deadline ? new Date(input.deadline) : null,
       commissionerId: session.userId,
       status: CommissionStatus.OPEN,
     },
@@ -78,15 +54,9 @@ async function ownCommission(session: Session, id: string, action: string) {
   return commission;
 }
 
-const COVER_MAX_BYTES = 5 * 1024 * 1024;
-const COVER_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
-
-export async function setCover(session: Session, id: string, file: FormDataEntryValue | null) {
+export async function setCover(session: Session, id: string, file: File) {
   const commission = await ownCommission(session, id, "change");
-  if (!(file instanceof File)) throw new HttpError(400, "No file uploaded.");
-  const ext = COVER_TYPES[file.type];
-  if (!ext) throw new HttpError(400, "Use JPG, PNG, or WebP.");
-  if (file.size > COVER_MAX_BYTES) throw new HttpError(400, "Max file size is 5 MB.");
+  const ext = IMAGE_TYPES[file.type];
 
   const uploaded = await put(`commissions/${commission.id}-${Date.now()}.${ext}`, file, { access: "public", contentType: file.type });
   await deleteBlob(commission.coverImageUrl);

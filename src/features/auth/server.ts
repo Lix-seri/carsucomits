@@ -3,18 +3,19 @@ import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import { setSession, type Session } from "@/lib/session";
+import type { z } from "zod";
 import { consumeBackupCode, generateBackupCodes, newSecret, totpUri, verifyTotp } from "./mfa";
+import type { loginSchema, registerSchema } from "./schemas";
 
-type LoginInput = { email?: unknown; password?: unknown; expectedRole?: unknown; mfaCode?: unknown };
+/** Emails are stored as typed by older accounts, so match without regard to case. */
+function findByEmail(email: string) {
+  return prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } } });
+}
+
 
 /** Verifies credentials (and MFA when enabled), then sets the session cookie. */
-export async function login(input: LoginInput) {
-  const { email, password, expectedRole, mfaCode } = input;
-  if (typeof email !== "string" || !email || typeof password !== "string" || !password) {
-    throw new HttpError(400, "Email and password are required.");
-  }
-
-  const user = await prisma.user.findUnique({ where: { email } });
+export async function login({ email, password, expectedRole, mfaCode }: z.infer<typeof loginSchema>) {
+  const user = await findByEmail(email);
   if (!user) throw new HttpError(401, "Invalid credentials.");
   if (user.status === "BANNED") throw new HttpError(403, "This account is banned.");
   if (user.status === "SUSPENDED") throw new HttpError(403, "This account is suspended.");
@@ -30,7 +31,7 @@ export async function login(input: LoginInput) {
 
   if (user.mfaEnabled) {
     if (!mfaCode) return { mfaRequired: true as const };
-    const code = String(mfaCode).trim();
+    const code = mfaCode;
     let codeOk = !!user.totpSecret && verifyTotp(user.totpSecret, code);
     if (!codeOk) {
       const result = consumeBackupCode(user.mfaBackupCodes, code);
@@ -47,23 +48,11 @@ export async function login(input: LoginInput) {
   return { user: { id: user.id, fullName: user.fullName, role: user.role } };
 }
 
-type RegisterInput = { fullName?: unknown; email?: unknown; password?: unknown; role?: unknown };
-
-export async function register(input: RegisterInput) {
-  const { fullName, email, password, role } = input;
-  if (typeof fullName !== "string" || !fullName || typeof email !== "string" || !email || typeof password !== "string" || !password) {
-    throw new HttpError(400, "All fields are required.");
-  }
-  if (!email.endsWith("@carsu.edu.ph")) throw new HttpError(400, "Use your @carsu.edu.ph email.");
-  if (password.length < 8) throw new HttpError(400, "Password must be at least 8 characters.");
-  if (await prisma.user.findUnique({ where: { email } })) {
-    throw new HttpError(409, "An account with this email already exists.");
-  }
-
-  // Self-registration cannot create admins.
-  const safeRole = role === "COMMISSIONER" ? "COMMISSIONER" : "STUDENT_EMPLOYEE";
+/** Self-registration always creates a STUDENT_EMPLOYEE; it can never create an admin. */
+export async function register({ fullName, email, password }: z.infer<typeof registerSchema>) {
+  if (await findByEmail(email)) throw new HttpError(409, "An account with this email already exists.");
   const user = await prisma.user.create({
-    data: { fullName, email, passwordHash: await bcrypt.hash(password, 10), role: safeRole, emailVerified: true },
+    data: { fullName, email, passwordHash: await bcrypt.hash(password, 10), role: "STUDENT_EMPLOYEE", emailVerified: true },
   });
   await setSession(user);
   return { user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role } };
@@ -79,11 +68,10 @@ export async function startMfaSetup(session: Session) {
 }
 
 /** Confirms the authenticator works, turns MFA on and returns one-time backup codes. */
-export async function enableMfa(session: Session, code: unknown) {
-  if (!code) throw new HttpError(400, "Code required.");
+export async function enableMfa(session: Session, code: string) {
   const user = await prisma.user.findUnique({ where: { id: session.userId } });
   if (!user?.totpSecret) throw new HttpError(400, "Start MFA setup first.");
-  if (!verifyTotp(user.totpSecret, String(code))) throw new HttpError(400, "Invalid code. Try again.");
+  if (!verifyTotp(user.totpSecret, code)) throw new HttpError(400, "Invalid code. Try again.");
 
   const backupCodes = generateBackupCodes(6);
   await prisma.user.update({ where: { id: user.id }, data: { mfaEnabled: true, mfaBackupCodes: JSON.stringify(backupCodes) } });
@@ -92,8 +80,7 @@ export async function enableMfa(session: Session, code: unknown) {
 }
 
 /** Re-verifies the password, then turns MFA off. */
-export async function disableMfa(session: Session, password: unknown) {
-  if (typeof password !== "string" || !password) throw new HttpError(400, "Password required.");
+export async function disableMfa(session: Session, password: string) {
   const user = await prisma.user.findUnique({ where: { id: session.userId } });
   if (!user) throw new HttpError(404, "Not found.");
   if (!(await bcrypt.compare(password, user.passwordHash))) throw new HttpError(401, "Incorrect password.");

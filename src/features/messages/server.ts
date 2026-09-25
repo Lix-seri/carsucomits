@@ -63,11 +63,7 @@ export async function getConversation(session: Session, otherId: string) {
   return { other, messages };
 }
 
-export async function sendMessage(session: Session, input: { recipientId?: unknown; body?: unknown; commissionId?: unknown }) {
-  const { recipientId, body, commissionId } = input;
-  if (typeof recipientId !== "string" || !recipientId || typeof body !== "string" || !body.trim()) {
-    throw new HttpError(400, "Recipient and message body are required.");
-  }
+export async function sendMessage(session: Session, { recipientId, body, commissionId }: { recipientId: string; body: string; commissionId: string | null }) {
   if (recipientId === session.userId) throw new HttpError(400, "You can't message yourself.");
 
   const recipient = await prisma.user.findUnique({ where: { id: recipientId } });
@@ -78,15 +74,15 @@ export async function sendMessage(session: Session, input: { recipientId?: unkno
     data: {
       senderId: session.userId,
       recipientId,
-      body: body.trim(),
-      commissionId: typeof commissionId === "string" && commissionId ? commissionId : null,
+      body,
+      commissionId,
     },
   });
   await notify({
     userId: recipientId,
     type: "APPLICATION_RECEIVED", // re-using the type; a NEW_MESSAGE type can be added later
     title: `New message from ${session.fullName}`,
-    body: body.trim().slice(0, 100),
+    body: body.slice(0, 100),
     link: `/messages?with=${session.userId}`,
   });
   return { message };

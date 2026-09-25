@@ -3,8 +3,9 @@ import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { notify } from "@/features/notifications/server";
 import { averageRatings } from "@/features/ratings/server";
+import type { ApplyInput } from "./schemas";
 
-export async function applyToCommission(session: Session, commissionId: string, input: { coverLetter?: unknown; proposedRate?: unknown }) {
+export async function applyToCommission(session: Session, commissionId: string, input: ApplyInput) {
   const commission = await prisma.commission.findUnique({ where: { id: commissionId } });
   if (!commission) throw new HttpError(404, "Commission not found.");
   if (commission.status !== "OPEN") throw new HttpError(400, "This commission is no longer accepting applications.");
@@ -20,8 +21,8 @@ export async function applyToCommission(session: Session, commissionId: string, 
     data: {
       commissionId,
       applicantId: session.userId,
-      coverLetter: input.coverLetter ? String(input.coverLetter).trim() : null,
-      proposedRate: input.proposedRate != null ? Number(input.proposedRate) : null,
+      coverLetter: input.coverLetter,
+      proposedRate: input.proposedRate,
       status: "PENDING",
     },
   });

@@ -4,17 +4,6 @@ import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { notify } from "@/features/notifications/server";
 
-const MAX_BYTES = 20 * 1024 * 1024; // 20 MB
-const ALLOWED_TYPES = [
-  "image/jpeg", "image/png", "image/webp", "image/gif",
-  "application/pdf",
-  "application/zip", "application/x-zip-compressed",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "text/plain", "text/csv",
-];
-
 export async function listDeliverables(commissionId: string) {
   return prisma.deliverable.findMany({
     where: { commissionId },
@@ -24,7 +13,7 @@ export async function listDeliverables(commissionId: string) {
 }
 
 /** The awarded student uploads a file; the commission moves to AWAITING_REVIEW. */
-export async function submitDeliverable(session: Session, commissionId: string, form: FormData) {
+export async function submitDeliverable(session: Session, commissionId: string, { file, message }: { file: File; message: string | null }) {
   const commission = await prisma.commission.findUnique({ where: { id: commissionId } });
   if (!commission) throw new HttpError(404, "Commission not found.");
   if (commission.awardedToId !== session.userId) throw new HttpError(403, "Only the awarded student can submit deliverables.");
@@ -32,18 +21,11 @@ export async function submitDeliverable(session: Session, commissionId: string, 
     throw new HttpError(400, "Deliverables can only be submitted while work is in progress.");
   }
 
-  const file = form.get("file");
-  const message = form.get("message");
-  if (!(file instanceof File)) throw new HttpError(400, "No file uploaded.");
-  if (file.size > MAX_BYTES) throw new HttpError(400, "Max file size is 20 MB.");
-  if (file.type && !ALLOWED_TYPES.includes(file.type)) {
-    throw new HttpError(400, "Use a common image, PDF, doc, spreadsheet, or zip file.");
-  }
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 100);
   const uploaded = await put(`deliverables/${commission.id}/${Date.now()}-${safeName}`, file, {
     access: "public",
-    contentType: file.type || "application/octet-stream",
+    contentType: file.type,
   });
   const deliverable = await prisma.deliverable.create({
     data: {
@@ -52,7 +34,7 @@ export async function submitDeliverable(session: Session, commissionId: string, 
       fileUrl: uploaded.url,
       fileName: safeName,
       fileSize: file.size,
-      message: message ? String(message).trim() : null,
+      message,
     },
   });
   if (commission.status === "IN_PROGRESS") {
@@ -69,12 +51,7 @@ export async function submitDeliverable(session: Session, commissionId: string, 
 }
 
 /** The commissioner approves a deliverable or asks for a revision (back to IN_PROGRESS). */
-export async function decideDeliverable(session: Session, id: string, input: { action?: unknown; notes?: unknown }) {
-  const { action, notes } = input;
-  if (action !== "APPROVE" && action !== "REQUEST_REVISION") throw new HttpError(400, "Invalid action.");
-  if (action === "REQUEST_REVISION" && (!notes || String(notes).trim().length < 5)) {
-    throw new HttpError(400, "Please describe what needs to change.");
-  }
+export async function decideDeliverable(session: Session, id: string, { action, notes }: { action: "APPROVE" | "REQUEST_REVISION"; notes: string | null }) {
 
   const deliverable = await prisma.deliverable.findUnique({
     where: { id },
@@ -87,7 +64,7 @@ export async function decideDeliverable(session: Session, id: string, input: { a
   const approve = action === "APPROVE";
   await prisma.deliverable.update({
     where: { id },
-    data: { status: approve ? "APPROVED" : "REVISION_REQUESTED", reviewerNotes: notes ? String(notes).trim() : null, reviewedAt: new Date() },
+    data: { status: approve ? "APPROVED" : "REVISION_REQUESTED", reviewerNotes: notes, reviewedAt: new Date() },
   });
   if (!approve && deliverable.commission.status === "AWAITING_REVIEW") {
     await prisma.commission.update({ where: { id: deliverable.commission.id }, data: { status: "IN_PROGRESS" } });
