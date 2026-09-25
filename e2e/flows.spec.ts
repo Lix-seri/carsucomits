@@ -60,6 +60,7 @@ test.describe("flows through the UI", () => {
   });
 
   test("post → apply → accept → complete with rating → rate back → message → report", async ({ browser, page }) => {
+    test.setTimeout(150_000); // two users, eight screens: longer than the default 60 s
     const posterUser = await newUser("Poster");
     const workerUser = await newUser("Worker");
     const poster = page;
