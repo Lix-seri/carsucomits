@@ -23,7 +23,6 @@ type User = {
   fullName: string;
   avatarUrl: string | null;
   role: string;
-  status: string;
   ratingAvg: number | null;
   reviewCount: number;
 };
@@ -158,9 +157,6 @@ export function SearchBar() {
                                   </span>
                                 )}
                                 {u.reviewCount === 0 && <span className="ml-2 text-slate-400">No reviews yet</span>}
-                                {u.status !== "ACTIVE" && (
-                                  <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-700">{u.status}</span>
-                                )}
                               </p>
                             </div>
                             <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">View Profile</span>

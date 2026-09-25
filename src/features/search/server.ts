@@ -2,17 +2,17 @@ import { prisma } from "@/lib/db";
 import type { Session } from "@/lib/session";
 import { ratingSummaries } from "@/features/ratings/server";
 
-/** Topbar search: up to 5 users (not admins, not banned, not me) and 6 open commissions. */
+/** Topbar search: up to 5 users by name (not admins, not banned, not me) and 6 open commissions. */
 export async function search(q: string, session: Session | null) {
   if (!q) return { users: [], commissions: [] };
   const contains = { contains: q, mode: "insensitive" as const };
   const [users, commissions] = await Promise.all([
     prisma.user.findMany({
       where: {
-        OR: [{ fullName: contains }, { email: contains }],
+        fullName: contains,
         NOT: [{ role: "ADMIN" }, { status: "BANNED" }, ...(session ? [{ id: session.userId }] : [])],
       },
-      select: { id: true, fullName: true, avatarUrl: true, role: true, status: true },
+      select: { id: true, fullName: true, avatarUrl: true, role: true },
       take: 5,
     }),
     prisma.commission.findMany({
