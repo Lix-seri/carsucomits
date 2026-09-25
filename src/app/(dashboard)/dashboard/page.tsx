@@ -6,7 +6,7 @@ import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { getSession } from "@/lib/session";
 import { getDashboard } from "@/features/hub/server";
 import { formatFare } from "@/lib/format";
-import { greeting } from "@/lib/format";
+import { CAMPUS_TZ, greeting } from "@/lib/format";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-100 text-emerald-700",
@@ -19,7 +19,7 @@ export default async function DashboardHome() {
   const session = await getSession();
   const fullName = session?.fullName ?? "Guest";
   const firstName = fullName.split(" ")[0];
-  const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: CAMPUS_TZ });
   const hello = greeting();
 
   const { skills, stats, reviews, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName } = session

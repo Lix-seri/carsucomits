@@ -35,8 +35,11 @@ export function formatFare(c: { fareMin: number; fareMax: number | null; fareUni
   return c.fareMax ? `₱${c.fareMin}–${c.fareMax}${c.fareUnit ?? ""}` : `₱${c.fareMin}${c.fareUnit ?? ""}`;
 }
 
+/** The campus timezone. Servers run in UTC, so anything "today"-shaped must say where. */
+export const CAMPUS_TZ = "Asia/Manila";
+
 export function greeting(d = new Date()) {
-  const h = d.getHours();
+  const h = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone: CAMPUS_TZ }).format(d));
   if (h < 12) return "Good morning";
   if (h < 18) return "Good afternoon";
   return "Good evening";
