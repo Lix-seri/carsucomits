@@ -22,7 +22,8 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   if (session?.userId === id) redirect("/profile");
 
   const user = await getPublicUser(id);
-  if (!user) notFound();
+  // Admin accounts have no public profile.
+  if (!user || user.role === "ADMIN") notFound();
 
   const { skills, stats, reviews, distribution } = await getProfileDetails(user.id, 8);
 
