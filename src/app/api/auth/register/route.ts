@@ -30,12 +30,7 @@ export async function POST(req: Request) {
     data: { fullName, email, passwordHash, role: safeRole, emailVerified: true },
   });
 
-  await setSession({
-    userId: user.id,
-    fullName: user.fullName,
-    email: user.email,
-    role: user.role as "STUDENT_EMPLOYEE" | "COMMISSIONER" | "ADMIN",
-  });
+  await setSession(user);
   return NextResponse.json({
     ok: true,
     user: { id: user.id, fullName: user.fullName, email: user.email, role: user.role },

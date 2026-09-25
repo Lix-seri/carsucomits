@@ -54,12 +54,7 @@ export async function POST(req: Request) {
     }
   }
 
-  await setSession({
-    userId: user.id,
-    fullName: user.fullName,
-    email: user.email,
-    role: user.role as "STUDENT_EMPLOYEE" | "COMMISSIONER" | "ADMIN",
-  });
+  await setSession(user);
 
   await prisma.auditLog.create({
     data: { actorId: user.id, action: "LOGIN", target: user.id },
