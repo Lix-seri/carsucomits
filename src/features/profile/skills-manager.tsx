@@ -79,7 +79,7 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
 
       <form onSubmit={add} className="rounded-lg border border-dashed border-line-strong bg-sunken p-4">
         <p className="mb-3 text-sm font-semibold">Add a new skill</p>
-        <div className="grid gap-2 sm:grid-cols-field-select-action">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-field-select-action">
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}

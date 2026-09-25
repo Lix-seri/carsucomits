@@ -79,7 +79,7 @@ export function BrowseContent() {
             </button>
           )}
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Chips label="Category" options={CATEGORY_OPTIONS} value={cat} onChange={setCat} />
           <Chips label="Skill level" options={LEVEL_OPTIONS} value={lvl} onChange={setLvl} />
         </div>
@@ -97,11 +97,11 @@ export function BrowseContent() {
       </div>
 
       {loading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-56" />)}
         </div>
       ) : items.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((c) => <CommissionCard key={c.id} c={c} />)}
         </div>
       ) : (

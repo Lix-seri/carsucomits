@@ -7,7 +7,7 @@ export function RatingBreakdown({
   const distribution = ratingDistributionFromCounts(byStar);
 
   return (
-    <div className="grid gap-6 md:grid-cols-label-bar">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-label-bar">
       <div className="flex flex-col items-center justify-center rounded-xl border border-line bg-sunken p-4 text-center">
         <p className="text-4xl font-bold">{avg != null ? avg.toFixed(1) : "—"}</p>
         <div className="mt-1 flex">

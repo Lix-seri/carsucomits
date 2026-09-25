@@ -85,8 +85,12 @@ test.describe("flows through the UI", () => {
     // Worker applies through the dialog.
     const worker = await asUser(browser, { email: workerUser.email, password: "password123" });
     await worker.goto(commissionUrl);
-    await worker.getByRole("button", { name: /Apply Now/ }).click();
     const applyDialog = worker.getByRole("dialog", { name: "Apply to this commission" });
+    // A click that lands before hydration does nothing; retry until the dialog opens.
+    await expect(async () => {
+      await worker.getByRole("button", { name: /Apply Now/ }).click();
+      await expect(applyDialog).toBeVisible({ timeout: 2_000 });
+    }).toPass();
     await applyDialog.getByLabel(/Cover letter/).fill("I design posters for three orgs.");
     await shot(worker, "apply-dialog");
     await applyDialog.getByRole("button", { name: "Submit Application" }).click();
@@ -113,7 +117,7 @@ test.describe("flows through the UI", () => {
     await rate.getByRole("button", { name: "Submit rating & complete" }).click();
     await expect(rate).toBeHidden();
     await poster.goto(commissionUrl);
-    await expect(poster.getByText("COMPLETED")).toBeVisible();
+    await expect(poster.getByText("Completed", { exact: true })).toBeVisible();
 
     // Worker rates the commissioner back.
     await worker.goto("/hub");
@@ -125,7 +129,7 @@ test.describe("flows through the UI", () => {
 
     // Messaging from the public profile.
     await worker.goto(`/u/${posterUser.id}`);
-    await worker.getByRole("link", { name: "Message" }).click();
+    await worker.getByRole("link", { name: "Message", exact: true }).click();
     await worker.getByLabel("Message", { exact: true }).fill("Thanks, it was a pleasure!");
     await worker.getByRole("button", { name: "Send message" }).click();
     await expect(worker.getByText("Thanks, it was a pleasure!").last()).toBeVisible();
@@ -168,7 +172,7 @@ test.describe("flows through the UI", () => {
     await dialog.getByRole("radio", { name: /Suspend/ }).check();
     await dialog.getByRole("button", { name: "Suspend Suspendee" }).click();
     await expect(dialog.getByText(/Give a reason/)).toBeVisible();
-    await dialog.getByLabel("Reason").fill("Took payment for a poster and never delivered.");
+    await dialog.getByRole("textbox", { name: "Reason" }).fill("Took payment for a poster and never delivered.");
     await shot(page, "admin-moderate");
     await dialog.getByRole("button", { name: "Suspend Suspendee" }).click();
     await expect(dialog).toBeHidden();

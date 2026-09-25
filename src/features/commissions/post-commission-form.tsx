@@ -68,7 +68,7 @@ export function PostCommissionForm() {
           <input name="title" className="input" placeholder="e.g. Logo design for student org" maxLength={120} />
         </Field>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Category" error={errorFor("category")}>
             <select name="category" className="input" defaultValue="">
               <option value="" disabled>Select category</option>
@@ -88,7 +88,7 @@ export function PostCommissionForm() {
           </Field>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Field label="Fare (min) ₱" error={errorFor("fareMin")}>
             <input type="number" inputMode="numeric" name="fareMin" className="input" placeholder="500" />
           </Field>

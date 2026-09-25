@@ -20,7 +20,7 @@ export default async function SavedPage() {
           Use the bookmark on any commission to keep it here for later.
         </EmptyState>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {saved.map((s) => <CommissionCard key={s.id} c={s.commission} />)}
         </div>
       )}

@@ -88,7 +88,7 @@ export function ProfileView({
           (skills.length === 0 ? (
             <p className="text-sm text-muted">No skills listed yet.</p>
           ) : (
-            <ul className="grid gap-2 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {skills.map((s) => (
                 <li key={s.id} className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2.5">
                   <span className="font-medium">{s.name}</span>

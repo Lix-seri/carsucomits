@@ -132,8 +132,7 @@ test.describe("audit fixes: home page", () => {
     const poster = await newUser("Home");
     const c = await postCommission(poster.api, { title: `Home page listing ${Date.now()}` });
     await page.goto("/");
-    await page.getByRole("link", { name: /View & Apply/ }).first().waitFor();
-    await expect(page.getByRole("heading", { name: c.title })).toBeVisible();
+    await expect(page.getByText(c.title)).toBeVisible();
     await expect(page.getByText("Research Paper Writing")).toHaveCount(0);
 
     await page.getByRole("link", { name: /Technical/ }).first().click();

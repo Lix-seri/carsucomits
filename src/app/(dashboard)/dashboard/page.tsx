@@ -48,7 +48,7 @@ export default async function DashboardHome() {
 
         <section aria-labelledby="your-work">
           <h2 id="your-work" className="mb-3 text-lg font-semibold">Your work</h2>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex flex-col rounded-xl border border-line bg-white p-5">
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted"><Briefcase className="h-4 w-4" /> Doing</p>
               {doingTask ? (

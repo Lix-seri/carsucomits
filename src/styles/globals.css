@@ -16,6 +16,10 @@
   /* Numbers that line up in lists, fares and counts. */
   table, .tabular { font-variant-numeric: tabular-nums; }
   * { scrollbar-color: theme("colors.line.strong") transparent; }
+  /* Native file pickers get the secondary-button look instead of the browser default. */
+  input[type="file"]::file-selector-button {
+    @apply mr-3 cursor-pointer rounded-lg border border-line-strong bg-white px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-sunken;
+  }
 }
 
 @layer components {

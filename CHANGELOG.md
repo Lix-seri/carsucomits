@@ -5,6 +5,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Design (Phase 4)
+- One visual system: semantic colour tokens, the Geist font, a 12 px text floor, and one badge family for every status and category. No gradients, no emoji used as icons, and a lint rule that rejects raw palette colours.
+- Signed-in pages share one shell; every page has a titled header, loading skeletons and empty states that say what to do next.
+- Tables turn into labelled cards on phones.
+- The commission page and My hub show where a commission is in its lifecycle (posted → hired → delivered → completed and rated).
+- Admin moderation is one "Moderate…" dialog per user that names the person and requires a reason; admin accounts can't be moderated; the activity log reads as sentences.
+- The landing page is shorter and leads with how a commission works; sign-in, register, about and the footer use sentence case and the same calm styling.
+- A field's error disappears as soon as you edit it.
+
 ### Security
 - The session cookie is now HMAC-signed with `AUTH_SECRET`, and the user is re-loaded on every request. Previously any visitor could forge a session for any account, including the admin. Everyone was signed out once. `AUTH_SECRET` (32+ characters) is now required.
 - Banned and suspended users lose access on their next request instead of when their cookie expires.
