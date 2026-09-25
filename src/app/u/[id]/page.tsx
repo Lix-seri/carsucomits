@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { notFound, redirect } from "next/navigation";
-import { ShieldCheck, Star, AlertTriangle } from "lucide-react";
+import { Star, AlertTriangle } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { getProfileDetails, getPublicUser } from "@/features/profile/server";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -54,11 +54,6 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-2xl font-bold">{user.fullName}</h1>
-                    {user.status === "ACTIVE" && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Verified
-                      </span>
-                    )}
                   </div>
                   <p className="text-sm text-slate-500">
                     {ROLE_LABEL[user.role] ?? user.role} · CSU Caraga

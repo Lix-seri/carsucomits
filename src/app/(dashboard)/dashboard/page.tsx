@@ -5,6 +5,7 @@ import { ProfileCard } from "@/features/profile/profile-card";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { getSession } from "@/lib/session";
 import { getDashboard } from "@/features/hub/server";
+import { ROLE_LABEL } from "@/lib/labels";
 import { formatFare } from "@/lib/format";
 import { CAMPUS_TZ, greeting } from "@/lib/format";
 
@@ -184,7 +185,7 @@ export default async function DashboardHome() {
         <ProfileCard
           user={{
             fullName,
-            role: "Student Employee · CSU Caraga",
+            role: session ? ROLE_LABEL[session.role] : "",
             rating: stats.rating,
             reviews: stats.reviewCount,
             done: stats.done,

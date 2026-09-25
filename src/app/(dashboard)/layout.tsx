@@ -15,8 +15,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   const user = session
-    ? { fullName: session.fullName, rating: 4.8, verified: true, avatarUrl: session.avatarUrl, role: session.role }
-    : { fullName: "Guest", rating: 0, verified: false, avatarUrl: null, role: "STUDENT_EMPLOYEE" };
+    ? { fullName: session.fullName, avatarUrl: session.avatarUrl, role: session.role }
+    : { fullName: "Guest", avatarUrl: null, role: "" };
 
   return (
     <div className="flex min-h-screen bg-brand-50/40">

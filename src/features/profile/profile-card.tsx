@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
-import { ShieldCheck, Star, Lightbulb, Plus } from "lucide-react";
+import { Star, Lightbulb, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { LEVEL_LABEL } from "@/lib/labels";
@@ -29,9 +29,6 @@ export function ProfileCard({
         <div className="-mt-8 px-5 pb-5 text-center">
           <div className="mx-auto w-fit">
             <Avatar name={user.fullName} src={user.avatarUrl} size="lg" ringed />
-          </div>
-          <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
-            <ShieldCheck className="h-3 w-3" /> Verified
           </div>
           <h3 className="mt-2 text-lg font-bold">{user.fullName}</h3>
           <p className="text-xs text-slate-500">{user.role}</p>

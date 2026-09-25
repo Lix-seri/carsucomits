@@ -5,9 +5,9 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 
 const VALUES = [
-  { icon: Mail, title: "CSU Email Verified", desc: "Every user is authenticated via their official @carsu.edu.ph email — no outsiders, no fake accounts." },
-  { icon: Star, title: "Reputation-Based Trust", desc: "Two-way ratings and reviews make accountability real. Users falling below standards face clearance blocks." },
-  { icon: ShieldCheck, title: "Anti-Ghosting Protection", desc: "Report system, dispute resolution, and admin oversight protect both commissioners and student employees." },
+  { icon: Mail, title: "CSU Email Required", desc: "Every account must use an official @carsu.edu.ph address, so the marketplace stays inside the university." },
+  { icon: Star, title: "Reputation-Based Trust", desc: "Two-way ratings and reviews make accountability real. Accounts whose average falls below 3 stars are flagged for admin review." },
+  { icon: ShieldCheck, title: "Anti-Ghosting Protection", desc: "Anyone can report ghosting, scams or misconduct, and admins can warn, suspend or ban accounts." },
   { icon: Users, title: "Built by CSU, for CSU", desc: "A university-exclusive gig economy that empowers students with professional experience and supplementary income." },
 ];
 
@@ -31,7 +31,7 @@ export default function AboutPage() {
             Many CSU students have valuable, marketable skills — graphic design, programming, tutoring, and more.
             But there&apos;s no formal place to offer them safely. Random Facebook posts and word-of-mouth lead to
             scams, ghosting, and lost opportunities. CarsuComits centralizes the commissioning process through a
-            unified dashboard, verifies every user via CSU email, and standardizes skill levels and fair fares — so
+            unified dashboard, requires a CSU email for every account, and standardizes skill levels and fair fares — so
             students can build reputation and income in a trusted, university-exclusive environment.
           </p>
         </section>

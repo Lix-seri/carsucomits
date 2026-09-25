@@ -6,6 +6,7 @@ import { Home, Briefcase, User, MessageCircle, Flag, Building2, Shield, Bookmark
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
+import { ROLE_LABEL } from "@/lib/labels";
 
 const MAIN = [
   { href: "/dashboard", label: "Home Feed", icon: Home },
@@ -19,7 +20,7 @@ const MAIN = [
 export function DashboardSidebar({
   user,
 }: {
-  user: { fullName: string; rating?: number; verified?: boolean; avatarUrl?: string | null; role?: string };
+  user: { fullName: string; avatarUrl: string | null; role: string };
 }) {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href || pathname?.startsWith(href + "/");
@@ -92,7 +93,7 @@ export function DashboardSidebar({
           <Avatar name={user.fullName} src={user.avatarUrl} size="sm" />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{user.fullName}</p>
-            <p className="text-xs text-amber-500">★ {user.rating ?? 4.8} {user.verified !== false && <span className="text-slate-500">· Verified</span>}</p>
+            <p className="text-xs text-slate-500">{ROLE_LABEL[user.role] ?? "Member"}</p>
           </div>
         </Link>
         <LogoutButton className="mt-2 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50" />
