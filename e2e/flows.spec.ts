@@ -158,13 +158,21 @@ test.describe("flows through the UI", () => {
     await page.getByRole("button", { name: "Login as Admin" }).click();
     await expect(page).toHaveURL(/\/admin$/);
 
+    // Admin rows can't be moderated.
+    await page.goto(`/admin/users?q=${encodeURIComponent(ADMIN.email)}`);
+    await expect(page.getByRole("button", { name: "Moderate…" })).toHaveCount(0);
+
     await page.goto(`/admin/users?q=${encodeURIComponent(target.email)}`);
-    await page.getByRole("button", { name: "Suspend" }).click();
-    const confirm = page.getByRole("dialog", { name: "Suspend this user?" });
-    await shot(page, "admin-suspend-confirm");
-    await confirm.getByRole("button", { name: "Suspend" }).click();
-    await expect(confirm).toBeHidden();
-    await expect(page.getByText("SUSPENDED").first()).toBeVisible();
+    await page.getByRole("button", { name: "Moderate…" }).click();
+    const dialog = page.getByRole("dialog", { name: "Moderate Suspendee Tester" });
+    await dialog.getByRole("radio", { name: /Suspend/ }).check();
+    await dialog.getByRole("button", { name: "Suspend Suspendee" }).click();
+    await expect(dialog.getByText(/Give a reason/)).toBeVisible();
+    await dialog.getByLabel("Reason").fill("Took payment for a poster and never delivered.");
+    await shot(page, "admin-moderate");
+    await dialog.getByRole("button", { name: "Suspend Suspendee" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page.getByText("Suspended").first()).toBeVisible();
 
     // The suspended user's session stops working immediately.
     const suspended = await browser.newContext({ baseURL: BASE });
@@ -173,6 +181,6 @@ test.describe("flows through the UI", () => {
 
     await page.goto("/admin/reports");
     await page.getByRole("button", { name: "Resolve" }).first().click();
-    await expect(page.getByText("RESOLVED").first()).toBeVisible();
+    await expect(page.getByText("Resolved").first()).toBeVisible();
   });
 });

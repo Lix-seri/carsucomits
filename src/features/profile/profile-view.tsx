@@ -4,7 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { LevelBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TrustBadge } from "@/components/ui/trust-badge";
-import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
+import { RatingBreakdown } from "./rating-breakdown";
 
 type Review = { who: string; initials: string; stars: number; comment: string | null; when: string };
 type Stats = { done: number; posted: number; rating: number | null; reviewCount: number; successRate: number | null };

@@ -69,8 +69,8 @@ test.describe("marketplace flow over the API", () => {
     const rep = await (await worker.api.post(`/api/reports`, { data: { reporteeEmail: other.email, reason: "Ghosting", details: "No reply for a week." } })).json();
     expect((await worker.api.post(`/api/admin/reports/${rep.report.id}/action`, { data: { action: "RESOLVE" } })).status()).toBe(403);
     expect((await admin.post(`/api/admin/reports/${rep.report.id}/action`, { data: { action: "RESOLVE" } })).ok()).toBeTruthy();
-    expect((await admin.post(`/api/admin/users/${other.id}/action`, { data: { action: "WARN" } })).ok()).toBeTruthy();
-    expect((await admin.post(`/api/admin/users/${other.id}/action`, { data: { action: "REINSTATE" } })).ok()).toBeTruthy();
+    expect((await admin.post(`/api/admin/users/${other.id}/action`, { data: { action: "WARN", reason: "Repeated late deliveries." } })).ok()).toBeTruthy();
+    expect((await admin.post(`/api/admin/users/${other.id}/action`, { data: { action: "REINSTATE", reason: "Warning served, behaviour improved." } })).ok()).toBeTruthy();
 
     // Skills.
     const skill = await (await worker.api.post(`/api/skills`, { data: { name: "Illustrator", level: "ADVANCED" } })).json();

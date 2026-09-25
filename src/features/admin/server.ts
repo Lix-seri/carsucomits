@@ -5,6 +5,9 @@ import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import { assertAdmin, type Session } from "@/lib/session";
 import { averageRatings } from "@/features/ratings/server";
+import { notify } from "@/features/notifications/server";
+
+const USER_STATUSES = AccountStatus;
 
 const USER_ACTIONS = {
   WARN: AccountStatus.WARNED,
@@ -13,19 +16,23 @@ const USER_ACTIONS = {
   REINSTATE: AccountStatus.ACTIVE,
 } as const;
 
-export async function moderateUser(session: Session, userId: string, action: keyof typeof USER_ACTIONS) {
+/** Warn, suspend, ban or reinstate a student. Always with a reason, never on an admin account. */
+export async function moderateUser(session: Session, userId: string, action: keyof typeof USER_ACTIONS, reason: string) {
   assertAdmin(session);
   const status = USER_ACTIONS[action];
 
   const target = await prisma.user.findUnique({ where: { id: userId } });
   if (!target) throw new HttpError(404, "User not found.");
   if (target.id === session.userId) throw new HttpError(400, "You can't moderate your own account.");
-  if (target.role === "ADMIN" && action === "BAN") throw new HttpError(400, "Admin accounts cannot be banned via this action.");
+  if (target.role === "ADMIN") throw new HttpError(400, "Admin accounts can't be moderated here.");
 
   await prisma.user.update({ where: { id: userId }, data: { status } });
   await prisma.auditLog.create({
-    data: { actorId: session.userId, action, target: userId, meta: JSON.stringify({ targetEmail: target.email, newStatus: status }) },
+    data: { actorId: session.userId, action, target: userId, meta: JSON.stringify({ targetEmail: target.email, from: target.status, to: status, reason }) },
   });
+  if (action === "WARN") {
+    await notify({ userId, type: "ACCOUNT_FLAGGED", title: "You received a warning from an admin", body: reason });
+  }
   return { status };
 }
 
@@ -65,11 +72,12 @@ export async function getReportsOverview(session: Session) {
   return { ...flagged, allReports };
 }
 
-export async function listUsers(session: Session, search: string) {
+export async function listUsers(session: Session, search: string, status?: string) {
   assertAdmin(session);
   const contains = { contains: search, mode: "insensitive" as const };
+  const byStatus = status && status in USER_STATUSES ? { status: status as AccountStatus } : {};
   const users = await prisma.user.findMany({
-    where: search ? { OR: [{ fullName: contains }, { email: contains }] } : undefined,
+    where: { ...byStatus, ...(search ? { OR: [{ fullName: contains }, { email: contains }] } : {}) },
     orderBy: { createdAt: "desc" },
     take: 100,
   });

@@ -1,3 +1,5 @@
+import { Flag } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ReportActionButtons } from "./report-action-buttons";
 
 type ReportRow = {
@@ -13,21 +15,26 @@ type ReportRow = {
 /** Admin list of reports with Resolve / Escalate / Reopen. */
 export function ReportList({ title, reports, emptyText }: { title: string; reports: ReportRow[]; emptyText: string }) {
   return (
-    <section className="rounded-2xl border border-line bg-white p-6 shadow-card">
-      <h2 className="mb-4 text-lg font-bold">{title}</h2>
+    <section aria-labelledby="report-list">
+      <h2 id="report-list" className="mb-3 flex items-center gap-2 text-lg font-semibold">
+        {title} <span className="tabular text-sm font-medium text-muted">{reports.length}</span>
+      </h2>
       {reports.length === 0 ? (
-        <p className="rounded-lg bg-sunken px-4 py-6 text-center text-sm text-muted">{emptyText}</p>
+        <EmptyState icon={Flag} title={emptyText} />
       ) : (
-        <ul className="space-y-2">
+        <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
           {reports.map((r) => (
-            <li key={r.id} className="flex items-start justify-between gap-3 rounded-lg bg-sunken p-4">
-              <div>
+            <li key={r.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <p className="text-sm">
-                  <strong>{r.reporter.fullName}</strong> <span className="text-muted">reported</span>{" "}
-                  <strong className="text-danger-600">{r.reportee.fullName}</strong>
+                  <span className="font-semibold">{r.reporter.fullName}</span> <span className="text-muted">reported</span>{" "}
+                  <span className="font-semibold">{r.reportee.fullName}</span>
                 </p>
-                <p className="text-xs text-muted">Reason: {r.reason}{r.details ? ` — ${r.details}` : ""}</p>
-                <p className="text-xs text-muted">{new Date(r.createdAt).toLocaleDateString()}</p>
+                <p className="mt-0.5 text-sm">
+                  <span className="font-medium">{r.reason}</span>
+                  {r.details && <span className="text-muted"> — {r.details}</span>}
+                </p>
+                <p className="text-xs text-muted">{new Date(r.createdAt).toLocaleDateString("en-PH", { dateStyle: "medium" })}</p>
               </div>
               <ReportActionButtons reportId={r.id} status={r.status} />
             </li>

@@ -1,59 +1,89 @@
-import { Star } from "lucide-react";
+import Link from "next/link";
+import { Search, Star, Users } from "lucide-react";
 import { pageSession } from "@/lib/session";
+import { ACCOUNT_STATUS, ROLE_LABEL } from "@/lib/labels";
+import { cn } from "@/lib/utils";
+import { AccountStatusBadge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { listUsers } from "@/features/admin/server";
-import { UserActionButtons } from "@/features/admin/user-action-buttons";
-import { ROLE_LABEL } from "@/lib/labels";
+import { ModerateButton } from "@/features/admin/moderate-button";
 
-export default async function ManageUsers({
-  searchParams,
-}: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams;
+export const metadata = { title: "Users" };
+
+export default async function ManageUsers({ searchParams }: { searchParams: Promise<{ q?: string; status?: string }> }) {
+  const { q, status } = await searchParams;
   const search = (q ?? "").trim();
-
-  const { users, avgMap } = await listUsers(await pageSession({ admin: true }), search);
+  const session = await pageSession({ admin: true });
+  const { users, avgMap } = await listUsers(session, search, status);
+  const filters = [["", "All"], ...Object.entries(ACCOUNT_STATUS).map(([k, v]) => [k, v.label])];
 
   return (
-    <div className="rounded-2xl border border-line bg-white p-6 shadow-card">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold">User Management</h2>
-        <form className="inline">
-          <input
-            name="q"
-            defaultValue={search}
-            placeholder="Search users…"
-            aria-label="Search users"
-            className="input !py-2 !w-56"
-          />
+    <div className="mx-auto max-w-6xl">
+      <PageHeader title="Users" description="Search, filter and moderate student accounts." />
+
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <nav aria-label="Filter by status" className="flex flex-wrap gap-2">
+          {filters.map(([value, label]) => {
+            const active = (status ?? "") === value;
+            const href = `/admin/users?${new URLSearchParams({ ...(search ? { q: search } : {}), ...(value ? { status: value } : {}) })}`;
+            return (
+              <Link
+                key={value || "all"}
+                href={href}
+                aria-current={active ? "page" : undefined}
+                className={cn("rounded-full border px-3 py-1.5 text-xs font-semibold", active ? "border-brand-500 bg-brand-500 text-white" : "border-line bg-white hover:border-brand-300")}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+        <form className="flex w-full items-center gap-2 rounded-lg border border-line bg-white px-3 sm:w-72">
+          {status && <input type="hidden" name="status" value={status} />}
+          <Search className="h-4 w-4 text-faint" />
+          <input name="q" defaultValue={search} placeholder="Name or email" aria-label="Search users" className="w-full bg-transparent py-2 text-sm outline-none" />
         </form>
       </div>
+
       {users.length === 0 ? (
-        <p className="rounded-lg bg-sunken px-4 py-6 text-center text-sm text-muted">No users found.</p>
+        <EmptyState icon={Users} title="No users match" />
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wider text-muted">
-              <tr>
-                <th className="py-2 font-semibold">Name</th>
-                <th className="py-2 font-semibold">Email</th>
-                <th className="py-2 font-semibold">Role</th>
-                <th className="py-2 font-semibold">Rating</th>
-                <th className="py-2 font-semibold">Status</th>
-                <th className="py-2 font-semibold">Actions</th>
+        <div className="rounded-xl border border-line bg-white px-4 sm:px-5">
+          <table className="table-stack">
+            <thead>
+              <tr className="border-b border-line">
+                <th>Name</th>
+                <th>Role</th>
+                <th>Rating</th>
+                <th>Status</th>
+                <th><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
               {users.map((u) => {
                 const avg = avgMap.get(u.id);
+                const canModerate = u.role !== "ADMIN" && u.id !== session.userId;
                 return (
                   <tr key={u.id}>
-                    <td className="py-3 font-semibold">{u.fullName}</td>
-                    <td className="py-3 text-muted">{u.email}</td>
-                    <td className="py-3 text-muted">{ROLE_LABEL[u.role] ?? u.role}</td>
-                    <td className="py-3 text-warning-500">
-                      {avg != null ? <><Star className="mr-1 inline h-3.5 w-3.5 fill-warning-400" /> {avg.toFixed(1)}</> : <span className="text-muted">—</span>}
+                    <td data-label="">
+                      <p className="font-semibold">{u.fullName}</p>
+                      <p className="text-xs text-muted">{u.email}</p>
                     </td>
-                    <td className="py-3"><span className="pill bg-sunken text-ink">{u.status}</span></td>
-                    <td className="py-3"><UserActionButtons userId={u.id} status={u.status} /></td>
+                    <td data-label="Role" className="text-muted">{ROLE_LABEL[u.role] ?? u.role}</td>
+                    <td data-label="Rating">
+                      {avg != null ? (
+                        <span className="inline-flex items-center gap-1 font-semibold">
+                          <Star className="h-3.5 w-3.5 fill-warning-400 text-warning-400" /> {avg.toFixed(1)}
+                        </span>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                    </td>
+                    <td data-label="Status"><AccountStatusBadge status={u.status} /></td>
+                    <td data-label="" className="text-right">
+                      {canModerate && <ModerateButton userId={u.id} userName={u.fullName} status={u.status} />}
+                    </td>
                   </tr>
                 );
               })}
