@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Eye, EyeOff, GraduationCap, Shield, KeyRound } from "lucide-react";
+import { ArrowLeft, GraduationCap, Shield, KeyRound } from "lucide-react";
+import { Field, FormError } from "@/components/ui/form";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
 import { safeNextPath } from "@/lib/redirect";
@@ -18,8 +20,8 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [mfaCode, setMfaCode] = useState("");
   const [needMfa, setNeedMfa] = useState(false);
-  const [show, setShow] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function attemptLogin(payload: Record<string, string>) {
@@ -34,8 +36,9 @@ export function LoginForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!email.endsWith("@carsu.edu.ph")) {
-      setError("Use your @carsu.edu.ph email to continue.");
+    setEmailError(null);
+    if (!email.trim().toLowerCase().endsWith("@carsu.edu.ph")) {
+      setEmailError("Use your @carsu.edu.ph email address.");
       return;
     }
     setLoading(true);
@@ -66,6 +69,8 @@ export function LoginForm() {
       const dest = next ?? (data.user?.role === "ADMIN" ? "/admin" : "/dashboard");
       router.replace(dest);
       router.refresh();
+    } catch {
+      setError("Couldn't reach the server. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -90,12 +95,11 @@ export function LoginForm() {
           </div>
 
           {needMfa ? (
-            <form onSubmit={handleMfaSubmit} className="space-y-4">
+            <form noValidate onSubmit={handleMfaSubmit} className="space-y-4">
               <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-50 text-amber-600">
                 <KeyRound className="h-7 w-7" />
               </div>
-              <div>
-                <label className="label">6-digit code (or backup code)</label>
+              <Field label="6-digit code (or backup code)">
                 <input
                   value={mfaCode}
                   onChange={(e) => setMfaCode(e.target.value)}
@@ -104,10 +108,9 @@ export function LoginForm() {
                   autoComplete="one-time-code"
                   autoFocus
                   className="input text-center text-2xl tracking-[0.5em]"
-                  required
                 />
-              </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              </Field>
+              <FormError message={error} />
               <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
                 {loading ? "Verifying…" : "Verify & Sign in"}
               </button>
@@ -124,6 +127,7 @@ export function LoginForm() {
               <div className="mb-5 grid grid-cols-2 gap-2 rounded-lg bg-slate-100 p-1">
                 <button
                   type="button"
+                  aria-pressed={role === "STUDENT"}
                   onClick={() => setRole("STUDENT")}
                   className={cn(
                     "flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-semibold transition",
@@ -134,6 +138,7 @@ export function LoginForm() {
                 </button>
                 <button
                   type="button"
+                  aria-pressed={role === "ADMIN"}
                   onClick={() => setRole("ADMIN")}
                   className={cn(
                     "flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-semibold transition",
@@ -150,36 +155,27 @@ export function LoginForm() {
                   : "Admin access only — for USG officers and system administrators."}
               </p>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="label">CSU Email Address</label>
+              <form noValidate onSubmit={handleSubmit} className="space-y-4">
+                <Field label="CSU Email Address" error={emailError}>
                   <input
                     type="email"
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={role === "ADMIN" ? "admin@carsu.edu.ph" : "youremail@carsu.edu.ph"}
                     className="input"
-                    required
                   />
-                </div>
-                <div>
-                  <label className="label">Password</label>
-                  <div className="relative">
-                    <input
-                      type={show ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
-                      className="input pr-11"
-                      required
-                    />
-                    <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                      {show ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                </div>
+                </Field>
+                <Field label="Password">
+                  <PasswordInput
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                  />
+                </Field>
 
-                {error && <p className="text-sm text-red-600">{error}</p>}
+                <FormError message={error} />
 
                 <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
                   {loading ? "Signing in…" : `Login as ${role === "STUDENT" ? "Student" : "Admin"}`}

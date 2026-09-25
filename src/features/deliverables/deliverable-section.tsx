@@ -102,7 +102,7 @@ export function DeliverableSection({
       {canSubmit && (
         <form onSubmit={submitDeliverable} className="mb-6 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-5">
           <p className="mb-3 text-sm font-semibold">Submit a deliverable</p>
-          <input ref={fileRef} type="file" className="block w-full text-sm" />
+          <input ref={fileRef} type="file" aria-label="Deliverable file" className="block w-full text-sm" />
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}

@@ -86,12 +86,14 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Python, Logo Design, Spanish Tutoring"
+            aria-label="Skill name"
             className="input"
             disabled={busy}
           />
           <select
             value={level}
             onChange={(e) => setLevel(e.target.value as typeof LEVELS[number])}
+            aria-label="Skill level"
             className="input"
             disabled={busy}
           >
@@ -101,7 +103,7 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
             <Plus className="h-4 w-4" /> Add
           </button>
         </div>
-        {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+        {error && <p role="alert" className="mt-2 text-xs text-red-600">{error}</p>}
       </form>
     </div>
   );

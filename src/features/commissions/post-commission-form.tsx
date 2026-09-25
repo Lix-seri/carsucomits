@@ -1,58 +1,53 @@
 /* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 "use client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ShieldAlert } from "lucide-react";
 import { CATEGORY_OPTIONS, LEVEL_OPTIONS } from "@/lib/labels";
+import { api } from "@/lib/api";
+import { Field, FormError } from "@/components/ui/form";
+
+const FIELDS = ["title", "category", "requiredLevel", "subcategory", "deadline", "fareMin", "fareMax", "fareUnit", "description"];
 
 export function PostCommissionForm() {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ field?: string; message: string } | null>(null);
+  const errorFor = (field: string) => (error?.field === field ? error.message : null);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    setSubmitting(true);
-
-    const f = e.currentTarget;
-    const get = (name: string) =>
-      (f.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null)?.value ?? "";
-
+    const form = new FormData(e.currentTarget);
+    const text = (name: string) => String(form.get(name) ?? "").trim();
+    // Sent as typed; the server's schema decides what's valid and names the field.
     const payload = {
-      title: get("title"),
-      description: get("description"),
-      category: get("category"),
-      subcategory: get("subcategory") || null,
-      requiredLevel: get("requiredLevel"),
-      fareMin: Number(get("fareMin")),
-      fareMax: get("fareMax") ? Number(get("fareMax")) : null,
-      fareUnit: get("fareUnit") || null,
-      deadline: get("deadline") || null,
+      title: text("title"),
+      description: text("description"),
+      category: text("category") || undefined,
+      subcategory: text("subcategory") || null,
+      requiredLevel: text("requiredLevel"),
+      fareMin: text("fareMin") || undefined,
+      fareMax: text("fareMax") || null,
+      fareUnit: text("fareUnit") || null,
+      deadline: text("deadline") || null,
     };
 
-    try {
-      const res = await fetch("/api/commissions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Failed to post commission."); return; }
-
-      // If the commissioner picked a cover image, upload it now.
-      const coverInput = f.elements.namedItem("coverImage") as HTMLInputElement | null;
-      const coverFile = coverInput?.files?.[0];
-      if (coverFile && data.commission?.id) {
-        const fd = new FormData();
-        fd.append("file", coverFile);
-        await fetch(`/api/commissions/${data.commission.id}/cover`, { method: "POST", body: fd });
-      }
-
-      router.replace(`/commission/${data.commission?.id ?? ""}`);
-      router.refresh();
-    } finally {
+    setSubmitting(true);
+    const res = await api<{ commission: { id: string } }>("/api/commissions", { json: payload });
+    if (!res.ok) {
       setSubmitting(false);
+      return setError({ field: res.field, message: res.error });
     }
+    const cover = form.get("coverImage");
+    if (cover instanceof File && cover.size > 0) {
+      const fd = new FormData();
+      fd.append("file", cover);
+      await api(`/api/commissions/${res.data.commission.id}/cover`, { form: fd }); // can be retried from the commission page
+    }
+    router.replace(`/commission/${res.data.commission.id}`);
+    router.refresh();
   }
 
   return (
@@ -60,73 +55,66 @@ export function PostCommissionForm() {
       <h1 className="mb-1 text-2xl font-bold">Post a Commission</h1>
       <p className="mb-6 text-sm text-slate-500">Describe the task you need done and pick a fair fare.</p>
 
-      <form onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
-        <div>
-          <label className="label">Title</label>
-          <input name="title" className="input" placeholder="e.g. Logo design for student org" required />
-        </div>
+      <div className="mb-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
+        <p>
+          <strong>No graded academic work.</strong> Theses, capstones, research papers, essays, assignments and exams done for
+          someone else are not allowed and will be removed. Tutoring and feedback on your own work are fine.{" "}
+          <Link href="/terms#academic-work" className="font-semibold underline">Read the rule</Link>.
+        </p>
+      </div>
+
+      <form noValidate onSubmit={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+        <Field label="Title" error={errorFor("title")}>
+          <input name="title" className="input" placeholder="e.g. Logo design for student org" maxLength={120} />
+        </Field>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="label">Category</label>
-            <select name="category" className="input" required defaultValue="">
+          <Field label="Category" error={errorFor("category")}>
+            <select name="category" className="input" defaultValue="">
               <option value="" disabled>Select category</option>
               {CATEGORY_OPTIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
-          </div>
-          <div>
-            <label className="label">Required skill level</label>
-            <select name="requiredLevel" className="input" required defaultValue="INTERMEDIATE">
+          </Field>
+          <Field label="Required skill level" error={errorFor("requiredLevel")}>
+            <select name="requiredLevel" className="input" defaultValue="INTERMEDIATE">
               {LEVEL_OPTIONS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
             </select>
-          </div>
-          <div>
-            <label className="label">Subcategory <span className="text-slate-400">(optional)</span></label>
-            <input name="subcategory" className="input" placeholder="e.g. Graphic Design, Mathematics" />
-          </div>
-          <div>
-            <label className="label">Deadline <span className="text-slate-400">(optional)</span></label>
+          </Field>
+          <Field label={<>Subcategory <span className="font-normal text-slate-400">(optional)</span></>} error={errorFor("subcategory")}>
+            <input name="subcategory" className="input" placeholder="e.g. Graphic Design, Web" maxLength={60} />
+          </Field>
+          <Field label={<>Deadline <span className="font-normal text-slate-400">(optional)</span></>} error={errorFor("deadline")}>
             <input type="date" name="deadline" className="input" />
-          </div>
+          </Field>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <label className="label">Fare (min) ₱</label>
-            <input type="number" name="fareMin" className="input" min={0} required placeholder="500" />
-          </div>
-          <div>
-            <label className="label">Fare (max) <span className="text-slate-400">(optional)</span></label>
-            <input type="number" name="fareMax" className="input" min={0} placeholder="1500" />
-          </div>
-          <div>
-            <label className="label">Unit</label>
+          <Field label="Fare (min) ₱" error={errorFor("fareMin")}>
+            <input type="number" inputMode="numeric" name="fareMin" className="input" placeholder="500" />
+          </Field>
+          <Field label={<>Fare (max) <span className="font-normal text-slate-400">(optional)</span></>} error={errorFor("fareMax")}>
+            <input type="number" inputMode="numeric" name="fareMax" className="input" placeholder="1500" />
+          </Field>
+          <Field label="Unit" error={errorFor("fareUnit")}>
             <select name="fareUnit" className="input" defaultValue="">
               <option value="">Fixed</option>
               <option value="/hr">/hr</option>
               <option value="/day">/day</option>
               <option value="/errand">/errand</option>
             </select>
-          </div>
+          </Field>
         </div>
 
-        <div>
-          <label className="label">Description</label>
-          <textarea name="description" className="input min-h-[140px]" placeholder="Describe what you need, deliverables, and any references…" required />
-        </div>
+        <Field label="Description" error={errorFor("description")} hint="At least 20 characters: what you need, the deliverables, and any references.">
+          <textarea name="description" className="input min-h-36" maxLength={5000} />
+        </Field>
 
-        <div>
-          <label className="label">Cover image <span className="text-slate-400">(optional)</span></label>
-          <input
-            name="coverImage"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            className="block w-full text-sm"
-          />
-          <p className="mt-1 text-xs text-slate-500">JPG/PNG/WebP up to 5 MB. Shows on browse cards and the detail page.</p>
-        </div>
+        <Field label={<>Cover image <span className="font-normal text-slate-400">(optional)</span></>} hint="JPG/PNG/WebP up to 5 MB. Shows on browse cards and the detail page.">
+          <input name="coverImage" type="file" accept="image/jpeg,image/png,image/webp" className="block w-full text-sm" />
+        </Field>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        <FormError message={error && !FIELDS.includes(error.field ?? "") ? error.message : null} />
 
         <div className="flex gap-3">
           <button type="button" onClick={() => router.back()} className="flex-1 rounded-lg border border-slate-200 py-2.5 text-sm font-medium hover:bg-slate-50">Cancel</button>

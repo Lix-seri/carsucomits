@@ -91,17 +91,18 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
 
   if (step === "disable") {
     return (
-      <form onSubmit={disable} className="space-y-3">
+      <form noValidate onSubmit={disable} className="space-y-3">
         <p className="text-sm text-slate-600">Enter your account password to confirm.</p>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Current password"
+          aria-label="Current password"
+          autoComplete="current-password"
           className="input"
-          required
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <div className="flex gap-2">
           <button type="button" onClick={() => { setStep("idle"); setError(null); }} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">Cancel</button>
           <button type="submit" disabled={busy} className="rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50">
@@ -136,7 +137,7 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
 
   if (step === "qr" && qr) {
     return (
-      <form onSubmit={confirmCode} className="space-y-4">
+      <form noValidate onSubmit={confirmCode} className="space-y-4">
         <ol className="list-decimal space-y-2 pl-5 text-sm text-slate-700">
           <li>Open your authenticator app (Google Authenticator, Authy, 1Password, etc.).</li>
           <li>Tap &quot;Add account&quot; and scan this QR code:</li>
@@ -149,18 +150,19 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
           <p className="mt-2 break-all font-mono text-sm">{secret}</p>
         </details>
         <div>
-          <label className="label">Enter the 6-digit code from your app</label>
+          <label htmlFor="mfa-code" className="label">Enter the 6-digit code from your app</label>
           <input
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="123456"
+            id="mfa-code"
             inputMode="numeric"
+            autoComplete="one-time-code"
             className="input text-center text-2xl tracking-[0.5em]"
-            required
             autoFocus
           />
         </div>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <div className="flex gap-2">
           <button type="button" onClick={() => { setStep("idle"); setError(null); }} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">Cancel</button>
           <button type="submit" disabled={busy} className="btn-primary flex-1">

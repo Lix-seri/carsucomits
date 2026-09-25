@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { api } from "@/lib/api";
+import { Field, FormError } from "@/components/ui/form";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Logo } from "@/components/layout/logo";
 
 export function RegisterForm() {
@@ -12,33 +15,24 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [show1, setShow1] = useState(false);
-  const [show2, setShow2] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // One error at a time, attached to the field it's about (or the form when field is empty).
+  const [error, setError] = useState<{ field?: string; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const errorFor = (field: string) => (error?.field === field ? error.message : null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!email.endsWith("@carsu.edu.ph")) return setError("Use your @carsu.edu.ph email to continue.");
-    if (password.length < 8) return setError("Password must be at least 8 characters.");
-    if (password !== confirm) return setError("Passwords do not match.");
+    if (name.trim().length < 2) return setError({ field: "fullName", message: "Enter your full name." });
+    if (!email.trim().toLowerCase().endsWith("@carsu.edu.ph")) return setError({ field: "email", message: "Use your @carsu.edu.ph email address." });
+    if (password.length < 8) return setError({ field: "password", message: "Password must be at least 8 characters." });
+    if (password !== confirm) return setError({ field: "confirm", message: "Passwords don't match." });
     setLoading(true);
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName: name, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Registration failed."); return; }
-      router.replace("/dashboard");
-      router.refresh();
-    } catch {
-      setError("Network error. Try again.");
-    } finally {
-      setLoading(false);
-    }
+    const res = await api("/api/auth/register", { json: { fullName: name, email, password } });
+    setLoading(false);
+    if (!res.ok) return setError({ field: res.field, message: res.error });
+    router.replace("/dashboard");
+    router.refresh();
   }
 
   return (
@@ -55,35 +49,21 @@ export function RegisterForm() {
             <p className="mt-1 text-sm text-slate-500">Join the CSU Commission Marketplace</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="label">Full Name</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name" className="input" required />
-            </div>
-            <div>
-              <label className="label">CSU Email Address</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@carsu.edu.ph" className="input" required />
-            </div>
-            <div>
-              <label className="label">Password</label>
-              <div className="relative">
-                <input type={show1 ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a password" className="input pr-11" required />
-                <button type="button" onClick={() => setShow1(!show1)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                  {show1 ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className="label">Confirm Password</label>
-              <div className="relative">
-                <input type={show2 ? "text" : "password"} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Re-enter your password" className="input pr-11" required />
-                <button type="button" onClick={() => setShow2(!show2)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                  {show2 ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
+          <form noValidate onSubmit={handleSubmit} className="space-y-4">
+            <Field label="Full Name" error={errorFor("fullName")}>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name" autoComplete="name" className="input" />
+            </Field>
+            <Field label="CSU Email Address" error={errorFor("email")}>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@carsu.edu.ph" autoComplete="email" className="input" />
+            </Field>
+            <Field label="Password" error={errorFor("password")} hint="At least 8 characters.">
+              <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a password" autoComplete="new-password" />
+            </Field>
+            <Field label="Confirm Password" error={errorFor("confirm")}>
+              <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Re-enter your password" autoComplete="new-password" />
+            </Field>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            <FormError message={error && !["fullName", "email", "password", "confirm"].includes(error.field ?? "") ? error.message : null} />
 
             <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
               {loading ? "Creating account…" : "Create Account"}

@@ -51,9 +51,10 @@ export function BrowseContent() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search commissions, skills, students…"
+              aria-label="Search commissions"
               className="flex-1 bg-transparent text-sm outline-none"
             />
-            {q && <button onClick={() => setQ("")}><X className="h-4 w-4 text-slate-400" /></button>}
+            {q && <button onClick={() => setQ("")} aria-label="Clear search"><X className="h-4 w-4 text-slate-400" /></button>}
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -64,6 +65,7 @@ export function BrowseContent() {
                   <button
                     key={c.value}
                     onClick={() => setCat(cat === c.value ? null : c.value)}
+                    aria-pressed={cat === c.value}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                       cat === c.value ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
@@ -80,6 +82,7 @@ export function BrowseContent() {
                   <button
                     key={l.value}
                     onClick={() => setLvl(lvl === l.value ? null : l.value)}
+                    aria-pressed={lvl === l.value}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                       lvl === l.value ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}

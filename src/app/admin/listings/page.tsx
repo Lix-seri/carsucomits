@@ -55,6 +55,7 @@ export default async function AdminListings({
                 name="q"
                 defaultValue={search}
                 placeholder="Search title or description…"
+                aria-label="Search listings"
                 className="w-64 bg-transparent text-sm outline-none"
               />
             </div>

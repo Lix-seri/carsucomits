@@ -22,6 +22,7 @@ export default async function ManageUsers({
             name="q"
             defaultValue={search}
             placeholder="Search users…"
+            aria-label="Search users"
             className="input !py-2 !w-56"
           />
         </form>

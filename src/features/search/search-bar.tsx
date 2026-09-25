@@ -104,10 +104,11 @@ export function SearchBar() {
           onFocus={() => setOpen(true)}
           onKeyDown={onKey}
           placeholder="Search users, commissions, skills…"
+          aria-label="Search users and commissions"
           className="flex-1 bg-transparent text-sm outline-none"
         />
         {q && (
-          <button type="button" onClick={() => { setQ(""); setOpen(false); }} className="text-slate-400 hover:text-slate-600">
+          <button type="button" onClick={() => { setQ(""); setOpen(false); }} className="text-slate-400 hover:text-slate-600" aria-label="Clear search">
             <X className="h-4 w-4" />
           </button>
         )}
