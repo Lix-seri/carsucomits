@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { Star } from "lucide-react";
 import { pageSession } from "@/lib/session";
 import { listUsers } from "@/features/admin/server";

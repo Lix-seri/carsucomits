@@ -1,5 +1,6 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { Star } from "lucide-react";
-import { ratingDistributionFromCounts } from "@/features/ratings/trust";
+import { ratingDistributionFromCounts } from "@/lib/trust";
 
 export function RatingBreakdown({
   byStar, avg, total,

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { notFound, redirect } from "next/navigation";
 import { ShieldCheck, Star, AlertTriangle } from "lucide-react";
 import { getSession } from "@/lib/session";
@@ -7,7 +8,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { Avatar } from "@/components/ui/avatar";
 import { BackButton } from "@/components/layout/back-button";
 import { MessageButton } from "@/features/messages/message-button";
-import { TrustBadge } from "@/features/ratings/trust-badge";
+import { TrustBadge } from "@/components/ui/trust-badge";
 import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
 import { Stat } from "@/components/ui/stat";
 import { ROLE_LABEL } from "@/lib/labels";

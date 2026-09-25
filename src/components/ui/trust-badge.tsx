@@ -1,4 +1,5 @@
-import { trustTier } from "@/features/ratings/trust";
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
+import { trustTier } from "@/lib/trust";
 import { cn } from "@/lib/utils";
 
 export function TrustBadge({

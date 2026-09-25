@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { pageSession } from "@/lib/session";
 import { listAuditLogs } from "@/features/admin/server";
 

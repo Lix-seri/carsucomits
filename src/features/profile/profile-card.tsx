@@ -1,7 +1,8 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import Link from "next/link";
 import { ShieldCheck, Star, Lightbulb, Plus } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
-import { TrustBadge } from "@/features/ratings/trust-badge";
+import { TrustBadge } from "@/components/ui/trust-badge";
 import { LEVEL_LABEL } from "@/lib/labels";
 
 const LEVEL_BAR: Record<string, { color: string; pct: number }> = {

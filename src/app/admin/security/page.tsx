@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { ShieldCheck, ShieldAlert } from "lucide-react";
 import { pageSession } from "@/lib/session";
 import { getMfaStatus } from "@/features/admin/server";

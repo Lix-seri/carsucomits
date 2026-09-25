@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 // Trust badge tiers based on a user's average rating + review volume.
 // Used on profile pages, public profiles, and the dashboard sidebar card.
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { Bell } from "lucide-react";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { pageSession } from "@/lib/session";

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { Star } from "lucide-react";
 import { ROLE_LABEL } from "@/lib/labels";
 import { UserActionButtons } from "./user-action-buttons";

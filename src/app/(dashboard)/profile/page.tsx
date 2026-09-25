@@ -1,9 +1,10 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { ShieldCheck, Star } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { getProfileDetails } from "@/features/profile/server";
 import { SkillsManager } from "@/features/profile/skills-manager";
 import { AvatarUploader } from "@/features/profile/avatar-uploader";
-import { TrustBadge } from "@/features/ratings/trust-badge";
+import { TrustBadge } from "@/components/ui/trust-badge";
 import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
 import { Stat } from "@/components/ui/stat";
 

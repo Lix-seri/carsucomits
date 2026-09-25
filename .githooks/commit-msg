@@ -1,0 +1,10 @@
+#!/bin/sh
+# Rejects commit messages that aren't Conventional Commits: type(scope)!: subject
+# Installed by `npm install` (package.json "prepare"); CI runs it on every pushed commit.
+subject=$(head -n1 "$1")
+case "$subject" in "Merge "*|"Revert "*|"fixup! "*|"squash! "*) exit 0 ;; esac
+if echo "$subject" | grep -Eq '^(feat|fix|refactor|perf|test|docs|chore|build|ci|style|revert)(\([a-z0-9,./ -]+\))?!?: .+'; then
+  exit 0
+fi
+echo "commit-msg: \"$subject\" is not a Conventional Commit, e.g. \"fix(auth): sign session cookie\". See docs/CONTRIBUTING.md." >&2
+exit 1

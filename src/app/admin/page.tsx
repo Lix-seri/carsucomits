@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax -- design literals predate src/styles/tokens.ts; remove this line when the file is redesigned (Phase 4). */
 import { Users, ClipboardList, Flag, AlertOctagon } from "lucide-react";
 import { pageSession } from "@/lib/session";
 import { Kpi } from "@/components/ui/kpi";

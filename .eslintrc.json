@@ -1,0 +1,110 @@
+{
+  "root": true,
+  "extends": [
+    "next/core-web-vitals"
+  ],
+  "ignorePatterns": [
+    ".next",
+    "node_modules",
+    "test-results",
+    "playwright-report",
+    ".data",
+    "next-env.d.ts"
+  ],
+  "rules": {
+    "max-lines": [
+      "error",
+      {
+        "max": 300,
+        "skipBlankLines": true,
+        "skipComments": true
+      }
+    ],
+    "import/no-cycle": "error",
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "Literal[value=/\\b(bg|text|border|from|to|via|ring|fill|stroke|accent|divide|outline|placeholder|decoration|caret)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}\\b/]",
+        "message": "Raw palette colour: use a token from src/styles/tokens.ts (see docs/ARCHITECTURE.md, rule 7)."
+      },
+      {
+        "selector": "TemplateElement[value.raw=/\\b(bg|text|border|from|to|via|ring|fill|stroke|accent|divide|outline|placeholder|decoration|caret)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-[0-9]{2,3}\\b/]",
+        "message": "Raw palette colour: use a token from src/styles/tokens.ts (see docs/ARCHITECTURE.md, rule 7)."
+      },
+      {
+        "selector": "Literal[value=/\\b[a-z]+(-[a-z]+)*-\\[[^\\]]+\\]/]",
+        "message": "Arbitrary Tailwind value: add it to src/styles/tokens.ts instead."
+      },
+      {
+        "selector": "TemplateElement[value.raw=/\\b[a-z]+(-[a-z]+)*-\\[[^\\]]+\\]/]",
+        "message": "Arbitrary Tailwind value: add it to src/styles/tokens.ts instead."
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": [
+        "src/app/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@/lib/db",
+                "message": "Pages and routes call a feature service (src/features/*/server.ts); they never query the database."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/components/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@/lib/db",
+                "message": "Shared components never query the database."
+              }
+            ],
+            "patterns": [
+              {
+                "group": [
+                  "@/features/*"
+                ],
+                "message": "Shared components can't depend on a feature. Move the component into that feature."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "e2e/**",
+        "scripts/**",
+        "*.config.ts",
+        "src/styles/**"
+      ],
+      "rules": {
+        "no-restricted-syntax": "off"
+      }
+    },
+    {
+      "files": [
+        "*.mjs"
+      ],
+      "parserOptions": {
+        "sourceType": "module",
+        "ecmaVersion": 2022
+      }
+    }
+  ]
+}
