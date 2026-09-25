@@ -2,6 +2,7 @@ import { put } from "@vercel/blob";
 import type { z } from "zod";
 import { CommissionStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { deleteBlob } from "@/features/profile/server";
@@ -44,6 +45,7 @@ export async function createCommission(session: Session, input: CreateCommission
       status: CommissionStatus.OPEN,
     },
   });
+  await audit({ actorId: session.userId, action: "COMMISSION_CREATED", target: commission.id, after: { status: "OPEN", title: commission.title, fareMin: commission.fareMin, fareMax: commission.fareMax } });
   return { commission };
 }
 

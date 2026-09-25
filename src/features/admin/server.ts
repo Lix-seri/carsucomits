@@ -2,6 +2,7 @@
 // the /admin layout guard, so a new route or page can't forget it.
 import { AccountStatus, CommissionStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import { assertAdmin, type Session } from "@/lib/session";
 import { averageRatings } from "@/features/ratings/server";
@@ -26,10 +27,10 @@ export async function moderateUser(session: Session, userId: string, action: key
   if (target.id === session.userId) throw new HttpError(400, "You can't moderate your own account.");
   if (target.role === "ADMIN") throw new HttpError(400, "Admin accounts can't be moderated here.");
 
-  await prisma.user.update({ where: { id: userId }, data: { status } });
-  await prisma.auditLog.create({
-    data: { actorId: session.userId, action, target: userId, meta: JSON.stringify({ targetEmail: target.email, from: target.status, to: status, reason }) },
-  });
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: userId }, data: { status } }),
+    audit({ actorId: session.userId, action, target: userId, before: { status: target.status }, after: { status }, meta: { targetEmail: target.email, reason } }),
+  ]);
   if (action === "WARN") {
     await notify({ userId, type: "ACCOUNT_FLAGGED", title: "You received a warning from an admin", body: reason });
   }
@@ -106,18 +107,23 @@ export async function listAllListings(session: Session, search: string, statusFi
 }
 
 /** Latest 200 audit entries, with target user names resolved where the target is a user id. */
-export async function listAuditLogs(session: Session) {
+/** The latest 200 audit entries, optionally one kind of action, with target ids resolved to names. */
+export async function listAuditLogs(session: Session, action?: string) {
   assertAdmin(session);
   const logs = await prisma.auditLog.findMany({
+    where: action ? { action } : {},
     orderBy: { createdAt: "desc" },
     take: 200,
     include: { actor: { select: { fullName: true, email: true } } },
   });
-  const targetIds = Array.from(new Set(logs.map((l) => l.target).filter(Boolean))) as string[];
-  const targets = targetIds.length
-    ? await prisma.user.findMany({ where: { id: { in: targetIds } }, select: { id: true, fullName: true } })
-    : [];
-  return { logs, targetMap: new Map(targets.map((u) => [u.id, u.fullName])) };
+  const ids = Array.from(new Set(logs.map((l) => l.target).filter(Boolean))) as string[];
+  const [users, commissions, actions] = await Promise.all([
+    prisma.user.findMany({ where: { id: { in: ids } }, select: { id: true, fullName: true } }),
+    prisma.commission.findMany({ where: { id: { in: ids } }, select: { id: true, title: true } }),
+    prisma.auditLog.findMany({ distinct: ["action"], select: { action: true }, orderBy: { action: "asc" } }),
+  ]);
+  const targetMap = new Map<string, string>([...users.map((u) => [u.id, u.fullName] as const), ...commissions.map((c) => [c.id, `"${c.title}"`] as const)]);
+  return { logs, targetMap, actions: actions.map((a) => a.action) };
 }
 
 export async function getMfaStatus(session: Session) {

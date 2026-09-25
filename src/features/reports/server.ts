@@ -1,5 +1,6 @@
 import { ReportStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import { assertAdmin, type Session } from "@/lib/session";
 import type { z } from "zod";
@@ -53,17 +54,12 @@ export async function actOnReport(session: Session, reportId: string, action: ke
   if (!report) throw new HttpError(404, "Report not found.");
 
   const reopening = status === ReportStatus.PENDING;
-  await prisma.report.update({
-    where: { id: reportId },
-    data: { status, resolvedById: reopening ? null : session.userId, resolvedAt: reopening ? null : new Date() },
-  });
-  await prisma.auditLog.create({
-    data: {
-      actorId: session.userId,
-      action: `REPORT_${action}`,
-      target: reportId,
-      meta: JSON.stringify({ reportId, newStatus: status }),
-    },
-  });
+  await prisma.$transaction([
+    prisma.report.update({
+      where: { id: reportId },
+      data: { status, resolvedById: reopening ? null : session.userId, resolvedAt: reopening ? null : new Date() },
+    }),
+    audit({ actorId: session.userId, action: `REPORT_${action}`, target: report.reporteeId, before: { status: report.status }, after: { status }, meta: { reportId } }),
+  ]);
   return { status };
 }

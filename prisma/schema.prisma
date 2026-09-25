@@ -230,10 +230,14 @@ model AuditLog {
   action    String
   target    String?
   meta      String?
+  // Field values before and after the change; append-only (a trigger rejects UPDATE/DELETE).
+  before    Json?
+  after     Json?
   createdAt DateTime @default(now())
 
   @@index([createdAt])
   @@index([actorId])
+  @@index([target])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -281,3 +285,4 @@ model PasswordResetToken {
 
   @@index([userId])
 }
+

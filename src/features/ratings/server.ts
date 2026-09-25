@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { audit, statusChange } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { timeAgo } from "@/lib/format";
@@ -52,10 +53,10 @@ async function flagIfLowRating(actorId: string, rateeId: string) {
   const target = await prisma.user.findUnique({ where: { id: rateeId }, select: { status: true } });
   if (target?.status !== "ACTIVE") return { avg, flagged: false };
 
-  await prisma.user.update({ where: { id: rateeId }, data: { status: "WARNED" } });
-  await prisma.auditLog.create({
-    data: { actorId, action: "AUTO_FLAG_LOW_RATING", target: rateeId, meta: JSON.stringify({ avg, ratingCount: agg._count }) },
-  });
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: rateeId }, data: { status: "WARNED" } }),
+    audit({ actorId, action: "AUTO_FLAG_LOW_RATING", target: rateeId, before: { status: "ACTIVE" }, after: { status: "WARNED" }, meta: { avg, ratingCount: agg._count } }),
+  ]);
   await notify({
     userId: rateeId,
     type: "ACCOUNT_FLAGGED",
@@ -94,6 +95,7 @@ export async function completeWithRating(session: Session, commissionId: string,
   await prisma.$transaction([
     createRating(commissionId, session.userId, rateeId, stars, comment),
     prisma.commission.update({ where: { id: commissionId }, data: { status: "COMPLETED" } }),
+    audit(statusChange(session.userId, commissionId, commission.status, "COMPLETED")),
   ]);
 
   await notify({

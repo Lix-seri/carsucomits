@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import QRCode from "qrcode";
 import { prisma } from "@/lib/db";
+import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import { setSession, type Session } from "@/lib/session";
 import type { z } from "zod";
@@ -32,7 +33,7 @@ async function recentFailures(userId: string) {
 }
 
 async function failLogin(userId: string, message: string): Promise<never> {
-  await prisma.auditLog.create({ data: { actorId: userId, action: "LOGIN_FAILED", target: userId } });
+  await audit({ actorId: userId, action: "LOGIN_FAILED", target: userId });
   throw new HttpError(401, message);
 }
 
@@ -71,7 +72,7 @@ export async function login({ email, password, expectedRole, mfaCode }: z.infer<
   }
 
   await setSession(user);
-  await prisma.auditLog.create({ data: { actorId: user.id, action: "LOGIN", target: user.id } });
+  await audit({ actorId: user.id, action: "LOGIN", target: user.id });
   return { user: { id: user.id, fullName: user.fullName, role: user.role } };
 }
 
@@ -110,7 +111,7 @@ export async function enableMfa(session: Session, code: string) {
 
   const backupCodes = generateBackupCodes(6);
   await prisma.user.update({ where: { id: user.id }, data: { mfaEnabled: true, mfaBackupCodes: JSON.stringify(backupCodes) } });
-  await prisma.auditLog.create({ data: { actorId: user.id, action: "MFA_ENABLED", target: user.id } });
+  await audit({ actorId: user.id, action: "MFA_ENABLED", target: user.id, before: { mfaEnabled: false }, after: { mfaEnabled: true } });
   return { backupCodes };
 }
 
@@ -121,6 +122,6 @@ export async function disableMfa(session: Session, password: string) {
   if (!(await bcrypt.compare(password, user.passwordHash))) throw new HttpError(401, "Incorrect password.");
 
   await prisma.user.update({ where: { id: user.id }, data: { mfaEnabled: false, totpSecret: null, mfaBackupCodes: null } });
-  await prisma.auditLog.create({ data: { actorId: user.id, action: "MFA_DISABLED", target: user.id } });
+  await audit({ actorId: user.id, action: "MFA_DISABLED", target: user.id, before: { mfaEnabled: true }, after: { mfaEnabled: false } });
   return {};
 }

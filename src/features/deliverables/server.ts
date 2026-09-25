@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob";
 import { prisma } from "@/lib/db";
+import { audit, statusChange } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { notify } from "@/features/notifications/server";
@@ -38,7 +39,10 @@ export async function submitDeliverable(session: Session, commissionId: string, 
     },
   });
   if (commission.status === "IN_PROGRESS") {
-    await prisma.commission.update({ where: { id: commission.id }, data: { status: "AWAITING_REVIEW" } });
+    await prisma.$transaction([
+      prisma.commission.update({ where: { id: commission.id }, data: { status: "AWAITING_REVIEW" } }),
+      audit(statusChange(session.userId, commission.id, "IN_PROGRESS", "AWAITING_REVIEW")),
+    ]);
   }
   await notify({
     userId: commission.commissionerId,
@@ -62,13 +66,18 @@ export async function decideDeliverable(session: Session, id: string, { action, 
   if (deliverable.status !== "SUBMITTED") throw new HttpError(400, "This deliverable has already been reviewed.");
 
   const approve = action === "APPROVE";
-  await prisma.deliverable.update({
-    where: { id },
-    data: { status: approve ? "APPROVED" : "REVISION_REQUESTED", reviewerNotes: notes, reviewedAt: new Date() },
-  });
-  if (!approve && deliverable.commission.status === "AWAITING_REVIEW") {
-    await prisma.commission.update({ where: { id: deliverable.commission.id }, data: { status: "IN_PROGRESS" } });
-  }
+  const newStatus = approve ? "APPROVED" : "REVISION_REQUESTED";
+  const reopen = !approve && deliverable.commission.status === "AWAITING_REVIEW";
+  await prisma.$transaction([
+    prisma.deliverable.update({ where: { id }, data: { status: newStatus, reviewerNotes: notes, reviewedAt: new Date() } }),
+    audit({ actorId: session.userId, action: approve ? "DELIVERABLE_APPROVED" : "DELIVERABLE_REVISION", target: deliverable.commission.id, before: { status: "SUBMITTED" }, after: { status: newStatus }, meta: { deliverableId: id, notes } }),
+    ...(reopen
+      ? [
+          prisma.commission.update({ where: { id: deliverable.commission.id }, data: { status: "IN_PROGRESS" } }),
+          audit(statusChange(session.userId, deliverable.commission.id, "AWAITING_REVIEW", "IN_PROGRESS")),
+        ]
+      : []),
+  ]);
   if (deliverable.commission.awardedToId) {
     await notify({
       userId: deliverable.commission.awardedToId,
