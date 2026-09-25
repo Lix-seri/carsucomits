@@ -109,3 +109,20 @@ test.describe("audit fixes: routing", () => {
     await expect(page).toHaveURL(/\/dashboard$/);
   });
 });
+
+test.describe("audit fixes: links", () => {
+  test("M2: unknown pages show the 404 page, and header/footer links all resolve", async ({ page }) => {
+    const res = await page.goto("/this-page-does-not-exist");
+    expect(res?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "We couldn't find that page" })).toBeVisible();
+
+    await page.goto("/");
+    const hrefs = await page.locator("header a[href^='/'], footer a[href^='/']").evaluateAll((as) =>
+      Array.from(new Set(as.map((a) => (a as HTMLAnchorElement).getAttribute("href")!.split("#")[0] || "/"))),
+    );
+    for (const href of hrefs) {
+      const r = await page.request.get(href, { maxRedirects: 0 });
+      expect(r.status(), href).toBeLessThan(400);
+    }
+  });
+});

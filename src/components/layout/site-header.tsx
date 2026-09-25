@@ -10,7 +10,7 @@ const NAV = [
   { href: "/", label: "Home" },
   { href: "/browse", label: "Browse Commissions" },
   { href: "/about", label: "About" },
-  { href: "/help", label: "Help" },
+  { href: "/terms", label: "Terms" },
 ];
 
 export async function SiteHeader() {

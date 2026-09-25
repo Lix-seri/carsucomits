@@ -17,18 +17,15 @@ export function SiteFooter() {
             <h4 className="mb-4 font-semibold text-white">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/browse" className="hover:text-white">Browse Commissions</Link></li>
-              <li><Link href="/post" className="hover:text-white">Post a Task</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-white">How It Works</Link></li>
-              <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
+              <li><Link href="/commissioner/post" className="hover:text-white">Post a Commission</Link></li>
+              <li><Link href="/#how-it-works" className="hover:text-white">How It Works</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="mb-4 font-semibold text-white">Support</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
-              <li><Link href="/safety" className="hover:text-white">Safety Guidelines</Link></li>
-              <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
+              <li><Link href="/about" className="hover:text-white">Trust &amp; Safety</Link></li>
+              <li><Link href="/terms" className="hover:text-white">Terms of Use</Link></li>
             </ul>
           </div>
           <div>

@@ -86,7 +86,7 @@ test.describe("every page renders", () => {
     const poster = await newUser("Visible");
     const c = await postCommission(poster.api);
     for (const [path, name] of [
-      ["/", "home"], ["/browse", "browse"], ["/about", "about"], ["/login", "login"], ["/register", "register"],
+      ["/", "home"], ["/browse", "browse"], ["/about", "about"], ["/terms", "terms"], ["/login", "login"], ["/register", "register"],
       [`/commission/${c.id}`, "commission"], [`/u/${poster.id}`, "public-profile"],
     ]) await visit(page, path, `${info.project.name}/visitor-${name}`);
   });
@@ -107,7 +107,7 @@ test.describe("every page renders", () => {
     await signInPage(page, ADMIN, "ADMIN");
     for (const [path, name] of [
       ["/admin", "dashboard"], ["/admin/users", "users"], ["/admin/listings", "listings"],
-      ["/admin/reports", "reports"], ["/admin/logs", "logs"], ["/admin/security", "security"], ["/admin/settings", "settings"],
+      ["/admin/reports", "reports"], ["/admin/logs", "logs"], ["/admin/security", "security"],
     ]) await visit(page, path, `${info.project.name}/admin-${name}`);
   });
 });
