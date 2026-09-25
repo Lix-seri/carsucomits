@@ -53,7 +53,9 @@ export async function visit(page: Page, path: string, shotName: string) {
   const res = await page.goto(path);
   expect(res?.status(), `${path} status`).toBeLessThan(400);
   await expect(page.locator("body")).not.toContainText(/Application error|Unhandled Runtime Error|Internal Server Error/);
-  await page.screenshot({ path: `test-results/screens/${shotName}.png`, fullPage: true });
+  // caret: "initial" — Playwright's default hides the text cursor by injecting a style
+  // attribute, which React reports as a hydration mismatch if hydration isn't done yet.
+  await page.screenshot({ path: `test-results/screens/${shotName}.png`, fullPage: true, caret: "initial" });
   expect(errors, `${path} threw in the browser`).toEqual([]);
 }
 
