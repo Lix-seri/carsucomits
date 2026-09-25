@@ -1,6 +1,6 @@
 # PROJECT — read this first
 
-_Last updated: 2026-09-25, after the repository restructure._
+_Last updated: 2026-09-26, after Phase 2._
 
 ## What this is
 
@@ -50,16 +50,11 @@ CarsuComits is a commission marketplace for **Caraga State University – Main C
 
 ## In progress / next
 
-1. Finish the restructure tooling:
-   - ESLint config with boundary, line and literal rules;
-   - the structure-check script;
-   - the Conventional Commits hook;
-   - CI;
-   - the Prisma Migrate baseline plus migrate-on-build (ADR 0002);
-   - design tokens;
-   - the footer version.
-2. Phase 2: `claude/audits/AUDIT_<date>.md`, then fix every Critical and High finding. Add zod validation per endpoint (ADR 0007).
-3. Phases 3–6 per `claude/prompts/0001-…`.
+1. Phase 3: role walkthroughs, native dialogs → site dialogs, inline field errors.
+2. Phase 4: design critique and redesign (removes the ESLint design-literal exemptions).
+3. Phase 5: the 11 feature items. Phase 6: final report.
+
+Phase 2 is done: every Critical and High audit finding is fixed and tested (`claude/audits/AUDIT_2026-09-25.md`). Restructure tooling is done (CI, checks, migrations, tokens).
 
 ## Blocked / needs the owner
 

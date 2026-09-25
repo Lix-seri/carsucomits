@@ -6,8 +6,8 @@ Work is done in phases (see `claude/prompts/0001-…`). Status here is updated a
 |---|---|---|
 | 1 | Understand the codebase | Done |
 | — | Repository restructure (feature-first, checks, docs, versioning) | Done |
-| 2 | QA and security audit; fix every Critical and High finding | In progress |
-| 3 | Playwright walkthroughs for every role, desktop and mobile; replace native dialogs | Started (smoke suite exists) |
+| 2 | QA and security audit; fix every Critical and High finding | Done (all Critical/High fixed; see claude/audits/AUDIT_2026-09-25.md) |
+| 3 | Playwright walkthroughs for every role, desktop and mobile; replace native dialogs | In progress |
 | 4 | Design critique and improvement | Not started |
 | 5 | The 11 feature items below | Not started |
 | 6 | Final verification and report | Not started |
