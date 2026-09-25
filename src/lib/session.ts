@@ -4,6 +4,7 @@
 // role changes take effect on the next request instead of when the cookie expires.
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { cache } from "react";
 import type { Role } from "@prisma/client";
 import { prisma } from "./db";
@@ -66,6 +67,17 @@ export const getSession = cache(async (): Promise<Session | null> => {
 export async function requireSession(): Promise<Session> {
   const session = await getSession();
   if (!session) throw new HttpError(401, "Not signed in.");
+  return session;
+}
+
+/**
+ * For pages and layouts: the session, or a redirect. Layouts and pages render in
+ * parallel, so a guard in a layout alone doesn't stop the page's code from running.
+ */
+export async function pageSession(opts: { admin?: boolean } = {}): Promise<Session> {
+  const session = await getSession();
+  if (!session) redirect(opts.admin ? "/login?reason=admin-only" : "/login");
+  if (opts.admin && session.role !== "ADMIN") redirect("/dashboard?error=admin-only");
   return session;
 }
 

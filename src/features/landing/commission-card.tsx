@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Commission } from "@/lib/mock-data";
+import type { Commission } from "@/features/landing/mock-data";
 
 const skillColors: Record<string, string> = {
   Beginner: "bg-slate-100 text-slate-700",

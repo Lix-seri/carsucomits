@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Filter, Bell, Plus } from "lucide-react";
-import { SearchBar } from "@/components/dashboard/search-bar";
+import { SearchBar } from "@/features/search/search-bar";
 import { NotificationsPopover } from "@/features/notifications/notifications-popover";
 
 export function DashboardTopbar() {

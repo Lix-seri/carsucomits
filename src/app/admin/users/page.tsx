@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
-import { prisma } from "@/lib/db";
-import { UserActionButtons } from "@/components/admin/user-action-buttons";
+import { pageSession } from "@/lib/session";
+import { listUsers } from "@/features/admin/server";
+import { UserActionButtons } from "@/features/admin/user-action-buttons";
 
 const ROLE_LABEL: Record<string, string> = {
   STUDENT_EMPLOYEE: "Student Employee",
@@ -14,25 +15,7 @@ export default async function ManageUsers({
   const { q } = await searchParams;
   const search = (q ?? "").trim();
 
-  const users = await prisma.user.findMany({
-    where: search
-      ? {
-          OR: [
-            { fullName: { contains: search, mode: "insensitive" as const } },
-            { email: { contains: search, mode: "insensitive" as const } },
-          ],
-        }
-      : undefined,
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
-
-  const ratings = await Promise.all(
-    users.map((u) =>
-      prisma.rating.aggregate({ where: { rateeId: u.id }, _avg: { stars: true } }).then((r) => ({ id: u.id, avg: r._avg.stars }))
-    )
-  );
-  const avgMap = new Map(ratings.map((r) => [r.id, r.avg]));
+  const { users, avgMap } = await listUsers(await pageSession({ admin: true }), search);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">

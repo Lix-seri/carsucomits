@@ -1,6 +1,7 @@
 import { Users, ClipboardList, Flag, AlertOctagon, Star } from "lucide-react";
-import { prisma } from "@/lib/db";
-import { UserActionButtons } from "@/components/admin/user-action-buttons";
+import { pageSession } from "@/lib/session";
+import { getAdminDashboard } from "@/features/admin/server";
+import { UserActionButtons } from "@/features/admin/user-action-buttons";
 import { ReportActionButtons } from "@/features/reports/report-action-buttons";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -10,37 +11,7 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 export default async function AdminDashboard() {
-  const [totalUsers, activeListings, pendingReports, flaggedAccounts, flaggedUsers, latestReports] = await Promise.all([
-    prisma.user.count(),
-    prisma.commission.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }),
-    prisma.report.count({ where: { status: "PENDING" } }),
-    prisma.user.count({ where: { status: { in: ["WARNED", "SUSPENDED", "BANNED"] } } }),
-    prisma.user.findMany({
-      where: { receivedReports: { some: { status: { in: ["PENDING", "UNDER_INVESTIGATION"] } } } },
-      include: {
-        receivedReports: {
-          where: { status: { in: ["PENDING", "UNDER_INVESTIGATION"] } },
-          orderBy: { createdAt: "desc" },
-          take: 1,
-        },
-        _count: { select: { receivedRatings: true } },
-      },
-      take: 10,
-    }),
-    prisma.report.findMany({
-      where: { status: "PENDING" },
-      orderBy: { createdAt: "desc" },
-      include: { reporter: { select: { fullName: true } }, reportee: { select: { fullName: true } } },
-      take: 10,
-    }),
-  ]);
-
-  const ratingsByUser = await Promise.all(
-    flaggedUsers.map((u) =>
-      prisma.rating.aggregate({ where: { rateeId: u.id }, _avg: { stars: true } }).then((r) => ({ id: u.id, avg: r._avg.stars }))
-    )
-  );
-  const avgMap = new Map(ratingsByUser.map((r) => [r.id, r.avg]));
+  const { totalUsers, activeListings, pendingReports, flaggedAccounts, flaggedUsers, latestReports, avgMap } = await getAdminDashboard(await pageSession({ admin: true }));
 
   return (
     <div className="space-y-6">

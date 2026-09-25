@@ -1,14 +1,10 @@
 import { ShieldCheck, ShieldAlert } from "lucide-react";
-import { prisma } from "@/lib/db";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
+import { getMfaStatus } from "@/features/admin/server";
 import { MfaSetup } from "@/features/auth/mfa-setup";
 
 export default async function AdminSecurityPage() {
-  const session = await getSession();
-  const user = await prisma.user.findUnique({
-    where: { id: session!.userId },
-    select: { mfaEnabled: true, email: true },
-  });
+  const user = await getMfaStatus(await pageSession({ admin: true }));
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">

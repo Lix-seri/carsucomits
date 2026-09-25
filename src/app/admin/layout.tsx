@@ -1,13 +1,9 @@
-import { redirect } from "next/navigation";
 import { Bell } from "lucide-react";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
-import { getSession } from "@/lib/session";
+import { pageSession } from "@/lib/session";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await getSession();
-
-  if (!session) redirect("/login?reason=admin-only");
-  if (session.role !== "ADMIN") redirect("/dashboard?error=admin-only");
+  await pageSession({ admin: true });
 
   return (
     <div className="flex min-h-screen bg-brand-50/40">

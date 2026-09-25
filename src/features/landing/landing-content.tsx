@@ -2,9 +2,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowRight, Target, Users, CheckCircle2, X } from "lucide-react";
-import { CategoryCard } from "@/components/category-card";
-import { CommissionCard } from "@/components/commission-card";
-import { CATEGORIES, COMMISSIONS, ACADEMIC_SUBCATEGORIES, type Category } from "@/lib/mock-data";
+import { CategoryCard } from "@/features/landing/category-card";
+import { CommissionCard } from "@/features/landing/commission-card";
+import { CATEGORIES, COMMISSIONS, ACADEMIC_SUBCATEGORIES, type Category } from "@/features/landing/mock-data";
 
 export function LandingContent() {
   const [category, setCategory] = useState<Category | null>("Academic");

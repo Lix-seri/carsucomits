@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
-import { prisma } from "@/lib/db";
-import { UserActionButtons } from "@/components/admin/user-action-buttons";
+import { pageSession } from "@/lib/session";
+import { getReportsOverview } from "@/features/admin/server";
+import { UserActionButtons } from "@/features/admin/user-action-buttons";
 import { ReportActionButtons } from "@/features/reports/report-action-buttons";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -10,30 +11,7 @@ const ROLE_LABEL: Record<string, string> = {
 };
 
 export default async function AdminReports() {
-  const [flaggedUsers, allReports] = await Promise.all([
-    prisma.user.findMany({
-      where: { receivedReports: { some: { status: { in: ["PENDING", "UNDER_INVESTIGATION"] } } } },
-      include: {
-        receivedReports: {
-          where: { status: { in: ["PENDING", "UNDER_INVESTIGATION"] } },
-          orderBy: { createdAt: "desc" },
-          take: 1,
-        },
-      },
-    }),
-    prisma.report.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { reporter: { select: { fullName: true } }, reportee: { select: { fullName: true } } },
-      take: 50,
-    }),
-  ]);
-
-  const ratingsByUser = await Promise.all(
-    flaggedUsers.map((u) =>
-      prisma.rating.aggregate({ where: { rateeId: u.id }, _avg: { stars: true } }).then((r) => ({ id: u.id, avg: r._avg.stars }))
-    )
-  );
-  const avgMap = new Map(ratingsByUser.map((r) => [r.id, r.avg]));
+  const { flaggedUsers, allReports, avgMap } = await getReportsOverview(await pageSession({ admin: true }));
 
   return (
     <div className="space-y-6">

@@ -1,4 +1,5 @@
-import { prisma } from "@/lib/db";
+import { pageSession } from "@/lib/session";
+import { listAuditLogs } from "@/features/admin/server";
 
 const ACTION_STYLE: Record<string, { bar: string; tag: string }> = {
   LOGIN:              { bar: "border-l-emerald-500", tag: "text-emerald-600" },
@@ -17,18 +18,7 @@ const ACTION_STYLE: Record<string, { bar: string; tag: string }> = {
 };
 
 export default async function AdminLogs() {
-  const logs = await prisma.auditLog.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 200,
-    include: { actor: { select: { fullName: true, email: true } } },
-  });
-
-  // Resolve target user names where possible.
-  const targetIds = Array.from(new Set(logs.map((l) => l.target).filter(Boolean))) as string[];
-  const targets = targetIds.length
-    ? await prisma.user.findMany({ where: { id: { in: targetIds } }, select: { id: true, fullName: true } })
-    : [];
-  const targetMap = new Map(targets.map((u) => [u.id, u.fullName]));
+  const { logs, targetMap } = await listAuditLogs(await pageSession({ admin: true }));
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">

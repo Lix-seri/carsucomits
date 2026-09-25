@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search, Eye } from "lucide-react";
-import { prisma } from "@/lib/db";
+import { pageSession } from "@/lib/session";
+import { listAllListings } from "@/features/admin/server";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-50 text-emerald-700",
@@ -30,40 +31,7 @@ export default async function AdminListings({
   const search = (q ?? "").trim();
   const statusFilter = status?.trim();
 
-  const validStatuses = ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW", "COMPLETED", "CANCELLED", "DISPUTED"];
-  const statusWhere =
-    statusFilter && validStatuses.includes(statusFilter)
-      ? { status: statusFilter as "OPEN" | "IN_PROGRESS" | "AWAITING_REVIEW" | "COMPLETED" | "CANCELLED" | "DISPUTED" }
-      : {};
-
-  const [listings, totals] = await Promise.all([
-    prisma.commission.findMany({
-      where: {
-        ...statusWhere,
-        ...(search
-          ? {
-              OR: [
-                { title: { contains: search, mode: "insensitive" as const } },
-                { description: { contains: search, mode: "insensitive" as const } },
-              ],
-            }
-          : {}),
-      },
-      orderBy: { createdAt: "desc" },
-      include: {
-        commissioner: { select: { fullName: true } },
-        _count: { select: { applications: true } },
-      },
-      take: 100,
-    }),
-    prisma.commission.groupBy({
-      by: ["status"],
-      _count: true,
-    }),
-  ]);
-
-  const totalCount = totals.reduce((sum, t) => sum + t._count, 0);
-  const counts = Object.fromEntries(totals.map((t) => [t.status, t._count]));
+  const { listings, totalCount, counts } = await listAllListings(await pageSession({ admin: true }), search, statusFilter);
 
   return (
     <div className="space-y-4">
