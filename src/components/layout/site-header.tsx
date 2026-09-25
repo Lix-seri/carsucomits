@@ -4,7 +4,6 @@ import { Logo } from "./logo";
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutButton } from "./logout-button";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/db";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -15,9 +14,6 @@ const NAV = [
 
 export async function SiteHeader() {
   const session = await getSession();
-  const user = session
-    ? await prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } })
-    : null;
   const dashHref = session?.role === "ADMIN" ? "/admin" : "/dashboard";
 
   return (
@@ -38,7 +34,7 @@ export async function SiteHeader() {
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </Link>
               <Link href={dashHref} className="flex items-center gap-2 rounded-full bg-brand-50 px-2 py-1 pr-3 hover:bg-brand-100">
-                <Avatar name={session.fullName} src={user?.avatarUrl} size="xs" />
+                <Avatar name={session.fullName} src={session.avatarUrl} size="xs" />
                 <span className="text-sm font-semibold text-brand-700">{session.fullName.split(" ")[0]}</span>
               </Link>
               <LogoutButton className="text-sm font-medium text-slate-500 hover:text-red-600" showIcon={false} redirectTo="/" />

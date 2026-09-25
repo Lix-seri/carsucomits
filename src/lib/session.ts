@@ -9,7 +9,7 @@ import type { Role } from "@prisma/client";
 import { prisma } from "./db";
 import { HttpError } from "./http";
 
-export type Session = { userId: string; fullName: string; email: string; role: Role };
+export type Session = { userId: string; fullName: string; email: string; role: Role; avatarUrl: string | null };
 type Token = { uid: string; role: Role; exp: number };
 
 const COOKIE = "carsu_session";
@@ -56,10 +56,10 @@ export const getSession = cache(async (): Promise<Session | null> => {
   if (!token) return null;
   const user = await prisma.user.findUnique({
     where: { id: token.uid },
-    select: { id: true, fullName: true, email: true, role: true, status: true },
+    select: { id: true, fullName: true, email: true, role: true, status: true, avatarUrl: true },
   });
   if (!user || user.status === "BANNED" || user.status === "SUSPENDED") return null;
-  return { userId: user.id, fullName: user.fullName, email: user.email, role: user.role };
+  return { userId: user.id, fullName: user.fullName, email: user.email, role: user.role, avatarUrl: user.avatarUrl };
 });
 
 /** For API routes: the current session, or a 401. */

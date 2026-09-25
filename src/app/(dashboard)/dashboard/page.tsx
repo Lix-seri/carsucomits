@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Hand, TrendingUp, Users, Star, ArrowRight, ChevronRight, CheckCircle2 } from "lucide-react";
-import { ProfileCard } from "@/components/dashboard/profile-card";
+import { ProfileCard } from "@/features/profile/profile-card";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
-import { getUserSkills, getUserStats, getRecentReviews } from "@/lib/queries";
+import { getUserSkills, getUserStats } from "@/features/profile/server";
+import { getRecentReviews } from "@/features/ratings/server";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-100 text-emerald-700",

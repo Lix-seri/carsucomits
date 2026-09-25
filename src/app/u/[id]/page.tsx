@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ShieldCheck, Star, AlertTriangle } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { getProfileDetails, getPublicUser } from "@/features/profile/server";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Avatar } from "@/components/ui/avatar";
@@ -9,7 +9,6 @@ import { BackButton } from "@/components/layout/back-button";
 import { MessageButton } from "@/features/messages/message-button";
 import { TrustBadge } from "@/features/ratings/trust-badge";
 import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
-import { getUserSkills, getUserStats, getRecentReviews, getRatingDistribution } from "@/lib/queries";
 
 const ROLE_LABEL: Record<string, string> = {
   STUDENT_EMPLOYEE: "Student Employee",
@@ -29,31 +28,12 @@ export default async function PublicProfile({ params }: { params: Promise<{ id: 
   const session = await getSession();
 
   // If a logged-in user tries to view their own profile, send them to the editable one.
-  if (session?.userId === id) {
-    const { redirect } = await import("next/navigation");
-    redirect("/profile");
-  }
+  if (session?.userId === id) redirect("/profile");
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      fullName: true,
-      avatarUrl: true,
-      role: true,
-      status: true,
-      bio: true,
-      createdAt: true,
-    },
-  });
+  const user = await getPublicUser(id);
   if (!user) notFound();
 
-  const [skills, stats, reviews, distribution] = await Promise.all([
-    getUserSkills(user.id),
-    getUserStats(user.id),
-    getRecentReviews(user.id, 8),
-    getRatingDistribution(user.id),
-  ]);
+  const { skills, stats, reviews, distribution } = await getProfileDetails(user.id, 8);
 
   const isFlagged = user.status !== "ACTIVE";
 

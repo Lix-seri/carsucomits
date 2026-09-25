@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { DashboardTopbar } from "@/components/layout/dashboard-topbar";
 import { getSession } from "@/lib/session";
-import { prisma } from "@/lib/db";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -13,12 +12,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/admin");
   }
 
-  const dbUser = session
-    ? await prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } })
-    : null;
-
   const user = session
-    ? { fullName: session.fullName, rating: 4.8, verified: true, avatarUrl: dbUser?.avatarUrl ?? null, role: session.role }
+    ? { fullName: session.fullName, rating: 4.8, verified: true, avatarUrl: session.avatarUrl, role: session.role }
     : { fullName: "Guest", rating: 0, verified: false, avatarUrl: null, role: "STUDENT_EMPLOYEE" };
 
   return (

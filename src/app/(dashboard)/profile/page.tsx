@@ -1,9 +1,8 @@
 import { ShieldCheck, Star } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { getUserSkills, getUserStats, getRecentReviews, getRatingDistribution } from "@/lib/queries";
-import { SkillsManager } from "@/components/dashboard/skills-manager";
-import { AvatarUploader } from "@/components/dashboard/avatar-uploader";
+import { getProfileDetails } from "@/features/profile/server";
+import { SkillsManager } from "@/features/profile/skills-manager";
+import { AvatarUploader } from "@/features/profile/avatar-uploader";
 import { TrustBadge } from "@/features/ratings/trust-badge";
 import { RatingBreakdown } from "@/features/ratings/rating-breakdown";
 
@@ -12,15 +11,9 @@ export default async function ProfilePage() {
   const fullName = session?.fullName ?? "Guest";
   const email = session?.email ?? "—";
 
-  const [user, skills, stats, reviews, distribution] = session
-    ? await Promise.all([
-        prisma.user.findUnique({ where: { id: session.userId }, select: { avatarUrl: true } }),
-        getUserSkills(session.userId),
-        getUserStats(session.userId),
-        getRecentReviews(session.userId, 5),
-        getRatingDistribution(session.userId),
-      ])
-    : [null, [], { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null }, [], {}];
+  const { skills, stats, reviews, distribution } = session
+    ? await getProfileDetails(session.userId, 5)
+    : { skills: [], stats: { done: 0, posted: 0, rating: null, reviewCount: 0, successRate: null }, reviews: [], distribution: {} };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -28,7 +21,7 @@ export default async function ProfilePage() {
         <div className="h-28 bg-gradient-to-r from-brand-500 to-emerald-500" />
         <div className="-mt-12 p-6">
           <div className="flex flex-col items-start gap-4 md:flex-row md:items-end">
-            <AvatarUploader fullName={fullName} initialUrl={user?.avatarUrl ?? null} />
+            <AvatarUploader fullName={fullName} initialUrl={session?.avatarUrl ?? null} />
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-bold">{fullName}</h1>

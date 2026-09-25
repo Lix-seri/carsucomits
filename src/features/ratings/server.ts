@@ -1,7 +1,32 @@
 import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
+import { timeAgo } from "@/lib/format";
+import { initialsFor } from "@/components/ui/avatar";
 import { notify } from "@/features/notifications/server";
+
+export async function getRatingDistribution(userId: string) {
+  const groups = await prisma.rating.groupBy({ by: ["stars"], where: { rateeId: userId }, _count: true });
+  const byStar: Record<number, number> = {};
+  for (const g of groups) byStar[g.stars] = g._count;
+  return byStar;
+}
+
+export async function getRecentReviews(userId: string, take = 3) {
+  const reviews = await prisma.rating.findMany({
+    where: { rateeId: userId },
+    orderBy: { createdAt: "desc" },
+    take,
+    include: { rater: { select: { fullName: true } } },
+  });
+  return reviews.map((r) => ({
+    who: r.rater.fullName,
+    initials: initialsFor(r.rater.fullName),
+    stars: r.stars,
+    comment: r.comment,
+    when: timeAgo(r.createdAt),
+  }));
+}
 
 type RatingInput = { stars?: unknown; comment?: unknown };
 
