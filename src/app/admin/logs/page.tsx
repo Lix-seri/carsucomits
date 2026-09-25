@@ -1,67 +1,77 @@
+import { ScrollText } from "lucide-react";
 import { pageSession } from "@/lib/session";
+import { CAMPUS_TZ, timeAgo } from "@/lib/format";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { listAuditLogs } from "@/features/admin/server";
 
-const ACTION_STYLE: Record<string, { bar: string; tag: string }> = {
-  LOGIN:              { bar: "border-l-emerald-500", tag: "text-brand-600" },
-  LOGIN_FAILED:       { bar: "border-l-amber-500",   tag: "text-warning-600" },
-  LOGOUT:             { bar: "border-l-slate-500",   tag: "text-muted" },
-  REGISTER:           { bar: "border-l-emerald-500", tag: "text-brand-600" },
-  WARN:               { bar: "border-l-amber-500",   tag: "text-warning-600" },
-  SUSPEND:            { bar: "border-l-orange-500",  tag: "text-warning-600" },
-  BAN:                { bar: "border-l-red-500",     tag: "text-danger-600" },
-  REINSTATE:          { bar: "border-l-emerald-500", tag: "text-brand-600" },
-  REPORT_RESOLVE:     { bar: "border-l-blue-500",    tag: "text-info-600" },
-  REPORT_ESCALATE:    { bar: "border-l-red-500",     tag: "text-danger-600" },
-  REPORT_REOPEN:      { bar: "border-l-slate-500",   tag: "text-muted" },
-  AUTO_FLAG_LOW_RATING: { bar: "border-l-red-500",   tag: "text-danger-600" },
-  MFA_ENABLED:        { bar: "border-l-blue-500",    tag: "text-info-600" },
-  MFA_DISABLED:       { bar: "border-l-orange-500",  tag: "text-warning-600" },
+export const metadata = { title: "Activity log" };
+
+// What the actor did, as the middle of a sentence: "<actor> <verb> <target>".
+const VERB: Record<string, string> = {
+  LOGIN: "signed in",
+  LOGIN_FAILED: "failed to sign in",
+  LOGOUT: "signed out",
+  REGISTER: "created an account",
+  WARN: "warned",
+  SUSPEND: "suspended",
+  BAN: "banned",
+  REINSTATE: "reinstated",
+  APPROVE: "approved",
+  REPORT_RESOLVE: "resolved a report on",
+  REPORT_ESCALATE: "escalated a report on",
+  REPORT_REOPEN: "reopened a report on",
+  AUTO_FLAG_LOW_RATING: "was auto-flagged for low ratings",
+  MFA_ENABLED: "turned on two-factor sign-in",
+  MFA_DISABLED: "turned off two-factor sign-in",
 };
+const DANGER = new Set(["LOGIN_FAILED", "SUSPEND", "BAN", "REPORT_ESCALATE", "AUTO_FLAG_LOW_RATING", "MFA_DISABLED"]);
+
+function parseMeta(raw: string | null): Record<string, unknown> {
+  try { return raw ? JSON.parse(raw) : {}; } catch { return {}; }
+}
 
 export default async function AdminLogs() {
   const { logs, targetMap } = await listAuditLogs(await pageSession({ admin: true }));
 
   return (
-    <div className="rounded-2xl border border-line bg-white p-6 shadow-card">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold">System Logs</h2>
-          <p className="text-xs text-muted">Real audit entries from the AuditLog table. Showing the latest 200.</p>
-        </div>
-      </div>
+    <div className="mx-auto max-w-4xl">
+      <PageHeader title="Activity log" description="Sign-ins, moderation and automatic flags, newest first. Showing the latest 200." />
       {logs.length === 0 ? (
-        <p className="rounded-lg bg-sunken px-4 py-12 text-center text-sm text-muted">
-          No audit log entries yet. Logins, moderation actions, and auto-flags will appear here.
-        </p>
+        <EmptyState icon={ScrollText} title="Nothing recorded yet">Sign-ins, moderation actions and auto-flags will appear here.</EmptyState>
       ) : (
-        <ul className="space-y-1.5 font-mono text-xs">
+        <ol className="divide-y divide-line rounded-xl border border-line bg-white">
           {logs.map((l) => {
-            const style = ACTION_STYLE[l.action] ?? { bar: "border-l-slate-500", tag: "text-muted" };
-            const targetName = l.target ? targetMap.get(l.target) : null;
-            let meta: Record<string, unknown> | null = null;
-            try { if (l.meta) meta = JSON.parse(l.meta); } catch { /* ignore */ }
+            const meta = parseMeta(l.meta);
+            const target = l.target ? targetMap.get(l.target) ?? null : null;
+            const reason = typeof meta.reason === "string" ? meta.reason : null;
             return (
-              <li key={l.id} className={`break-all rounded-r-lg border-l-4 bg-sunken px-3 py-2 ${style.bar}`}>
-                <span className="text-muted">
-                  {l.createdAt.toISOString().replace("T", " ").slice(0, 19)}
-                </span>
-                {" - "}
-                <strong className={style.tag}>{l.action}</strong>
-                {" - "}
-                <span className="text-ink">
-                  by <strong>{l.actor.fullName}</strong>
-                  {targetName && <> on <strong>{targetName}</strong></>}
-                  {!targetName && l.target && <> on <code>{l.target}</code></>}
-                  {meta && Object.keys(meta).length > 0 && (
-                    <span className="ml-2 text-muted">
-                      {Object.entries(meta).slice(0, 3).map(([k, v]) => `${k}=${String(v).slice(0, 40)}`).join(", ")}
-                    </span>
+              <li key={l.id} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div className="min-w-0 text-sm">
+                  <p>
+                    <span className="font-semibold">{l.actor.fullName}</span>{" "}
+                    <span className={DANGER.has(l.action) ? "text-danger-700" : "text-muted"}>{VERB[l.action] ?? l.action.toLowerCase().replaceAll("_", " ")}</span>
+                    {target && <> <span className="font-semibold">{target}</span></>}
+                  </p>
+                  {reason && <p className="mt-0.5 text-muted">“{reason}”</p>}
+                  {Object.keys(meta).length > 0 && (
+                    <details className="mt-1 text-xs text-muted">
+                      <summary className="cursor-pointer select-none">Details</summary>
+                      <pre className="mt-1 whitespace-pre-wrap break-all rounded-lg bg-sunken p-2 font-mono">{JSON.stringify(meta, null, 2)}</pre>
+                    </details>
                   )}
-                </span>
+                </div>
+                <time
+                  dateTime={l.createdAt.toISOString()}
+                  title={l.createdAt.toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: CAMPUS_TZ })}
+                  className="shrink-0 text-xs text-muted"
+                >
+                  {timeAgo(l.createdAt)}
+                </time>
               </li>
             );
           })}
-        </ul>
+        </ol>
       )}
     </div>
   );

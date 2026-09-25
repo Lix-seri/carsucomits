@@ -1,34 +1,34 @@
-import { ShieldCheck, ShieldAlert } from "lucide-react";
+import { ShieldAlert, ShieldCheck } from "lucide-react";
 import { pageSession } from "@/lib/session";
+import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ui/page-header";
 import { getMfaStatus } from "@/features/admin/server";
 import { MfaSetup } from "@/features/auth/mfa-setup";
 
+export const metadata = { title: "Security" };
+
 export default async function AdminSecurityPage() {
   const user = await getMfaStatus(await pageSession({ admin: true }));
+  const on = !!user?.mfaEnabled;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">Security</h1>
-        <p className="text-sm text-muted">Manage two-factor authentication on your admin account.</p>
-      </header>
-
-      <section className="rounded-2xl border border-line bg-white p-6 shadow-card">
-        <div className="mb-4 flex items-start gap-3">
-          <div className={`grid h-11 w-11 place-items-center rounded-lg ${user?.mfaEnabled ? "bg-brand-50 text-brand-600" : "bg-warning-50 text-warning-600"}`}>
-            {user?.mfaEnabled ? <ShieldCheck className="h-6 w-6" /> : <ShieldAlert className="h-6 w-6" />}
-          </div>
-          <div>
-            <h2 className="text-lg font-bold">Two-Factor Authentication (TOTP)</h2>
-            <p className="text-sm text-muted">
-              {user?.mfaEnabled
-                ? "MFA is active. You'll be asked for a 6-digit code each time you log in."
-                : "Add a second layer of security by using an authenticator app like Google Authenticator, Authy, or 1Password."}
-            </p>
-          </div>
+    <div className="mx-auto max-w-2xl">
+      <PageHeader title="Security" description="Protect your admin account with a second step at sign-in." />
+      <section aria-labelledby="mfa" className="rounded-xl border border-line bg-white p-5 sm:p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 id="mfa" className="text-lg font-semibold">Two-factor sign-in</h2>
+          {on ? (
+            <Badge tone="brand" icon={<ShieldCheck className="h-3.5 w-3.5" />}>On</Badge>
+          ) : (
+            <Badge tone="warning" icon={<ShieldAlert className="h-3.5 w-3.5" />}>Off</Badge>
+          )}
         </div>
-
-        <MfaSetup initiallyEnabled={!!user?.mfaEnabled} email={user?.email ?? ""} />
+        <p className="mb-5 max-w-prose text-sm text-muted">
+          {on
+            ? "You'll be asked for a 6-digit code from your authenticator app each time you sign in."
+            : "Use an authenticator app such as Google Authenticator, Authy or 1Password to add a 6-digit code to every sign-in."}
+        </p>
+        <MfaSetup initiallyEnabled={on} email={user?.email ?? ""} />
       </section>
     </div>
   );
