@@ -2,17 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --brand-500: #16A34A;
-  --brand-600: #0E8A3D;
-  --brand-50:  #EBFBF1;
-  --ink:       #0F172A;
-}
-
 html, body {
+  @apply bg-white text-ink;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color: var(--ink);
-  background: #FFFFFF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

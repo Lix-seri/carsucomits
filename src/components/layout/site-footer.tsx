@@ -39,7 +39,7 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="mt-12 border-t border-slate-800 pt-6 text-center text-sm text-slate-500">
-          © {new Date().getFullYear()} CarsuComits. All rights reserved. Powered by CSU Students.
+          © {new Date().getFullYear()} CarsuComits. All rights reserved. Powered by CSU Students. · v{process.env.APP_VERSION}
         </div>
       </div>
     </footer>
