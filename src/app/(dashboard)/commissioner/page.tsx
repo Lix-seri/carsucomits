@@ -3,7 +3,7 @@ import { ClipboardList, Users, CheckCircle2, Plus, Eye, Star } from "lucide-reac
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { Avatar } from "@/components/ui/avatar";
-import { ApplicantDecisionButtons } from "@/components/applicant-decision-buttons";
+import { ApplicantDecisionButtons } from "@/features/applications/applicant-decision-buttons";
 
 const CAT_PILL: Record<string, string> = {
   ACADEMIC: "bg-emerald-50 text-emerald-700",

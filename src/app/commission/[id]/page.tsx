@@ -6,10 +6,10 @@ import { getSession } from "@/lib/session";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Avatar } from "@/components/ui/avatar";
-import { ApplyButton } from "@/components/apply-button";
+import { ApplyButton } from "@/features/applications/apply-button";
 import { BookmarkButton } from "@/features/commissions/bookmark-button";
 import { CoverImageUploader } from "@/features/commissions/cover-image-uploader";
-import { WithdrawButton } from "@/components/withdraw-button";
+import { WithdrawButton } from "@/features/applications/withdraw-button";
 import { DeliverableSection } from "@/components/deliverable-section";
 
 const CAT_COLOR: Record<string, string> = {

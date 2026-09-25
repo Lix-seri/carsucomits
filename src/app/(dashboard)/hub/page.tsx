@@ -5,7 +5,7 @@ import { getSession } from "@/lib/session";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
 import { RateNowButton } from "@/features/ratings/rate-now-button";
 import { RateCommissionerButton } from "@/features/ratings/rate-commissioner-button";
-import { WithdrawButton } from "@/components/withdraw-button";
+import { WithdrawButton } from "@/features/applications/withdraw-button";
 
 const STATUS_PILL: Record<string, string> = {
   OPEN: "bg-emerald-50 text-emerald-700",

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { listApplicantsForMe } from "@/features/applications/server";
 import { Avatar } from "@/components/ui/avatar";
-import { ApplicantDecisionButtons } from "@/components/applicant-decision-buttons";
+import { ApplicantDecisionButtons } from "@/features/applications/applicant-decision-buttons";
 
 export default async function ApplicantsPage({
   searchParams,
@@ -19,25 +19,7 @@ export default async function ApplicantsPage({
 
   const { commissionId } = await searchParams;
 
-  const applications = await prisma.application.findMany({
-    where: {
-      commission: { commissionerId: session.userId },
-      ...(commissionId ? { commissionId } : {}),
-    },
-    orderBy: { createdAt: "desc" },
-    include: {
-      applicant: { select: { id: true, fullName: true, avatarUrl: true } },
-      commission: { select: { id: true, title: true, status: true } },
-    },
-  });
-
-  const ratings = await Promise.all(
-    applications.map((a) =>
-      prisma.rating.aggregate({ where: { rateeId: a.applicantId }, _avg: { stars: true } })
-        .then((r) => ({ id: a.applicantId, avg: r._avg.stars }))
-    )
-  );
-  const ratingMap = new Map(ratings.map((r) => [r.id, r.avg]));
+  const { applications, avgRating: ratingMap } = await listApplicantsForMe(session, { commissionId });
 
   return (
     <div className="space-y-4">
