@@ -14,11 +14,19 @@ async function namesById(ids: (string | null)[]) {
 
 export async function getDashboard(session: Session) {
   const me = session.userId;
-  const [skills, stats, featured, doingTask, postedTask, inProgressCount, applicantsWaiting] = await Promise.all([
-    getUserSkills(me),
+  const skills = await getUserSkills(me);
+  // Suggestions: open commissions that mention one of my skills; otherwise the newest ones.
+  const openForMe = { status: "OPEN" as const, heldForReview: false, NOT: { commissionerId: me } };
+  const skillMatch = skills.length
+    ? { OR: skills.flatMap((k) => [{ title: { contains: k.name, mode: "insensitive" as const } }, { description: { contains: k.name, mode: "insensitive" as const } }]) }
+    : null;
+  const [stats, matched, newest, doingTask, waitingTask, latestTask, inProgressCount, applicantsWaiting] = await Promise.all([
     getUserStats(me),
+    skillMatch
+      ? prisma.commission.findMany({ where: { ...openForMe, ...skillMatch }, orderBy: { createdAt: "desc" }, include: { commissioner: { select: { fullName: true } } }, take: 3 })
+      : Promise.resolve([]),
     prisma.commission.findMany({
-      where: { status: "OPEN", heldForReview: false, NOT: { commissionerId: me } },
+      where: openForMe,
       orderBy: { createdAt: "desc" },
       include: { commissioner: { select: { fullName: true } } },
       take: 3,
@@ -27,6 +35,12 @@ export async function getDashboard(session: Session) {
       where: { awardedToId: me, status: { in: [...UNFINISHED_STATUSES] } },
       include: { commissioner: { select: { fullName: true } } },
       orderBy: { updatedAt: "desc" },
+    }),
+    // The Hiring card shows the commission that needs a decision, if any.
+    prisma.commission.findFirst({
+      where: { commissionerId: me, status: "OPEN", applications: { some: { status: "PENDING" } } },
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { applications: true } } },
     }),
     prisma.commission.findFirst({
       where: { commissionerId: me, status: { in: [...LIVE_STATUSES] } },
@@ -38,8 +52,10 @@ export async function getDashboard(session: Session) {
     }),
     prisma.application.count({ where: { commission: { commissionerId: me }, status: "PENDING" } }),
   ]);
+  const postedTask = waitingTask ?? latestTask;
+  const featured = matched.length ? matched : newest;
   const awardedToName = postedTask?.awardedToId ? ((await namesById([postedTask.awardedToId])).get(postedTask.awardedToId) ?? "the student") : "the student";
-  return { skills, stats, featured, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName };
+  return { skills, stats, featured, suggestedBySkills: matched.length > 0, doingTask, postedTask, inProgressCount, applicantsWaiting, awardedToName };
 }
 
 export async function getHub(session: Session) {

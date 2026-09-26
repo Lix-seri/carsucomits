@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BadgeCheck, Bookmark, Briefcase, Flag, Home, Megaphone, MessageCircle, Receipt, Search, User } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { Wordmark } from "@/components/layout/logo";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
 import { ROLE_LABEL } from "@/lib/labels";
@@ -36,12 +37,8 @@ export function DashboardSidebar({ user }: { user: { fullName: string; avatarUrl
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-line bg-surface">
-      <Link href="/dashboard" className="flex items-center gap-2.5 border-b border-line px-5 py-4">
-        <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 text-sm font-bold text-white">CC</span>
-        <span>
-          <span className="block text-sm font-semibold leading-tight">CarSUComits</span>
-          <span className="block text-xs text-muted">CSU Main marketplace</span>
-        </span>
+      <Link href="/dashboard" aria-label="CarSUComits home" className="flex h-16 items-center border-b border-line px-5">
+        <Wordmark size="sm" />
       </Link>
 
       <nav aria-label="Main" className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
@@ -55,11 +52,11 @@ export function DashboardSidebar({ user }: { user: { fullName: string; avatarUrl
                     href={href}
                     aria-current={isActive(href) ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                      isActive(href) ? "bg-brand-50 text-brand-800" : "text-ink hover:bg-sunken",
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",
+                      isActive(href) ? "bg-brand-500 text-white shadow-soft" : "text-ink hover:bg-sunken",
                     )}
                   >
-                    <Icon className={cn("h-5 w-5", isActive(href) ? "text-brand-600" : "text-muted")} />
+                    <Icon aria-hidden className={cn("h-5 w-5", isActive(href) ? "text-white" : "text-muted")} />
                     {label}
                   </Link>
                 </li>

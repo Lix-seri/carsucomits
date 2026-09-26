@@ -27,15 +27,12 @@ export function NotificationsBell() {
     <div className="relative">
       <button
         onClick={() => setShowNotif(!showNotif)}
-        className="relative rounded-lg border border-line p-2 hover:bg-sunken"
-        aria-label="Notifications"
+        className="relative grid h-10 w-10 place-items-center rounded-xl border border-line-strong bg-surface hover:bg-sunken"
+        aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
+        aria-expanded={showNotif}
       >
-        <Bell className="h-4 w-4" />
-        {unread > 0 && (
-          <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-danger-500 px-1 text-xs font-bold text-white">
-            {unread > 9 ? "9+" : unread}
-          </span>
-        )}
+        <Bell aria-hidden className="h-5 w-5" />
+        {unread > 0 && <span aria-hidden className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-coral-500 ring-2 ring-surface" />}
       </button>
       {showNotif && <NotificationsPopover onClose={() => setShowNotif(false)} />}
     </div>

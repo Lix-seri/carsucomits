@@ -65,3 +65,9 @@ export function dueLabel(deadline: Date | string | null | undefined, now = new D
 
 /** "₱1,250" for totals; fares keep formatFare. */
 export const peso = (n: number) => `₱${n.toLocaleString("en-PH")}`;
+
+/** Morning, afternoon or evening on campus (Manila time). */
+export function partOfDay(d = new Date()): "morning" | "afternoon" | "evening" {
+  const h = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone: CAMPUS_TZ }).format(d));
+  return h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+}
