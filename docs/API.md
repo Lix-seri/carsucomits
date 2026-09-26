@@ -28,8 +28,10 @@ All endpoints are Next.js route handlers under `src/app/api/`.
 | `POST /api/commissions` | `title, description, category, subcategory?, requiredLevel, fareMin, fareMax?, fareUnit?, deadline?` | `commissions.createCommission` | Signed in |
 | `POST /api/commissions/[id]/cover` · `DELETE` | multipart `file` (JPG/PNG/WebP ≤ 5 MB) | `commissions.setCover` · `removeCover` | Owner |
 | `POST /api/saved/[commissionId]` | — | `commissions.toggleSaved` | Signed in |
-| `POST /api/commissions/[id]/apply` | `coverLetter?, proposedRate?` | `applications.applyToCommission` | Not the owner; once per commission |
-| `POST /api/applications/[id]/accept` | — | `applications.acceptApplication` | Commission owner. Rejects the others; commission → `IN_PROGRESS` |
+| `POST /api/commissions/[id]/apply` | `coverLetter?, proposedRate?` | `applications.applyToCommission` | CCIS-verified students, not the owner; once per commission; within the admin-set limits (409 names the limit) |
+| `POST /api/applications/[id]/accept` | — | `applications.acceptApplication` | Commission owner. Applicant must still be verified and under the job limit; commission → `AGREEMENT_PENDING` |
+| `POST /api/commissions/[id]/agreement` | — | `agreements.acceptAgreement` | Poster or hired student. When both have accepted, the commission → `IN_PROGRESS` and the other applicants are declined |
+| `DELETE /api/commissions/[id]/agreement` | `reason?` | `agreements.declineAgreement` | Poster or hired student, before work starts; commission → `OPEN` |
 | `POST /api/applications/[id]/decline` | — | `applications.declineApplication` | Commission owner |
 | `POST /api/applications/[id]/withdraw` | — | `applications.withdrawApplication` | Applicant, while `PENDING` |
 | `POST /api/commissions/[id]/deliverables` | multipart `file` (≤ 20 MB), `message?` | `deliverables.submitDeliverable` | Awarded student |
@@ -55,12 +57,25 @@ Ratings of 3 stars or fewer need at least 10 characters of feedback.
 | `PATCH /api/notifications` | `ids?` | `notifications.markNotificationsRead` | Signed in |
 | `POST /api/reports` | `reporteeEmail, reason, details?` | `reports.fileReport` | Signed in |
 | `GET /api/reports/mine` | — | `reports.listMyReports` | Signed in |
+| `POST /api/verification` | multipart `studentIdNumber, ccis=on, proof` (JPG/PNG/WebP/PDF ≤ 2 MB) | `verification.submitVerification` | Signed in, `@carsu.edu.ph`, one pending request at a time |
 
 ## Admin
 
 | Method & path | Body | Service |
 |---|---|---|
-| `POST /api/admin/users/[id]/action` | `action: WARN \| SUSPEND \| BAN \| REINSTATE` | `admin.moderateUser` |
+| `POST /api/admin/users/[id]/action` | `action: WARN \| SUSPEND \| BAN \| REINSTATE` | `admin.moderateUser` (needs `reason`) |
 | `POST /api/admin/reports/[id]/action` | `action: RESOLVE \| ESCALATE \| REOPEN` | `reports.actOnReport` |
+| `POST /api/admin/users/[id]/role` | `role: STUDENT_EMPLOYEE \| USED` | `admin.setUserRole` |
+| `PUT /api/admin/settings` | `MAX_PENDING_APPLICATIONS, MAX_ACTIVE_JOBS` (1–50) | `settings.updateLimits` |
 
-Both check `assertAdmin` inside the service and write an audit-log entry.
+These check `assertAdmin` inside the service and write an audit-log entry with before and after values.
+
+## Staff (admins and USED officers)
+
+| Method & path | Body | Service |
+|---|---|---|
+| `GET /api/verification/[id]/proof` | — | `verification.getProof` (private, `no-store`) |
+| `POST /api/verification/[id]/decision` | `decision: APPROVE \| REJECT, note?` (a note is required to reject) | `verification.decideVerification` |
+| `POST /api/sellers/[id]/status` | `action: SUSPEND \| REINSTATE, reason` | `verification.setSellerStatus` |
+
+These check `assertStaff` and write an audit-log entry.
