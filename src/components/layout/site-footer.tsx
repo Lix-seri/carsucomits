@@ -3,7 +3,7 @@ import { Logo } from "./logo";
 
 const LINKS = [
   { href: "/browse", label: "Browse commissions" },
-  { href: "/commissioner/post", label: "Post a commission" },
+  { href: "/hiring/post", label: "Post a commission" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/about", label: "Trust & safety" },
   { href: "/terms", label: "Terms of use" },
@@ -28,7 +28,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="mx-auto max-w-7xl border-t border-line px-4 py-5 text-xs text-muted sm:px-6">
-        © {new Date().getFullYear()} CarsuComits · Built by CSU students · v{process.env.APP_VERSION}
+        © {new Date().getFullYear()} CarsuComits · Built by CSU Main students · v{process.env.APP_VERSION}
       </p>
     </footer>
   );

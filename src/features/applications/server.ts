@@ -8,6 +8,7 @@ import { averageRatings } from "@/features/ratings/server";
 import { activeJobCounts } from "@/features/profile/server";
 import { applyBlockedReason, getLimits } from "@/features/settings/server";
 import { isVerified, NOT_VERIFIED } from "@/features/verification/server";
+import { recordFlag, screenText } from "@/features/moderation/server";
 import type { ApplyInput } from "./schemas";
 
 export async function applyToCommission(session: Session, commissionId: string, input: ApplyInput) {
@@ -34,13 +35,16 @@ export async function applyToCommission(session: Session, commissionId: string, 
     ? await prisma.application.update({ where: { id: existing.id }, data: fields })
     : await prisma.application.create({ data: { commissionId, applicantId: session.userId, ...fields } });
 
+  const hit = input.coverLetter ? await screenText(input.coverLetter) : null;
+  if (hit) await recordFlag(session.userId, "APPLICATION", application.id, input.coverLetter!, hit);
+
   // REQ-3.3: tell the commissioner.
   await notify({
     userId: commission.commissionerId,
     type: "APPLICATION_RECEIVED",
     title: "New applicant on your commission",
     body: `${session.fullName} applied to "${commission.title}".`,
-    link: `/commissioner/applicants?commissionId=${commission.id}`,
+    link: `/hiring/applicants?commissionId=${commission.id}`,
   });
   return { application };
 }
@@ -135,7 +139,7 @@ export async function withdrawApplication(session: Session, id: string) {
     type: "APPLICATION_DECLINED",
     title: "An applicant withdrew",
     body: `${session.fullName} withdrew their application for "${application.commission.title}".`,
-    link: `/commissioner/applicants?commissionId=${application.commission.id}`,
+    link: `/hiring/applicants?commissionId=${application.commission.id}`,
   });
   return {};
 }

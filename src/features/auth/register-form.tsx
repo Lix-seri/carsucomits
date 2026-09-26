@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
@@ -9,7 +8,6 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Logo } from "@/components/layout/logo";
 
 export function RegisterForm() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,8 +28,7 @@ export function RegisterForm() {
     const res = await api("/api/auth/register", { json: { fullName: name, email, password } });
     setLoading(false);
     if (!res.ok) return setError({ field: res.field, message: res.error });
-    router.replace("/dashboard");
-    router.refresh();
+    window.location.assign("/dashboard"); // full load: the new session changes every page
   }
 
   return (
@@ -52,7 +49,7 @@ export function RegisterForm() {
             <Field label="Full name" error={errorFor("fullName")}>
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Juan Dela Cruz" autoComplete="name" className="input" />
             </Field>
-            <Field label="CSU email address" error={errorFor("email")}>
+            <Field label="Email (@carsu.edu.ph)" error={errorFor("email")}>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@carsu.edu.ph" autoComplete="email" className="input" />
             </Field>
             <Field label="Password" error={errorFor("password")} hint="At least 8 characters.">

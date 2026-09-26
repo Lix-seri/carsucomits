@@ -6,6 +6,7 @@ import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { deleteBlob } from "@/features/profile/server";
+import { recordFlag, screenText } from "@/features/moderation/server";
 import { IMAGE_TYPES, type CreateCommissionInput, type listCommissionsSchema } from "./schemas";
 
 /** Browse listing: filter by category, level, free text and status (default OPEN). */
@@ -14,6 +15,7 @@ export async function listCommissions(filters: z.infer<typeof listCommissionsSch
   const commissions = await prisma.commission.findMany({
     where: {
       status,
+      heldForReview: false,
       ...(category ? { category } : {}),
       ...(level ? { requiredLevel: level } : {}),
       ...(q
@@ -37,14 +39,19 @@ export async function listCommissions(filters: z.infer<typeof listCommissionsSch
 }
 
 export async function createCommission(session: Session, input: CreateCommissionInput) {
+  // Items 5 and 9: a post that matches the word list is held for an admin instead of published.
+  const text = [input.title, input.subcategory, input.description].filter(Boolean).join("\n");
+  const hit = await screenText(text);
   const commission = await prisma.commission.create({
     data: {
       ...input,
+      heldForReview: !!hit,
       deadline: input.deadline ? new Date(input.deadline) : null,
       commissionerId: session.userId,
       status: CommissionStatus.OPEN,
     },
   });
+  if (hit) await recordFlag(session.userId, "COMMISSION", commission.id, text, hit);
   await audit({ actorId: session.userId, action: "COMMISSION_CREATED", target: commission.id, after: { status: "OPEN", title: commission.title, fareMin: commission.fareMin, fareMax: commission.fareMax } });
   return { commission };
 }
@@ -109,6 +116,8 @@ export async function getCommissionDetail(id: string, session: Session | null) {
     },
   });
   if (!commission) return null;
+  // A held post is visible only to its poster and staff until reviewed.
+  if (commission.heldForReview && session?.userId !== commission.commissionerId && session?.role !== "ADMIN") return null;
 
   const [commissionerRating, myApplication, savedRow, awardee] = await Promise.all([
     prisma.rating.aggregate({ where: { rateeId: commission.commissionerId }, _avg: { stars: true } }),

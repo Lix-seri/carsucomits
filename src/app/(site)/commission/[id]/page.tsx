@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, MapPin, Star, Users } from "lucide-react";
+import { CalendarDays, MapPin, Star, Users } from "lucide-react";
 import { getSession } from "@/lib/session";
 import { formatFare } from "@/lib/format";
 import { Avatar } from "@/components/ui/avatar";
+import { BackButton } from "@/components/layout/back-button";
 import { Badge, CategoryBadge, CommissionStatusBadge, LevelBadge } from "@/components/ui/badge";
 import { getCommissionDetail } from "@/features/commissions/server";
 import { listDeliverables } from "@/features/deliverables/server";
@@ -18,6 +19,7 @@ import { DeliverableSection } from "@/features/deliverables/deliverable-section"
 import { getAgreement } from "@/features/agreements/server";
 import { AgreementPanel } from "@/features/agreements/agreement-panel";
 import { snapshotTerms, type AgreementTerms } from "@/features/agreements/agreement";
+import { ReportCommissionButton } from "@/features/reports/report-commission-button";
 import { APPLICATION_STATUS, COMMISSION_STATUS } from "@/lib/labels";
 
 type Props = { params: Promise<{ id: string }> };
@@ -47,9 +49,7 @@ export default async function CommissionDetail({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <Link href="/browse" className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800">
-        <ArrowLeft className="h-4 w-4" /> Back to Browse
-      </Link>
+      <BackButton fallback="/browse" label="Back" />
 
       <article className="mt-4 overflow-hidden rounded-2xl border border-line bg-white shadow-card">
         {commission.coverImageUrl && (
@@ -80,13 +80,19 @@ export default async function CommissionDetail({ params }: Props) {
             </ul>
           </header>
 
+          {commission.heldForReview && (
+            <p role="status" className="rounded-lg border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-800">
+              <span className="font-semibold">Under review.</span> Something in this post matched the flagged-words list, so only you and the admins can see it until an admin checks it.
+            </p>
+          )}
+
           <CommissionProgress status={commission.status} />
 
           <div className="flex flex-wrap items-center gap-3">
             {!session ? (
               <Link href={`/login?next=${encodeURIComponent(`/commission/${commission.id}`)}`} className="btn-primary">Sign in to apply</Link>
             ) : isOwner ? (
-              <Link href={`/commissioner/applicants?commissionId=${commission.id}`} className="btn-primary">
+              <Link href={`/hiring/applicants?commissionId=${commission.id}`} className="btn-primary">
                 Review applicants ({applicants})
               </Link>
             ) : commission.status !== "OPEN" ? (
@@ -108,6 +114,7 @@ export default async function CommissionDetail({ params }: Props) {
             )}
             {session && !isOwner && <BookmarkButton commissionId={commission.id} initialSaved={initialSaved} />}
           </div>
+          {session && !isOwner && <ReportCommissionButton commissionId={commission.id} />}
 
           {agreement && session && commission.awardedToId && (
             <AgreementPanel

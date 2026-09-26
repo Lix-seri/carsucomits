@@ -24,7 +24,7 @@ export default async function DashboardHome() {
   const nextStep =
     applicantsWaiting > 0 ? (
       <>
-        <Link href="/commissioner/applicants" className="font-semibold text-brand-700 underline-offset-4 hover:underline">
+        <Link href="/hiring/applicants" className="font-semibold text-brand-700 underline-offset-4 hover:underline">
           {applicantsWaiting} applicant{applicantsWaiting === 1 ? " is" : "s are"} waiting
         </Link>{" "}
         for a decision on your commissions.
@@ -85,7 +85,7 @@ export default async function DashboardHome() {
                   <div className="mt-4">
                     {postedTask.status === "OPEN" ? (
                       <Link
-                        href={`/commissioner/applicants?commissionId=${postedTask.id}`}
+                        href={`/hiring/applicants?commissionId=${postedTask.id}`}
                         className={postedTask._count.applications > 0 ? "btn-primary w-full" : "btn-secondary w-full"}
                       >
                         Review applicants ({postedTask._count.applications})
@@ -96,7 +96,7 @@ export default async function DashboardHome() {
                   </div>
                 </>
               ) : (
-                <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/commissioner/post" className="btn-secondary">Post a commission</Link>}>
+                <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/hiring/post" className="btn-secondary">Post a commission</Link>}>
                   Need a poster, a website fix, or an errand run? Post it and students will apply.
                 </EmptyState>
               )}
@@ -112,7 +112,7 @@ export default async function DashboardHome() {
             </Link>
           </div>
           {featured.length === 0 ? (
-            <EmptyState icon={Search} title="No open commissions right now" action={<Link href="/commissioner/post" className="btn-secondary">Post the first one</Link>} />
+            <EmptyState icon={Search} title="No open commissions right now" action={<Link href="/hiring/post" className="btn-secondary">Post the first one</Link>} />
           ) : (
             <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
               {featured.map((f) => (

@@ -23,6 +23,7 @@ type Message = {
   recipientId: string;
   body: string;
   readAt: string | null;
+  heldForReview?: boolean;
   createdAt: string;
 };
 
@@ -134,7 +135,8 @@ function MessagesViewInner() {
         setSendError(data.error ?? "Couldn't send. Try again.");
         return;
       }
-      setSendError(null);
+      // A flagged message is saved but waits for an admin before it's delivered.
+      setSendError(data.held ? "Held for review: an admin checks flagged words before this is delivered." : null);
       // Replace optimistic with real one and refresh threads list.
       await loadConversation(activeId);
       loadThreads();
@@ -243,7 +245,7 @@ function MessagesViewInner() {
                       >
                         {m.body}
                         <p className={`mt-0.5 text-xs ${fromOther ? "text-muted" : "text-white/70"}`}>
-                          {timeAgoShort(m.createdAt)}
+                          {m.heldForReview ? "Held for review · not delivered yet" : timeAgoShort(m.createdAt)}
                         </p>
                       </div>
                     </div>

@@ -11,7 +11,7 @@ const SECTIONS: { id: string; title: string; body: React.ReactNode }[] = [
     title: "Who can use CarsuComits",
     body: (
       <p>
-        Students, faculty and staff of Caraga State University with an official <strong>@carsu.edu.ph</strong> email address. One
+        Students, faculty and staff of Caraga State University – Main Campus with an official <strong>@carsu.edu.ph</strong> email address. One
         account per person. You are responsible for everything done with your account.
       </p>
     ),

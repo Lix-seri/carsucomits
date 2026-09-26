@@ -17,6 +17,24 @@ enum Role {
   USED // University Student Enterprise Development officer (decision 0012)
 }
 
+enum FlagCategory {
+  GENERAL
+  ACADEMIC_DISHONESTY
+}
+
+enum FlagStatus {
+  PENDING
+  APPROVED
+  REMOVED
+}
+
+enum FlaggedKind {
+  COMMISSION
+  MESSAGE
+  APPLICATION
+  SKILL
+}
+
 enum VerificationStatus {
   PENDING
   APPROVED
@@ -112,6 +130,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   agreementAcceptances AgreementAcceptance[]
   verifications       StudentVerification[] @relation("verifiedStudent")
+  flaggedContent      FlaggedContent[]
 }
 
 model Skill {
@@ -137,6 +156,8 @@ model Commission {
   fareUnit       String?
   coverImageUrl  String?
   deadline       DateTime?
+  // Hidden from everyone but the poster and staff until an admin reviews a flagged-word match.
+  heldForReview  Boolean          @default(false)
   status         CommissionStatus @default(OPEN)
   commissioner   User             @relation("commissioner", fields: [commissionerId], references: [id])
   commissionerId String
@@ -197,6 +218,8 @@ model Message {
   recipient    User        @relation("recipient", fields: [recipientId], references: [id])
   recipientId  String
   body         String
+  // Not delivered until an admin reviews a flagged-word match (decision 0011).
+  heldForReview Boolean    @default(false)
   readAt       DateTime?
   createdAt    DateTime    @default(now())
 
@@ -341,4 +364,33 @@ model StudentVerification {
 
   @@index([userId])
   @@index([status])
+}
+
+// Admin-managed word list (decision 0011).
+model FlaggedWord {
+  id          String       @id @default(cuid())
+  term        String       @unique
+  category    FlagCategory @default(GENERAL)
+  createdById String?
+  createdAt   DateTime     @default(now())
+}
+
+// A piece of user text that matched the word list, waiting for (or after) an admin's decision.
+model FlaggedContent {
+  id         String       @id @default(cuid())
+  kind       FlaggedKind
+  refId      String
+  author     User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId   String
+  text       String
+  terms      String[]
+  category   FlagCategory
+  status     FlagStatus   @default(PENDING)
+  reviewerId String?
+  reviewNote String?
+  reviewedAt DateTime?
+  createdAt  DateTime     @default(now())
+
+  @@index([status])
+  @@index([kind, refId])
 }

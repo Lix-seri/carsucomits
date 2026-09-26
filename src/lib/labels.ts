@@ -78,5 +78,6 @@ export const REPORT_REASONS = [
   "Payment Dispute",
   "Inappropriate Content",
   "Off-platform Solicitation",
+  "Academic dishonesty (thesis or graded work)",
   "Other",
 ] as const;

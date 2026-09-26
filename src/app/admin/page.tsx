@@ -11,7 +11,7 @@ export default async function AdminDashboard() {
   const d = await getAdminDashboard(await pageSession({ admin: true }));
   const numbers: [string, number, string][] = [
     ["Users", d.totalUsers, "/admin/users"],
-    ["Active commissions", d.activeListings, "/admin/listings"],
+    ["Active commissions", d.activeListings, "/admin/commissions"],
     ["Pending reports", d.pendingReports, "/admin/reports"],
     ["Warned, suspended or banned", d.flaggedAccounts, "/admin/users"],
   ];

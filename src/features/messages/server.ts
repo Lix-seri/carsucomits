@@ -2,11 +2,15 @@ import { prisma } from "@/lib/db";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { notify } from "@/features/notifications/server";
+import { recordFlag, screenText } from "@/features/moderation/server";
+
+// A held message is visible to its sender only (decision 0011).
+const visibleTo = (me: string) => ({ OR: [{ heldForReview: false }, { senderId: me }] });
 
 /** One entry per person I've talked to, with the latest message and unread count. */
 export async function listThreads(session: Session) {
   const messages = await prisma.message.findMany({
-    where: { OR: [{ senderId: session.userId }, { recipientId: session.userId }] },
+    where: { AND: [{ OR: [{ senderId: session.userId }, { recipientId: session.userId }] }, visibleTo(session.userId)] },
     orderBy: { createdAt: "desc" },
     include: {
       sender: { select: { id: true, fullName: true, avatarUrl: true } },
@@ -48,9 +52,9 @@ export async function getConversation(session: Session, otherId: string) {
 
   const messages = await prisma.message.findMany({
     where: {
-      OR: [
-        { senderId: session.userId, recipientId: otherId },
-        { senderId: otherId, recipientId: session.userId },
+      AND: [
+        { OR: [{ senderId: session.userId, recipientId: otherId }, { senderId: otherId, recipientId: session.userId }] },
+        visibleTo(session.userId),
       ],
     },
     orderBy: { createdAt: "asc" },
@@ -70,17 +74,23 @@ export async function sendMessage(session: Session, { recipientId, body, commiss
   if (!recipient) throw new HttpError(404, "Recipient not found.");
   if (recipient.status === "BANNED") throw new HttpError(403, "This account is banned.");
 
+  const hit = await screenText(body);
   const message = await prisma.message.create({
     data: {
       senderId: session.userId,
       recipientId,
       body,
       commissionId,
+      heldForReview: !!hit,
     },
   });
+  if (hit) {
+    await recordFlag(session.userId, "MESSAGE", message.id, body, hit);
+    return { message, held: true };
+  }
   await notify({
     userId: recipientId,
-    type: "APPLICATION_RECEIVED", // re-using the type; a NEW_MESSAGE type can be added later
+    type: "NEW_MESSAGE",
     title: `New message from ${session.fullName}`,
     body: body.slice(0, 100),
     link: `/messages?with=${session.userId}`,

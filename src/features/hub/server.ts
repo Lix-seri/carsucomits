@@ -18,7 +18,7 @@ export async function getDashboard(session: Session) {
     getUserSkills(me),
     getUserStats(me),
     prisma.commission.findMany({
-      where: { status: "OPEN", NOT: { commissionerId: me } },
+      where: { status: "OPEN", heldForReview: false, NOT: { commissionerId: me } },
       orderBy: { createdAt: "desc" },
       include: { commissioner: { select: { fullName: true } } },
       take: 3,

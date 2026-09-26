@@ -5,6 +5,7 @@ import { UNFINISHED_STATUSES } from "@/lib/labels";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { getRatingDistribution, getRecentReviews } from "@/features/ratings/server";
+import { recordFlag, screenText } from "@/features/moderation/server";
 import { AVATAR_TYPES } from "./schemas";
 
 export async function getUserSkills(userId: string) {
@@ -83,6 +84,8 @@ export async function deleteBlob(url: string | null | undefined) {
 
 export async function addSkill(session: Session, { name, level }: { name: string; level: SkillLevel }) {
   const skill = await prisma.skill.create({ data: { userId: session.userId, name, level } });
+  const hit = await screenText(name);
+  if (hit) await recordFlag(session.userId, "SKILL", skill.id, name, hit);
   return { skill };
 }
 

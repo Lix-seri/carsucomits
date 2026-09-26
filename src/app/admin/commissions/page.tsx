@@ -29,7 +29,7 @@ export default async function AdminListings({ searchParams }: { searchParams: Pr
         <nav aria-label="Filter by status" className="flex flex-wrap gap-2">
           {filters.map(([value, label, count]) => {
             const active = (statusFilter ?? "") === value;
-            const href = `/admin/listings?${new URLSearchParams({ ...(search ? { q: search } : {}), ...(value ? { status: value } : {}) })}`;
+            const href = `/admin/commissions?${new URLSearchParams({ ...(search ? { q: search } : {}), ...(value ? { status: value } : {}) })}`;
             return (
               <Link
                 key={value || "all"}

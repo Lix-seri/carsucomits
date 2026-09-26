@@ -22,7 +22,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: P
           only ? (
             <>
               For <span className="font-medium text-ink">{only}</span>.{" "}
-              <Link href="/commissioner/applicants" className="font-semibold text-brand-700 hover:underline">Show all</Link>
+              <Link href="/hiring/applicants" className="font-semibold text-brand-700 hover:underline">Show all</Link>
             </>
           ) : (
             "Everyone who applied to your commissions."

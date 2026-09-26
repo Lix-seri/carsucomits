@@ -36,7 +36,7 @@ export function ListingsTable({ listings }: { listings: Listing[] }) {
             <td data-label="Fare" className="whitespace-nowrap">{formatFare(l)}</td>
             <td data-label="Applicants">
               {l.status === "OPEN" ? (
-                <Link href={`/commissioner/applicants?commissionId=${l.id}`} className="font-semibold text-brand-700 hover:underline">
+                <Link href={`/hiring/applicants?commissionId=${l.id}`} className="font-semibold text-brand-700 hover:underline">
                   {l._count.applications}
                 </Link>
               ) : (

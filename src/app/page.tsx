@@ -22,7 +22,7 @@ export default async function HomePage() {
                 ))}
               </div>
             ) : (
-              <EmptyState icon={ClipboardList} title="No open commissions yet" action={<Link href="/commissioner/post" className="btn-primary">Post the first one</Link>} />
+              <EmptyState icon={ClipboardList} title="No open commissions yet" action={<Link href="/hiring/post" className="btn-primary">Post the first one</Link>} />
             )
           }
         />

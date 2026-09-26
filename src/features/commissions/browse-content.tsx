@@ -61,7 +61,7 @@ export function BrowseContent() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <PageHeader title="Browse commissions" description="Open work posted by CSU students. Filter by category and the skill level asked for." />
+      <PageHeader title="Browse commissions" description="Open work posted by CSU Main students. Filter by category and the skill level asked for." />
 
       <div className="mb-6 space-y-4 rounded-xl border border-line bg-white p-4 sm:p-5">
         <div className="flex items-center gap-3 rounded-lg border border-line px-3 py-2.5 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100">

@@ -25,7 +25,7 @@ export function VerifyForm() {
 
   return (
     <form noValidate onSubmit={submit} className="space-y-4 rounded-xl border border-line bg-white p-5 sm:p-6">
-      <Field label="Student ID number" error={errorFor("studentIdNumber")} hint="As printed on your CSU student ID.">
+      <Field label="Student ID number" error={errorFor("studentIdNumber")} hint="As printed on your student ID.">
         <input name="studentIdNumber" inputMode="numeric" autoComplete="off" className="input sm:w-64" />
       </Field>
       <Field label="Proof" error={errorFor("proof")} hint="A photo or scan of your student ID or current registration form. JPG, PNG, WebP or PDF, up to 2 MB. Only admins and USED officers can see it.">

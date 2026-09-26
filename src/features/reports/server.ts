@@ -4,7 +4,7 @@ import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import { assertAdmin, type Session } from "@/lib/session";
 import type { z } from "zod";
-import type { fileReportSchema } from "./schemas";
+import type { fileReportSchema, reportCommissionSchema } from "./schemas";
 
 export async function fileReport(session: Session, { reporteeEmail, reason, details }: z.infer<typeof fileReportSchema>) {
   const reportee = await prisma.user.findFirst({ where: { email: { equals: reporteeEmail, mode: "insensitive" } } });
@@ -18,6 +18,17 @@ export async function fileReport(session: Session, { reporteeEmail, reason, deta
       reason,
       details,
     },
+  });
+  return { report };
+}
+
+/** Item 9: report a commission (for example, one asking for graded academic work). Its poster is the reportee. */
+export async function reportCommission(session: Session, commissionId: string, { reason, details }: z.infer<typeof reportCommissionSchema>) {
+  const commission = await prisma.commission.findUnique({ where: { id: commissionId }, select: { commissionerId: true } });
+  if (!commission) throw new HttpError(404, "Commission not found.");
+  if (commission.commissionerId === session.userId) throw new HttpError(400, "You can't report your own commission.");
+  const report = await prisma.report.create({
+    data: { reporterId: session.userId, reporteeId: commission.commissionerId, commissionId, reason, details },
   });
   return { report };
 }

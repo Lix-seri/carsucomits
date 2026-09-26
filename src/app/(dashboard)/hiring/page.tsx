@@ -19,7 +19,7 @@ export default async function HiringHome() {
       <PageHeader
         title="Hiring"
         description="Commissions you posted, and the students who applied."
-        actions={<Link href="/commissioner/post" className="btn-primary"><Plus className="h-4 w-4" /> Post a commission</Link>}
+        actions={<Link href="/hiring/post" className="btn-primary"><Plus className="h-4 w-4" /> Post a commission</Link>}
       />
 
       <dl className="grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-white">
@@ -34,7 +34,7 @@ export default async function HiringHome() {
       <section aria-labelledby="waiting">
         <div className="mb-3 flex items-end justify-between gap-3">
           <h2 id="waiting" className="text-lg font-semibold">Waiting for your decision</h2>
-          <Link href="/commissioner/applicants" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800">
+          <Link href="/hiring/applicants" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800">
             All applicants <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -54,12 +54,12 @@ export default async function HiringHome() {
       <section aria-labelledby="active">
         <div className="mb-3 flex items-end justify-between gap-3">
           <h2 id="active" className="text-lg font-semibold">Active commissions</h2>
-          <Link href="/commissioner/listings" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800">
+          <Link href="/hiring/listings" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:text-brand-800">
             All your commissions <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
         {listings.length === 0 ? (
-          <EmptyState icon={Megaphone} title="Nothing active" action={<Link href="/commissioner/post" className="btn-secondary">Post a commission</Link>}>
+          <EmptyState icon={Megaphone} title="Nothing active" action={<Link href="/hiring/post" className="btn-secondary">Post a commission</Link>}>
             Post what you need done; students apply and you pick one.
           </EmptyState>
         ) : (

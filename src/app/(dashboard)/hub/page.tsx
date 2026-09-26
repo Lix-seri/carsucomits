@@ -95,7 +95,7 @@ export default async function HubPage() {
 
       <Section id="hiring" icon={Megaphone} title="Hiring" count={posted.length}>
         {posted.length === 0 ? (
-          <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/commissioner/post" className="btn-secondary">Post a commission</Link>}>
+          <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/hiring/post" className="btn-secondary">Post a commission</Link>}>
             Post what you need done and students will apply. You choose who does it.
           </EmptyState>
         ) : (
@@ -116,7 +116,7 @@ export default async function HubPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                   {t.status === "OPEN" && (
-                    <Link href={`/commissioner/applicants?commissionId=${t.id}`} className={t._count.applications > 0 ? "btn-primary btn-sm" : "btn-secondary btn-sm"}>
+                    <Link href={`/hiring/applicants?commissionId=${t.id}`} className={t._count.applications > 0 ? "btn-primary btn-sm" : "btn-secondary btn-sm"}>
                       Review applicants ({t._count.applications})
                     </Link>
                   )}

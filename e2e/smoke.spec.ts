@@ -102,16 +102,16 @@ test.describe("every page renders", () => {
     const c = await postCommission(me.api);
     for (const [path, name] of [
       ["/dashboard", "dashboard"], ["/hub", "hub"], ["/saved", "saved"], ["/profile", "profile"],
-      ["/messages", "messages"], ["/reports", "reports"], ["/commissioner", "commissioner"],
-      ["/commissioner/listings", "listings"], ["/commissioner/applicants", "applicants"],
-      ["/commissioner/post", "post"], [`/commission/${c.id}`, "own-commission"],
+      ["/messages", "messages"], ["/reports", "reports"], ["/hiring", "commissioner"],
+      ["/hiring/listings", "listings"], ["/hiring/applicants", "applicants"],
+      ["/hiring/post", "post"], [`/commission/${c.id}`, "own-commission"],
     ]) await visit(page, path, `${info.project.name}/user-${name}`);
   });
 
   test("admin pages", async ({ page }, info) => {
     await signInPage(page, ADMIN, "ADMIN");
     for (const [path, name] of [
-      ["/admin", "dashboard"], ["/admin/users", "users"], ["/admin/listings", "listings"],
+      ["/admin", "dashboard"], ["/admin/users", "users"], ["/admin/commissions", "listings"],
       ["/admin/reports", "reports"], ["/admin/logs", "logs"], ["/admin/security", "security"],
     ]) await visit(page, path, `${info.project.name}/admin-${name}`);
   });

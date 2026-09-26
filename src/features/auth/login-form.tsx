@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, GraduationCap, Shield } from "lucide-react";
 import { Field, FormError } from "@/components/ui/form";
@@ -12,7 +12,6 @@ import { homeFor, safeNextPath } from "@/lib/redirect";
 type LoginRole = "STUDENT" | "ADMIN";
 
 export function LoginForm() {
-  const router = useRouter();
   const next = safeNextPath(useSearchParams().get("next"));
   const [role, setRole] = useState<LoginRole>("STUDENT");
   const [email, setEmail] = useState("");
@@ -49,8 +48,7 @@ export function LoginForm() {
       }
       if (!res.ok) { setError(data.error ?? "Login failed."); return; }
       const dest = next ?? homeFor(data.user?.role ?? "");
-      router.replace(dest);
-      router.refresh();
+      window.location.assign(dest); // full load: the new session changes every page
     } catch {
       setError("Network error. Try again.");
     } finally {
@@ -66,8 +64,7 @@ export function LoginForm() {
       const { res, data } = await attemptLogin({ email, password, expectedRole: role, mfaCode });
       if (!res.ok) { setError(data.error ?? "Code rejected."); return; }
       const dest = next ?? homeFor(data.user?.role ?? "");
-      router.replace(dest);
-      router.refresh();
+      window.location.assign(dest); // full load: the new session changes every page
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
     } finally {
@@ -150,7 +147,7 @@ export function LoginForm() {
               )}
 
               <form noValidate onSubmit={handleSubmit} className="space-y-4">
-                <Field label="CSU email address" error={emailError}>
+                <Field label="Email (@carsu.edu.ph)" error={emailError}>
                   <input
                     type="email"
                     autoComplete="email"

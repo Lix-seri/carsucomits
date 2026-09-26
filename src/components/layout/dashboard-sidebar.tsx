@@ -14,7 +14,7 @@ const GROUPS = [
       { href: "/dashboard", label: "Home", icon: Home },
       { href: "/browse", label: "Browse", icon: Search },
       { href: "/hub", label: "My hub", icon: Briefcase },
-      { href: "/commissioner", label: "Hiring", icon: Megaphone },
+      { href: "/hiring", label: "Hiring", icon: Megaphone },
       { href: "/messages", label: "Messages", icon: MessageCircle },
     ],
   },
@@ -40,7 +40,7 @@ export function DashboardSidebar({ user }: { user: { fullName: string; avatarUrl
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 text-sm font-bold text-white">CC</span>
         <span>
           <span className="block text-sm font-semibold leading-tight">CarsuComits</span>
-          <span className="block text-xs text-muted">CSU student marketplace</span>
+          <span className="block text-xs text-muted">CSU Main marketplace</span>
         </span>
       </Link>
 

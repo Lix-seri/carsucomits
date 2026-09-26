@@ -8,4 +8,7 @@ export const fileReportSchema = z.object({
   details: z.string({ error: "Describe what happened." }).trim().min(10, "Describe what happened in at least 10 characters.").max(2000, "Keep the details under 2,000 characters."),
 });
 
+/** Reporting a commission: the reportee is its poster. */
+export const reportCommissionSchema = fileReportSchema.omit({ reporteeEmail: true });
+
 export const reportActionSchema = z.object({ action: z.enum(["RESOLVE", "ESCALATE", "REOPEN"], "Invalid action.") });

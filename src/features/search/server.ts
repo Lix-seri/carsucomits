@@ -16,7 +16,7 @@ export async function search(q: string, session: Session | null) {
       take: 5,
     }),
     prisma.commission.findMany({
-      where: { status: "OPEN", OR: [{ title: contains }, { description: contains }, { subcategory: contains }] },
+      where: { status: "OPEN", heldForReview: false, OR: [{ title: contains }, { description: contains }, { subcategory: contains }] },
       select: { id: true, title: true, category: true, subcategory: true, requiredLevel: true, fareMin: true, fareMax: true, fareUnit: true, coverImageUrl: true },
       take: 6,
     }),

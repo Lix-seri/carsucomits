@@ -91,7 +91,7 @@ export async function declineAgreement(session: Session, commissionId: string, r
     type: "AGREEMENT",
     title: "The agreement was declined",
     body: `${session.fullName} declined the agreement for "${commission.title}"${reason ? `: ${reason}` : "."}`,
-    link: byWorker ? `/commissioner/applicants?commissionId=${commissionId}` : "/browse",
+    link: byWorker ? `/hiring/applicants?commissionId=${commissionId}` : "/browse",
   });
   return {};
 }

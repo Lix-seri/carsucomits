@@ -1,16 +1,17 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BadgeCheck, ClipboardList, Flag, Home, Receipt, ScrollText, Settings, ShieldCheck, Store, Users } from "lucide-react";
+import { BadgeCheck, ClipboardList, Eye, Flag, Home, Receipt, ScrollText, Settings, ShieldCheck, Store, Users } from "lucide-react";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
 
 const NAV = [
   { href: "/admin", label: "Overview", icon: Home },
   { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/listings", label: "Commissions", icon: ClipboardList },
+  { href: "/admin/commissions", label: "Commissions", icon: ClipboardList },
   { href: "/admin/transactions", label: "Transactions", icon: Receipt },
   { href: "/admin/reports", label: "Reports", icon: Flag },
+  { href: "/admin/moderation", label: "Content review", icon: Eye },
   { href: "/admin/verifications", label: "Verifications", icon: BadgeCheck },
   { href: "/admin/sellers", label: "Sellers", icon: Store },
   { href: "/admin/logs", label: "Activity log", icon: ScrollText },

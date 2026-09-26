@@ -25,7 +25,7 @@ export function LandingContent({ latest }: { latest: React.ReactNode }) {
           <div>
             <p className="text-sm font-semibold text-brand-700">For students of CSU Main</p>
             <h1 className="mt-3 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-              Get it done by a fellow CSU student.
+              Get it done by a fellow CSU Main student.
             </h1>
             <p className="mt-5 max-w-xl text-lg text-muted">
               Post a task, hire a classmate who&apos;s good at it, and pay what you agreed. Tutoring, tech work, errands and paperwork, all inside campus.
@@ -34,7 +34,7 @@ export function LandingContent({ latest }: { latest: React.ReactNode }) {
               <Link href="/browse" className="btn-primary">
                 Browse commissions <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/commissioner/post" className="btn-secondary">Post a commission</Link>
+              <Link href="/hiring/post" className="btn-secondary">Post a commission</Link>
             </div>
           </div>
 

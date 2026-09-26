@@ -7,7 +7,7 @@ export function DashboardTopbar({ search, bell }: { search: React.ReactNode; bel
     <div className="flex items-center gap-2 sm:gap-3">
       <div className="min-w-0 flex-1">{search}</div>
       {bell}
-      <Link href="/commissioner/post" className="btn-primary !px-3 !py-2 sm:!px-5" aria-label="Post a Commission">
+      <Link href="/hiring/post" className="btn-primary !px-3 !py-2 sm:!px-5" aria-label="Post a Commission">
         <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Post a Commission</span>
       </Link>
     </div>

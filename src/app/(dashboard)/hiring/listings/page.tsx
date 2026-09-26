@@ -16,10 +16,10 @@ export default async function ListingsPage() {
       <PageHeader
         title="Your commissions"
         description="Everything you have posted, newest first."
-        actions={<Link href="/commissioner/post" className="btn-primary"><Plus className="h-4 w-4" /> Post a commission</Link>}
+        actions={<Link href="/hiring/post" className="btn-primary"><Plus className="h-4 w-4" /> Post a commission</Link>}
       />
       {listings.length === 0 ? (
-        <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/commissioner/post" className="btn-secondary">Post a commission</Link>} />
+        <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/hiring/post" className="btn-secondary">Post a commission</Link>} />
       ) : (
         <div className="rounded-xl border border-line bg-white px-4 sm:px-5">
           <ListingsTable listings={listings} />

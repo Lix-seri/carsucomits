@@ -9,7 +9,8 @@ export type NotificationType =
   | "RATING_RECEIVED"
   | "ACCOUNT_FLAGGED"
   | "REPORT_RESOLVED"
-  | "AGREEMENT";
+  | "AGREEMENT"
+  | "NEW_MESSAGE";
 
 export async function notify(opts: {
   userId: string;
