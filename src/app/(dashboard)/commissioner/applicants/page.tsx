@@ -11,7 +11,7 @@ export const metadata = { title: "Applicants" };
 export default async function ApplicantsPage({ searchParams }: { searchParams: Promise<{ commissionId?: string }> }) {
   const session = await pageSession();
   const { commissionId } = await searchParams;
-  const { applications, avgRating } = await listApplicantsForMe(session, { commissionId });
+  const { applications, avgRating, activeJobs } = await listApplicantsForMe(session, { commissionId });
   const only = commissionId ? applications[0]?.commission.title : null;
 
   return (
@@ -36,7 +36,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: P
       ) : (
         <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
           {applications.map((a) => (
-            <ApplicantRow key={a.id} a={a} avg={avgRating.get(a.applicantId)} showCommission={!commissionId} />
+            <ApplicantRow key={a.id} a={a} avg={avgRating.get(a.applicantId)} activeJobs={activeJobs.get(a.applicantId)} showCommission={!commissionId} />
           ))}
         </ul>
       )}

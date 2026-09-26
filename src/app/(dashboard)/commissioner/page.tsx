@@ -11,7 +11,7 @@ export const metadata = { title: "Hiring" };
 
 export default async function HiringHome() {
   const session = await pageSession();
-  const { activeListings, totalApplicants, completedTasks, listings, recentApplicants, ratingMap } = await getCommissionerHome(session);
+  const { activeListings, totalApplicants, completedTasks, listings, recentApplicants, ratingMap, jobsMap } = await getCommissionerHome(session);
   const numbers: [string, number][] = [["Active", activeListings], ["Applicants", totalApplicants], ["Completed", completedTasks]];
 
   return (
@@ -45,7 +45,7 @@ export default async function HiringHome() {
         ) : (
           <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
             {recentApplicants.map((a) => (
-              <ApplicantRow key={a.id} a={a} avg={ratingMap.get(a.applicantId)} />
+              <ApplicantRow key={a.id} a={a} avg={ratingMap.get(a.applicantId)} activeJobs={jobsMap.get(a.applicantId)} />
             ))}
           </ul>
         )}

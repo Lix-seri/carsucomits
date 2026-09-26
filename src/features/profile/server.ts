@@ -1,6 +1,7 @@
 import { put, del } from "@vercel/blob";
 import type { SkillLevel } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { UNFINISHED_STATUSES } from "@/lib/labels";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { getRatingDistribution, getRecentReviews } from "@/features/ratings/server";
@@ -23,21 +24,34 @@ export async function getUserStats(userId: string) {
   return { done, posted, rating, reviewCount, successRate };
 }
 
+/**
+ * Item 4: how many unfinished jobs each person holds right now. Derived from their commissions
+ * on every read, so it can't go stale. Zero means Available; more means Busy.
+ */
+export async function activeJobCounts(userIds: string[]) {
+  const rows = userIds.length
+    ? await prisma.commission.groupBy({ by: ["awardedToId"], where: { awardedToId: { in: userIds }, status: { in: [...UNFINISHED_STATUSES] } }, _count: true })
+    : [];
+  const counts = new Map(rows.map((r) => [r.awardedToId!, r._count]));
+  return new Map(userIds.map((id) => [id, counts.get(id) ?? 0]));
+}
+
 /** Everything the profile pages show below the header. */
 export async function getProfileDetails(userId: string, reviewCount: number) {
-  const [skills, stats, reviews, distribution] = await Promise.all([
+  const [skills, stats, reviews, distribution, jobs] = await Promise.all([
     getUserSkills(userId),
     getUserStats(userId),
     getRecentReviews(userId, reviewCount),
     getRatingDistribution(userId),
+    activeJobCounts([userId]),
   ]);
-  return { skills, stats, reviews, distribution };
+  return { skills, stats, reviews, distribution, activeJobs: jobs.get(userId) ?? 0 };
 }
 
 export async function getPublicUser(id: string) {
   return prisma.user.findUnique({
     where: { id },
-    select: { id: true, fullName: true, avatarUrl: true, role: true, status: true, bio: true, createdAt: true },
+    select: { id: true, fullName: true, avatarUrl: true, role: true, status: true, bio: true, createdAt: true, verifiedAt: true },
   });
 }
 

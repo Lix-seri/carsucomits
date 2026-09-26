@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { LevelBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TrustBadge } from "@/components/ui/trust-badge";
+import { AvailabilityBadge, VerifiedBadge } from "@/components/ui/badge";
 import { RatingBreakdown } from "./rating-breakdown";
 
 type Review = { who: string; initials: string; stars: number; comment: string | null; when: string };
@@ -21,13 +22,15 @@ function Stars({ n }: { n: number }) {
 
 /** Profile layout shared by /profile (self, editable) and /u/[id] (public). */
 export function ProfileView({
-  user, stats, skills, reviews, distribution, avatar, actions, skillsEditor, notice, isSelf = false,
+  user, stats, skills, reviews, distribution, activeJobs, avatar, actions, skillsEditor, notice, isSelf = false,
 }: {
-  user: { fullName: string; avatarUrl: string | null; role: string; createdAt?: Date; bio?: string | null; email?: string };
+  user: { fullName: string; avatarUrl: string | null; role: string; createdAt?: Date; bio?: string | null; email?: string; verified?: boolean };
   stats: Stats;
   skills: { id: string; name: string; level: string }[];
   reviews: Review[];
   distribution: Record<number, number>;
+  /** Unfinished jobs right now: 0 shows Available, more shows Busy (item 4). */
+  activeJobs?: number;
   avatar?: React.ReactNode;
   actions?: React.ReactNode;
   skillsEditor?: React.ReactNode;
@@ -58,6 +61,8 @@ export function ProfileView({
               <strong>{stats.rating != null ? stats.rating.toFixed(1) : "—"}</strong>
               <span className="text-muted">({stats.reviewCount} review{stats.reviewCount === 1 ? "" : "s"})</span>
             </span>
+            {activeJobs !== undefined && <AvailabilityBadge activeJobs={activeJobs} />}
+            {user.verified && <VerifiedBadge />}
             <TrustBadge avg={stats.rating} reviewCount={stats.reviewCount} showDescription={!isSelf} />
           </div>
           <dl className="mt-6 grid grid-cols-3 divide-x divide-line rounded-xl border border-line text-center">

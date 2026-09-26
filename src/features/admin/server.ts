@@ -2,6 +2,7 @@
 // the /admin layout guard, so a new route or page can't forget it.
 import { AccountStatus, CommissionStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { LIVE_STATUSES } from "@/lib/labels";
 import { audit } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import { assertAdmin, type Session } from "@/lib/session";
@@ -55,7 +56,7 @@ export async function getAdminDashboard(session: Session) {
   assertAdmin(session);
   const [totalUsers, activeListings, pendingReports, flaggedAccounts, flagged, latestReports] = await Promise.all([
     prisma.user.count(),
-    prisma.commission.count({ where: { status: { in: ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"] } } }),
+    prisma.commission.count({ where: { status: { in: [...LIVE_STATUSES] } } }),
     prisma.report.count({ where: { status: "PENDING" } }),
     prisma.user.count({ where: { status: { in: ["WARNED", "SUSPENDED", "BANNED"] } } }),
     flaggedUsers(10),
@@ -129,4 +130,18 @@ export async function listAuditLogs(session: Session, action?: string) {
 export async function getMfaStatus(session: Session) {
   assertAdmin(session);
   return prisma.user.findUnique({ where: { id: session.userId }, select: { mfaEnabled: true, email: true } });
+}
+
+/** Admin only: make a student a USED officer, or back. Audit-logged with before and after. */
+export async function setUserRole(session: Session, userId: string, role: "STUDENT_EMPLOYEE" | "USED") {
+  assertAdmin(session);
+  const target = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+  if (!target) throw new HttpError(404, "User not found.");
+  if (target.role === "ADMIN") throw new HttpError(400, "Admin roles can't be changed here.");
+  if (target.role === role) return { role };
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: userId }, data: { role } }),
+    audit({ actorId: session.userId, action: "ROLE_CHANGED", target: userId, before: { role: target.role }, after: { role } }),
+  ]);
+  return { role };
 }

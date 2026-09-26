@@ -8,6 +8,7 @@ export const ROLE_LABEL: Record<string, string> = {
   STUDENT_EMPLOYEE: "Student",
   COMMISSIONER: "Student",
   ADMIN: "Admin",
+  USED: "USED officer",
 };
 
 export const LEVEL_LABEL: Record<string, string> = {
@@ -30,12 +31,18 @@ export const LEVEL_OPTIONS = Object.entries(LEVEL_LABEL).map(([value, label]) =>
 /** Commission lifecycle. Colour means state: open = brand, working = info, needs you = warning. */
 export const COMMISSION_STATUS: Record<string, { label: string; tone: Tone }> = {
   OPEN: { label: "Open", tone: "brand" },
+  AGREEMENT_PENDING: { label: "Agreement pending", tone: "warning" },
   IN_PROGRESS: { label: "In progress", tone: "info" },
   AWAITING_REVIEW: { label: "Awaiting review", tone: "warning" },
   COMPLETED: { label: "Completed", tone: "neutral" },
   CANCELLED: { label: "Cancelled", tone: "danger" },
   DISPUTED: { label: "Disputed", tone: "danger" },
 };
+
+/** Hired and not finished: these count as someone's current job. */
+export const UNFINISHED_STATUSES = ["AGREEMENT_PENDING", "IN_PROGRESS", "AWAITING_REVIEW"] as const;
+/** Still on the poster's plate: open for applications or unfinished. */
+export const LIVE_STATUSES = ["OPEN", ...UNFINISHED_STATUSES] as const;
 
 export const APPLICATION_STATUS: Record<string, { label: string; tone: Tone }> = {
   PENDING: { label: "Pending", tone: "warning" },

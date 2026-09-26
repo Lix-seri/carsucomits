@@ -15,6 +15,9 @@ import { CoverImageUploader } from "@/features/commissions/cover-image-uploader"
 import { CommissionProgress } from "@/features/commissions/commission-progress";
 import { WithdrawButton } from "@/features/applications/withdraw-button";
 import { DeliverableSection } from "@/features/deliverables/deliverable-section";
+import { getAgreement } from "@/features/agreements/server";
+import { AgreementPanel } from "@/features/agreements/agreement-panel";
+import { snapshotTerms, type AgreementTerms } from "@/features/agreements/agreement";
 import { APPLICATION_STATUS, COMMISSION_STATUS } from "@/lib/labels";
 
 type Props = { params: Promise<{ id: string }> };
@@ -39,6 +42,8 @@ export default async function CommissionDetail({ params }: Props) {
   const deliverables = isOwner || isAwardedStudent ? await listDeliverables(commission.id) : [];
   const posted = commission.commissioner._count.postedCommissions;
   const applicants = commission._count.applications;
+  const agreement = commission.awardedToId ? await getAgreement(session, commission.id) : null;
+  const acceptedAt = (userId: string | null) => agreement?.acceptances.find((a) => a.userId === userId)?.acceptedAt.toISOString() ?? null;
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -70,7 +75,7 @@ export default async function CommissionDetail({ params }: Props) {
                 <Users className="h-4 w-4" /> {applicants} applicant{applicants === 1 ? "" : "s"}
               </li>
               <li className="inline-flex items-center gap-1.5">
-                <MapPin className="h-4 w-4" /> CSU Caraga
+                <MapPin className="h-4 w-4" /> CSU Main
               </li>
             </ul>
           </header>
@@ -86,6 +91,11 @@ export default async function CommissionDetail({ params }: Props) {
               </Link>
             ) : commission.status !== "OPEN" ? (
               <ApplyButton commissionId={commission.id} disabled label={`${COMMISSION_STATUS[commission.status]?.label ?? commission.status}: not taking applications`} />
+            ) : !session.verified && !alreadyApplied ? (
+              <>
+                <Link href="/verify" className="btn-primary">Verify to apply</Link>
+                <p className="w-full text-sm text-muted">Only verified CCIS students can take on commissions.</p>
+              </>
             ) : alreadyApplied && !canWithdraw ? (
               <ApplyButton commissionId={commission.id} disabled label={`Application ${APPLICATION_STATUS[myApplication!.status]?.label.toLowerCase()}`} />
             ) : alreadyApplied ? (
@@ -98,6 +108,20 @@ export default async function CommissionDetail({ params }: Props) {
             )}
             {session && !isOwner && <BookmarkButton commissionId={commission.id} initialSaved={initialSaved} />}
           </div>
+
+          {agreement && session && commission.awardedToId && (
+            <AgreementPanel
+              commissionId={commission.id}
+              pending={commission.status === "AGREEMENT_PENDING"}
+              meId={session.userId}
+              // What they accepted, once someone has; until then, the terms as they stand.
+              terms={(agreement.acceptances[0]?.terms as AgreementTerms | undefined) ?? snapshotTerms(commission)}
+              parties={[
+                { id: commission.commissionerId, name: commission.commissioner.fullName, role: "poster", acceptedAt: acceptedAt(commission.commissionerId) },
+                { id: commission.awardedToId, name: awardeeName ?? "The hired student", role: "hired", acceptedAt: acceptedAt(commission.awardedToId) },
+              ]}
+            />
+          )}
 
           <section className="border-t border-line pt-6">
             <h2 className="mb-2 font-semibold">Description</h2>

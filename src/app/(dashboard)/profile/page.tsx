@@ -8,15 +8,16 @@ export const metadata = { title: "Your profile" };
 
 export default async function ProfilePage() {
   const session = await pageSession();
-  const { skills, stats, reviews, distribution } = await getProfileDetails(session.userId, 5);
+  const { skills, stats, reviews, distribution, activeJobs } = await getProfileDetails(session.userId, 5);
   return (
     <ProfileView
       isSelf
-      user={{ fullName: session.fullName, avatarUrl: session.avatarUrl, role: session.role, email: session.email }}
+      user={{ fullName: session.fullName, avatarUrl: session.avatarUrl, role: session.role, email: session.email, verified: session.verified }}
       stats={stats}
       skills={skills}
       reviews={reviews}
       distribution={distribution}
+      activeJobs={activeJobs}
       avatar={<AvatarUploader fullName={session.fullName} initialUrl={session.avatarUrl} />}
       skillsEditor={<SkillsManager initialSkills={skills} />}
     />

@@ -6,7 +6,7 @@
 
 **Decision.**
 - No separate payments table. A "transaction" is a commission that has been hired: `awardedToId` is set.
-- **Amount:** the fare in the agreement snapshot both sides accepted (0013). For commissions hired before agreements existed, it falls back to the posted fare.
+- **Amount:** the fare text in the agreement snapshot both sides accepted (0013), for example "₱500–800". Commissions hired before agreements existed fall back to the posted fare. Totals add up each commission's minimum fare, because a range has no single agreed number.
 - **Date:** when the agreement was completed, falling back to when the commission was last updated.
 - **Other party:** the poster or the hired student, whichever isn't you.
 - **Status:** the commission's status.

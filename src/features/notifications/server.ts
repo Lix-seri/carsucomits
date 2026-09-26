@@ -8,7 +8,8 @@ export type NotificationType =
   | "COMMISSION_COMPLETED"
   | "RATING_RECEIVED"
   | "ACCOUNT_FLAGGED"
-  | "REPORT_RESOLVED";
+  | "REPORT_RESOLVED"
+  | "AGREEMENT";
 
 export async function notify(opts: {
   userId: string;

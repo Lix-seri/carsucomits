@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/db";
+import { UNFINISHED_STATUSES } from "@/lib/labels";
 import { audit, statusChange } from "@/lib/audit";
 import { HttpError } from "@/lib/http";
 import type { Session } from "@/lib/session";
 import { notify } from "@/features/notifications/server";
 import { averageRatings } from "@/features/ratings/server";
+import { activeJobCounts } from "@/features/profile/server";
 import { applyBlockedReason, getLimits } from "@/features/settings/server";
+import { isVerified, NOT_VERIFIED } from "@/features/verification/server";
 import type { ApplyInput } from "./schemas";
 
 export async function applyToCommission(session: Session, commissionId: string, input: ApplyInput) {
@@ -12,6 +15,8 @@ export async function applyToCommission(session: Session, commissionId: string, 
   if (!commission) throw new HttpError(404, "Commission not found.");
   if (commission.status !== "OPEN") throw new HttpError(400, "This commission is no longer accepting applications.");
   if (commission.commissionerId === session.userId) throw new HttpError(400, "You cannot apply to your own commission.");
+  // Item 6: only verified CCIS students offer their services (decision 0012).
+  if (!session.verified) throw new HttpError(403, NOT_VERIFIED);
 
   // REQ-3.4: one application per person per commission (also a unique index).
   // A withdrawn application can be reopened; anything else is a duplicate.
@@ -41,12 +46,11 @@ export async function applyToCommission(session: Session, commissionId: string, 
 }
 
 /** Unfinished jobs are hired commissions not yet completed; they count against the hold cap. */
-const ACTIVE_JOB_STATUSES = ["IN_PROGRESS", "AWAITING_REVIEW"] as const;
 
 async function workload(userId: string) {
   const [pending, active] = await Promise.all([
     prisma.application.count({ where: { applicantId: userId, status: "PENDING" } }),
-    prisma.commission.count({ where: { awardedToId: userId, status: { in: [...ACTIVE_JOB_STATUSES] } } }),
+    prisma.commission.count({ where: { awardedToId: userId, status: { in: [...UNFINISHED_STATUSES] } } }),
   ]);
   return { pending, active };
 }
@@ -61,10 +65,15 @@ async function pendingApplicationOnMyCommission(session: Session, id: string, ve
   return application;
 }
 
-/** REQ-4.2: accept one applicant, reject the other pending ones, commission → IN_PROGRESS. */
+/**
+ * REQ-4.2: hire one applicant. The commission waits for both parties to accept the agreement
+ * (decision 0013); the other applicants stay pending until work actually starts.
+ */
 export async function acceptApplication(session: Session, id: string) {
   const application = await pendingApplicationOnMyCommission(session, id, "accept");
   if (application.commission.status !== "OPEN") throw new HttpError(400, "This commission has already been awarded.");
+  // A seller suspended after applying can't be hired.
+  if (!(await isVerified(application.applicantId))) throw new HttpError(400, "This student's CCIS verification is no longer active, so they can't be hired.");
   // The hold cap also applies at hiring, so applying early can't get around it.
   const { active } = await workload(application.applicantId);
   const { MAX_ACTIVE_JOBS } = await getLimits();
@@ -74,40 +83,21 @@ export async function acceptApplication(session: Session, id: string) {
 
   await prisma.$transaction([
     prisma.application.update({ where: { id }, data: { status: "ACCEPTED" } }),
-    prisma.application.updateMany({
-      where: { commissionId: application.commissionId, NOT: { id }, status: "PENDING" },
-      data: { status: "REJECTED" },
-    }),
     prisma.commission.update({
       where: { id: application.commissionId },
-      data: { status: "IN_PROGRESS", awardedToId: application.applicantId },
+      data: { status: "AGREEMENT_PENDING", awardedToId: application.applicantId },
     }),
     audit({ actorId: session.userId, action: "APPLICATION_ACCEPTED", target: application.applicantId, before: { status: "PENDING" }, after: { status: "ACCEPTED" }, meta: { applicationId: id, commissionId: application.commissionId } }),
-    audit(statusChange(session.userId, application.commissionId, "OPEN", "IN_PROGRESS")),
+    audit(statusChange(session.userId, application.commissionId, "OPEN", "AGREEMENT_PENDING")),
   ]);
 
   await notify({
     userId: application.applicantId,
     type: "APPLICATION_ACCEPTED",
-    title: "Your application was accepted!",
-    body: `You're awarded "${application.commission.title}". Time to get to work.`,
-    link: `/hub`,
+    title: "You're hired. Review the agreement",
+    body: `You were picked for "${application.commission.title}". Accept the agreement to start.`,
+    link: `/commission/${application.commissionId}`,
   });
-  const rejected = await prisma.application.findMany({
-    where: { commissionId: application.commissionId, status: "REJECTED" },
-    select: { applicantId: true },
-  });
-  await Promise.all(
-    rejected.map((r) =>
-      notify({
-        userId: r.applicantId,
-        type: "APPLICATION_DECLINED",
-        title: "Application not selected",
-        body: `Another applicant was awarded "${application.commission.title}". Keep applying!`,
-        link: `/browse`,
-      }),
-    ),
-  );
   return {};
 }
 
@@ -160,10 +150,12 @@ export async function listApplicantsForMe(session: Session, opts: { commissionId
     },
     orderBy: { createdAt: "desc" },
     include: {
-      applicant: { select: { id: true, fullName: true, avatarUrl: true } },
+      applicant: { select: { id: true, fullName: true, avatarUrl: true, verifiedAt: true } },
       commission: { select: { id: true, title: true, status: true } },
     },
     take: opts.take,
   });
-  return { applications, avgRating: await averageRatings(applications.map((a) => a.applicantId)) };
+  const ids = applications.map((a) => a.applicantId);
+  const [avgRating, activeJobs] = await Promise.all([averageRatings(ids), activeJobCounts(ids)]);
+  return { applications, avgRating, activeJobs };
 }

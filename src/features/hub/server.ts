@@ -1,5 +1,6 @@
 // Read-only aggregations for the signed-in home screens: /dashboard, /hub, /commissioner.
 import { prisma } from "@/lib/db";
+import { LIVE_STATUSES, UNFINISHED_STATUSES } from "@/lib/labels";
 import type { Session } from "@/lib/session";
 import { getUserSkills, getUserStats } from "@/features/profile/server";
 import { getMyListings } from "@/features/commissions/server";
@@ -23,17 +24,17 @@ export async function getDashboard(session: Session) {
       take: 3,
     }),
     prisma.commission.findFirst({
-      where: { awardedToId: me, status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
+      where: { awardedToId: me, status: { in: [...UNFINISHED_STATUSES] } },
       include: { commissioner: { select: { fullName: true } } },
       orderBy: { updatedAt: "desc" },
     }),
     prisma.commission.findFirst({
-      where: { commissionerId: me, status: { in: ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"] } },
+      where: { commissionerId: me, status: { in: [...LIVE_STATUSES] } },
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { applications: true } } },
     }),
     prisma.commission.count({
-      where: { OR: [{ awardedToId: me }, { commissionerId: me }], status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
+      where: { OR: [{ awardedToId: me }, { commissionerId: me }], status: { in: [...UNFINISHED_STATUSES] } },
     }),
     prisma.application.count({ where: { commission: { commissionerId: me }, status: "PENDING" } }),
   ]);
@@ -46,7 +47,7 @@ export async function getHub(session: Session) {
   const [doing, posted, applications, unratedCompleted, completedAsStudent] = await Promise.all([
     // Tasks I'm doing — commissions awarded to me
     prisma.commission.findMany({
-      where: { awardedToId: me, status: { in: ["IN_PROGRESS", "AWAITING_REVIEW"] } },
+      where: { awardedToId: me, status: { in: [...UNFINISHED_STATUSES] } },
       orderBy: { createdAt: "desc" },
       include: { commissioner: { select: { id: true, fullName: true } } },
     }),
@@ -76,11 +77,11 @@ export async function getHub(session: Session) {
 export async function getCommissionerHome(session: Session) {
   const me = session.userId;
   const [activeListings, totalApplicants, completedTasks, listings, pending] = await Promise.all([
-    prisma.commission.count({ where: { commissionerId: me, status: { in: ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"] } } }),
+    prisma.commission.count({ where: { commissionerId: me, status: { in: [...LIVE_STATUSES] } } }),
     prisma.application.count({ where: { commission: { commissionerId: me } } }),
     prisma.commission.count({ where: { commissionerId: me, status: "COMPLETED" } }),
-    getMyListings(me, ["OPEN", "IN_PROGRESS", "AWAITING_REVIEW"], 10),
+    getMyListings(me, [...LIVE_STATUSES], 10),
     listApplicantsForMe(session, { pendingOnly: true, take: 10 }),
   ]);
-  return { activeListings, totalApplicants, completedTasks, listings, recentApplicants: pending.applications, ratingMap: pending.avgRating };
+  return { activeListings, totalApplicants, completedTasks, listings, recentApplicants: pending.applications, ratingMap: pending.avgRating, jobsMap: pending.activeJobs };
 }

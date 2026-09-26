@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { listUsers } from "@/features/admin/server";
 import { ModerateButton } from "@/features/admin/moderate-button";
+import { RoleButton } from "@/features/admin/role-button";
 
 export const metadata = { title: "Users" };
 
@@ -82,7 +83,12 @@ export default async function ManageUsers({ searchParams }: { searchParams: Prom
                     </td>
                     <td data-label="Status"><AccountStatusBadge status={u.status} /></td>
                     <td data-label="" className="text-right">
-                      {canModerate && <ModerateButton userId={u.id} userName={u.fullName} status={u.status} />}
+                      {canModerate && (
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <RoleButton userId={u.id} userName={u.fullName} role={u.role} />
+                          <ModerateButton userId={u.id} userName={u.fullName} status={u.status} />
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );

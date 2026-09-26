@@ -4,6 +4,7 @@ import { Logo } from "./logo";
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutButton } from "./logout-button";
 import { getSession } from "@/lib/session";
+import { homeFor } from "@/lib/redirect";
 
 const NAV = [
   { href: "/", label: "Home" },
@@ -14,7 +15,7 @@ const NAV = [
 
 export async function SiteHeader() {
   const session = await getSession();
-  const dashHref = session?.role === "ADMIN" ? "/admin" : "/dashboard";
+  const dashHref = homeFor(session?.role ?? "");
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">

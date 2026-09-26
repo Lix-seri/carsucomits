@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { ADMIN, adminApi, newUser, postCommission, signInPage, visit } from "./helpers";
 
 // End-to-end API flow: post → apply → accept → complete + rate → rate back,
@@ -38,6 +38,11 @@ test.describe("marketplace flow over the API", () => {
     // Only the poster can accept.
     expect((await worker.api.post(`/api/applications/${appId}/accept`)).status()).toBe(403);
     expect((await poster.api.post(`/api/applications/${appId}/accept`)).ok()).toBeTruthy();
+
+    // Work can't be completed until both parties accept the agreement.
+    expect((await poster.api.post(`/api/commissions/${c.id}/complete`, { data: { stars: 5, comment: "Too early" } })).status()).toBe(400);
+    expect((await poster.api.post(`/api/commissions/${c.id}/agreement`)).ok()).toBeTruthy();
+    expect((await worker.api.post(`/api/commissions/${c.id}/agreement`)).ok()).toBeTruthy();
 
     // Completion requires a rating; only the poster can complete.
     expect((await worker.api.post(`/api/commissions/${c.id}/complete`, { data: { stars: 5 } })).status()).toBe(403);

@@ -9,8 +9,9 @@ import { cache } from "react";
 import type { Role } from "@prisma/client";
 import { prisma } from "./db";
 import { HttpError } from "./http";
+import { homeFor } from "./redirect";
 
-export type Session = { userId: string; fullName: string; email: string; role: Role; avatarUrl: string | null };
+export type Session = { userId: string; fullName: string; email: string; role: Role; avatarUrl: string | null; verified: boolean };
 type Token = { uid: string; role: Role; exp: number };
 
 const COOKIE = "carsu_session";
@@ -57,10 +58,10 @@ export const getSession = cache(async (): Promise<Session | null> => {
   if (!token) return null;
   const user = await prisma.user.findUnique({
     where: { id: token.uid },
-    select: { id: true, fullName: true, email: true, role: true, status: true, avatarUrl: true },
+    select: { id: true, fullName: true, email: true, role: true, status: true, avatarUrl: true, verifiedAt: true },
   });
   if (!user || user.status === "BANNED" || user.status === "SUSPENDED") return null;
-  return { userId: user.id, fullName: user.fullName, email: user.email, role: user.role, avatarUrl: user.avatarUrl };
+  return { userId: user.id, fullName: user.fullName, email: user.email, role: user.role, avatarUrl: user.avatarUrl, verified: !!user.verifiedAt };
 });
 
 /** For API routes: the current session, or a 401. */
@@ -74,14 +75,23 @@ export async function requireSession(): Promise<Session> {
  * For pages and layouts: the session, or a redirect. Layouts and pages render in
  * parallel, so a guard in a layout alone doesn't stop the page's code from running.
  */
-export async function pageSession(opts: { admin?: boolean } = {}): Promise<Session> {
+export async function pageSession(opts: { admin?: boolean; staff?: boolean } = {}): Promise<Session> {
   const session = await getSession();
   if (!session) {
     const here = (await headers()).get("x-pathname") ?? "/dashboard";
     redirect(`/login?next=${encodeURIComponent(here)}`);
   }
-  if (opts.admin && session.role !== "ADMIN") redirect("/dashboard?error=admin-only");
+  if (opts.admin && session.role !== "ADMIN") redirect(`${homeFor(session.role)}?error=admin-only`);
+  if (opts.staff && !isStaff(session)) redirect("/dashboard?error=staff-only");
   return session;
+}
+
+/** Admins and USED officers (decision 0012). */
+export const isStaff = (session: Pick<Session, "role">) => session.role === "ADMIN" || session.role === "USED";
+
+/** For services: a 403 unless the caller is an admin or a USED officer. */
+export function assertStaff(session: Session) {
+  if (!isStaff(session)) throw new HttpError(403, "Admins and USED officers only.");
 }
 
 /** For services: a 403 unless the caller is an admin. */

@@ -1,4 +1,5 @@
-import { test, expect, type Browser, type Page } from "@playwright/test";
+import type { Browser, Page } from "@playwright/test";
+import { test, expect, waitForHydration } from "./fixtures";
 import { ADMIN, BASE, newUser, postCommission, signInPage } from "./helpers";
 
 // Main user flows, clicked through in the browser as each role, on desktop and mobile.
@@ -7,7 +8,7 @@ import { ADMIN, BASE, newUser, postCommission, signInPage } from "./helpers";
 
 async function asUser(browser: Browser, creds: { email: string; password: string }, role = "STUDENT") {
   const ctx = await browser.newContext({ ...test.info().project.use, baseURL: BASE });
-  const page = await ctx.newPage();
+  const page = waitForHydration(await ctx.newPage());
   forbidNativeDialogs(page);
   await signInPage(page, creds, role);
   return page;
@@ -104,6 +105,20 @@ test.describe("flows through the UI", () => {
     await shot(poster, "accept-confirm");
     await acceptDialog.getByRole("button", { name: "Accept applicant" }).click();
     await expect(acceptDialog).toBeHidden();
+
+    // Both sides accept the agreement before work starts; ticking the box is required.
+    for (const p of [poster, worker]) {
+      await p.goto(commissionUrl);
+      const agreement = p.getByRole("region", { name: "Agreement" });
+      await expect(agreement).toContainText("No academic work");
+      await agreement.getByRole("button", { name: "Accept agreement" }).click();
+      await expect(agreement.getByText("Tick the box")).toBeVisible();
+      await agreement.getByRole("checkbox").check();
+      await shot(p, p === poster ? "agreement-poster" : "agreement-worker");
+      await agreement.getByRole("button", { name: "Accept agreement" }).click();
+      await expect(agreement.getByRole("button", { name: "Accept agreement" })).toHaveCount(0);
+    }
+    await expect(worker.getByText("In progress").first()).toBeVisible();
 
     // Poster completes: 2 stars without feedback is refused inline, then 5 stars.
     await poster.goto("/hub");

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import { hiredCommission, newUser, postCommission, signInPage, testDb } from "./helpers";
 
 // Regression tests for the Phase 2 audit fixes (claude/audits/AUDIT_2026-09-25.md). API-level, desktop only.

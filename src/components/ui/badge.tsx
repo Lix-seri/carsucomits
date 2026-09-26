@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardList, Code2, ShoppingCart } from "lucide-react";
+import { BadgeCheck, BookOpen, ClipboardList, Code2, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ACCOUNT_STATUS, APPLICATION_STATUS, CATEGORY_LABEL, COMMISSION_STATUS, DELIVERABLE_STATUS, LEVEL_LABEL, REPORT_STATUS, type Tone,
@@ -49,4 +49,20 @@ export function CategoryBadge({ category }: { category: string }) {
 
 export function LevelBadge({ level }: { level: string }) {
   return <Badge className="bg-white">{LEVEL_LABEL[level] ?? level}</Badge>;
+}
+
+/** A student whose CCIS verification was approved (decision 0012). */
+export function VerifiedBadge() {
+  return <Badge tone="brand" icon={<BadgeCheck className="h-3.5 w-3.5" />}>CCIS verified</Badge>;
+}
+
+/** Available / Busy, from the person's unfinished jobs (item 4). */
+export function AvailabilityBadge({ activeJobs }: { activeJobs: number }) {
+  return activeJobs > 0 ? (
+    <Badge tone="warning" icon={<span aria-hidden className="h-1.5 w-1.5 rounded-full bg-warning-500" />}>
+      Busy · {activeJobs} job{activeJobs === 1 ? "" : "s"}
+    </Badge>
+  ) : (
+    <Badge tone="brand" icon={<span aria-hidden className="h-1.5 w-1.5 rounded-full bg-brand-500" />}>Available</Badge>
+  );
 }

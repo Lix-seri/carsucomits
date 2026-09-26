@@ -50,11 +50,13 @@ export async function login({ email, password, expectedRole, mfaCode }: z.infer<
   if (user.status === "SUSPENDED") throw new HttpError(403, "This account is suspended.");
 
   // Enforce the role chosen on the login screen.
-  if (expectedRole === "ADMIN" && user.role !== "ADMIN") {
-    throw new HttpError(403, "This is not an admin account. Switch to the Student tab to sign in.");
+  // Staff (admins and USED officers) use the Admin tab; students use the Student tab.
+  const staff = user.role === "ADMIN" || user.role === "USED";
+  if (expectedRole === "ADMIN" && !staff) {
+    throw new HttpError(403, "This is not a staff account. Switch to the Student tab to sign in.");
   }
-  if (expectedRole === "STUDENT" && user.role === "ADMIN") {
-    throw new HttpError(403, "This is an admin account. Switch to the Admin tab to sign in.");
+  if (expectedRole === "STUDENT" && staff) {
+    throw new HttpError(403, "This is a staff account. Switch to the Admin tab to sign in.");
   }
 
   if (user.mfaEnabled) {

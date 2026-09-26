@@ -8,9 +8,9 @@
 
 **Decision: verification.**
 - A `StudentVerification` row stores:
-  - the student ID number, format `NNN-NNNNN`, as printed on CSU IDs;
-  - the college, which must be CCIS;
-  - the proof image;
+  - the student ID number (6–15 digits and dashes; the exact CSU format wasn't specified, so the reviewer checks it against the proof);
+  - the student's confirmation that they're enrolled in a CCIS program (the college is what the reviewer verifies, so it isn't a separate field);
+  - the proof (a photo or scan of the ID or registration form);
   - a status (`PENDING`, `APPROVED`, `REJECTED` or `REVOKED`), the reviewer, the decision time and a note.
 - One pending request per student at a time. A rejected student can resubmit.
 - The proof is stored in the database (a `bytea` column, JPG/PNG/WebP/PDF up to 2 MB), not in public Vercel Blob storage. A student ID is personal data, and Blob URLs are public to anyone who has the link. The proof is served only through `/api/verification/[id]/proof`, which checks for an admin or USED session. This also makes the flow work locally and in tests without a Blob token.

@@ -14,6 +14,14 @@ enum Role {
   STUDENT_EMPLOYEE
   COMMISSIONER
   ADMIN
+  USED // University Student Enterprise Development officer (decision 0012)
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVOKED
 }
 
 enum SkillLevel {
@@ -32,6 +40,7 @@ enum Category {
 
 enum CommissionStatus {
   OPEN
+  AGREEMENT_PENDING // hired; waiting for both parties to accept the agreement (decision 0013)
   IN_PROGRESS
   AWAITING_REVIEW
   COMPLETED
@@ -78,6 +87,8 @@ model User {
   emailVerified          Boolean       @default(false)
   emailVerificationToken String?       @unique
   emailVerifiedAt        DateTime?
+  // Set when a CCIS verification is approved, cleared when revoked. Required to take on work.
+  verifiedAt             DateTime?
   // MFA — currently only required for ADMIN accounts but the columns are on every user.
   mfaEnabled             Boolean       @default(false)
   totpSecret             String?
@@ -99,6 +110,8 @@ model User {
   savedCommissions    SavedCommission[]
   submittedDeliverables Deliverable[]   @relation("submitter")
   passwordResetTokens PasswordResetToken[]
+  agreementAcceptances AgreementAcceptance[]
+  verifications       StudentVerification[] @relation("verifiedStudent")
 }
 
 model Skill {
@@ -137,6 +150,7 @@ model Commission {
   reports      Report[]
   savedBy      SavedCommission[]
   deliverables Deliverable[]
+  agreements   AgreementAcceptance[]
 
   @@index([category])
   @@index([status])
@@ -292,4 +306,39 @@ model Setting {
   value       Int
   updatedById String?
   updatedAt   DateTime @updatedAt
+}
+
+// One party's acceptance of the work agreement, with the terms they saw (decision 0013).
+model AgreementAcceptance {
+  id           String     @id @default(cuid())
+  commission   Commission @relation(fields: [commissionId], references: [id], onDelete: Cascade)
+  commissionId String
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  version      String
+  terms        Json
+  acceptedAt   DateTime   @default(now())
+
+  @@unique([commissionId, userId, version])
+  @@index([commissionId])
+}
+
+// A student's request to be verified as CCIS (decision 0012). The proof lives here, not in public
+// Blob storage, and is served only to admins and USED officers.
+model StudentVerification {
+  id              String             @id @default(cuid())
+  user            User               @relation("verifiedStudent", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  studentIdNumber String
+  proof           Bytes
+  proofType       String
+  proofName       String
+  status          VerificationStatus @default(PENDING)
+  reviewerId      String?
+  reviewNote      String?
+  reviewedAt      DateTime?
+  createdAt       DateTime           @default(now())
+
+  @@index([userId])
+  @@index([status])
 }

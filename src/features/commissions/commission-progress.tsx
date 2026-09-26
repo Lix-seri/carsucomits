@@ -11,7 +11,8 @@ const STEPS = [
 /** Where a commission is in its lifecycle, and what comes next. */
 export function CommissionProgress({ status }: { status: string }) {
   if (status === "CANCELLED" || status === "DISPUTED") return null;
-  const current = STEPS.findIndex((s) => s.key === status);
+  // Waiting on the agreement is still the "Hired" step.
+  const current = STEPS.findIndex((s) => s.key === (status === "AGREEMENT_PENDING" ? "IN_PROGRESS" : status));
   return (
     <ol aria-label="Commission progress" className="flex items-center gap-1.5 sm:gap-2">
       {STEPS.map((s, i) => {

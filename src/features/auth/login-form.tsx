@@ -7,7 +7,7 @@ import { Field, FormError } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
-import { safeNextPath } from "@/lib/redirect";
+import { homeFor, safeNextPath } from "@/lib/redirect";
 
 type LoginRole = "STUDENT" | "ADMIN";
 
@@ -48,7 +48,7 @@ export function LoginForm() {
         return;
       }
       if (!res.ok) { setError(data.error ?? "Login failed."); return; }
-      const dest = next ?? (data.user?.role === "ADMIN" ? "/admin" : "/dashboard");
+      const dest = next ?? homeFor(data.user?.role ?? "");
       router.replace(dest);
       router.refresh();
     } catch {
@@ -65,7 +65,7 @@ export function LoginForm() {
     try {
       const { res, data } = await attemptLogin({ email, password, expectedRole: role, mfaCode });
       if (!res.ok) { setError(data.error ?? "Code rejected."); return; }
-      const dest = next ?? (data.user?.role === "ADMIN" ? "/admin" : "/dashboard");
+      const dest = next ?? homeFor(data.user?.role ?? "");
       router.replace(dest);
       router.refresh();
     } catch {
@@ -146,7 +146,7 @@ export function LoginForm() {
               </div>
 
               {role === "ADMIN" && (
-                <p className="mb-4 text-center text-xs text-muted">For USG officers and system administrators only.</p>
+                <p className="mb-4 text-center text-xs text-muted">For admins and USED officers.</p>
               )}
 
               <form noValidate onSubmit={handleSubmit} className="space-y-4">

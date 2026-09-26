@@ -21,15 +21,16 @@ export default async function PublicProfile({ params }: Props) {
   const user = await getPublicUser(id);
   // Admin accounts have no public profile.
   if (!user || user.role === "ADMIN") notFound();
-  const { skills, stats, reviews, distribution } = await getProfileDetails(user.id, 8);
+  const { skills, stats, reviews, distribution, activeJobs } = await getProfileDetails(user.id, 8);
 
   return (
     <ProfileView
-      user={user}
+      user={{ ...user, verified: !!user.verifiedAt }}
       stats={stats}
       skills={skills}
       reviews={reviews}
       distribution={distribution}
+      activeJobs={activeJobs}
       actions={session && user.status !== "BANNED" ? <MessageButton userId={user.id} /> : undefined}
       notice={
         user.status !== "ACTIVE" && (

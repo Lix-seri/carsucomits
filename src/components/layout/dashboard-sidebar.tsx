@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bookmark, Briefcase, Flag, Home, Megaphone, MessageCircle, Search, User } from "lucide-react";
+import { BadgeCheck, Bookmark, Briefcase, Flag, Home, Megaphone, MessageCircle, Receipt, Search, User } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { LogoutButton } from "@/components/layout/logout-button";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,9 @@ const GROUPS = [
     label: "Account",
     items: [
       { href: "/saved", label: "Saved", icon: Bookmark },
+      { href: "/transactions", label: "Transactions", icon: Receipt },
       { href: "/profile", label: "Profile", icon: User },
+      { href: "/verify", label: "Verification", icon: BadgeCheck },
       { href: "/reports", label: "Reports", icon: Flag },
     ],
   },

@@ -5,15 +5,23 @@ import { PORT } from "../playwright.config";
 export const BASE = `http://localhost:${PORT}`;
 export const ADMIN = { email: "glen.licayan@carsu.edu.ph", password: "e2e-admin-password" };
 
+let helperDb: PrismaClient | undefined;
 const uniq = () => Math.random().toString(36).slice(2, 8);
 
-/** A fresh cookie jar signed in as a newly registered user. */
-export async function newUser(name: string) {
+/**
+ * A fresh cookie jar signed in as a newly registered user. Users are CCIS-verified unless
+ * `verified: false` (decision 0012), because most flows need someone who can take on work.
+ */
+export async function newUser(name: string, { verified = true } = {}) {
   const api = await pwRequest.newContext({ baseURL: BASE });
   const email = `${name.toLowerCase()}.${uniq()}@carsu.edu.ph`;
   const res = await api.post("/api/auth/register", { data: { fullName: `${name} Tester`, email, password: "password123" } });
   expect(res.ok(), await res.text()).toBeTruthy();
   const { user } = await res.json();
+  if (verified) {
+    helperDb ??= testDb();
+    await helperDb.user.update({ where: { id: user.id }, data: { verifiedAt: new Date() } });
+  }
   return { api, email, id: user.id as string, name: `${name} Tester` };
 }
 
@@ -75,12 +83,34 @@ export function testDb() {
   });
 }
 
-/** poster posts, worker applies, poster accepts → an IN_PROGRESS commission. */
+/** Both parties accept the work agreement, which starts the commission. */
+export async function acceptAgreement(commissionId: string, ...parties: APIRequestContext[]) {
+  for (const api of parties) {
+    const res = await api.post(`/api/commissions/${commissionId}/agreement`);
+    expect(res.ok(), await res.text()).toBeTruthy();
+  }
+}
+
+/** poster posts, worker applies, poster accepts, both accept the agreement → an IN_PROGRESS commission. */
 export async function hiredCommission() {
   const poster = await newUser("Poster");
   const worker = await newUser("Worker");
   const c = await postCommission(poster.api);
   const app = await (await worker.api.post(`/api/commissions/${c.id}/apply`, { data: {} })).json();
   expect((await poster.api.post(`/api/applications/${app.application.id}/accept`)).ok()).toBeTruthy();
+  await acceptAgreement(c.id, poster.api, worker.api);
   return { poster, worker, c };
+}
+
+/** A tiny upload; the server checks the declared type and size, not the pixels. */
+export const proofFile = (mimeType = "image/png") => ({ name: "student-id.png", mimeType, buffer: Buffer.from("not really a png; the declared type is what gets checked") });
+
+/** A student promoted to USED officer by the admin, signed in on the staff (Admin) tab. */
+export async function usedOfficer() {
+  const u = await newUser("Officer");
+  const admin = await adminApi();
+  expect((await admin.post(`/api/admin/users/${u.id}/role`, { data: { role: "USED" } })).ok()).toBeTruthy();
+  const login = await u.api.post("/api/auth/login", { data: { email: u.email, password: "password123", expectedRole: "ADMIN" } });
+  expect(login.ok(), await login.text()).toBeTruthy();
+  return u;
 }

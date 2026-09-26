@@ -1,7 +1,7 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, waitForHydration } from "./fixtures";
 import { ADMIN, BASE, adminApi, newUser, postCommission, signInPage, testDb } from "./helpers";
 
-// Phase 5 features (claude/decisions/0009–0015). API and database rules run once (desktop);
+// Phase 5 items 2, 3 and 10 (claude/decisions/0009, 0010, 0013). API and database rules run once (desktop);
 // the UI flows run on desktop and mobile.
 
 test.describe("item 2: append-only audit log", () => {
@@ -116,7 +116,7 @@ test.describe("item 3: limits UI", () => {
       expect((await worker.api.post(`/api/commissions/${first.id}/apply`, { data: {} })).ok()).toBeTruthy();
 
       const ctx = await browser.newContext({ ...test.info().project.use, baseURL: BASE });
-      const w = await ctx.newPage();
+      const w = waitForHydration(await ctx.newPage());
       await signInPage(w, { email: worker.email, password: "password123" });
       await w.goto(`/commission/${second.id}`);
       const dialog = w.getByRole("dialog", { name: "Apply to this commission" });
@@ -132,5 +132,64 @@ test.describe("item 3: limits UI", () => {
       await page.getByRole("button", { name: "Save limits" }).click();
       await expect(page.getByText(/Saved\./)).toBeVisible();
     }
+  });
+});
+
+test.describe("item 10: agreement before work starts", () => {
+  test.skip(({ isMobile }) => isMobile, "API and database checks run once");
+
+  async function hire() {
+    const poster = await newUser("AgreePoster");
+    const worker = await newUser("AgreeWorker");
+    const c = await postCommission(poster.api, { deadline: "2026-12-01" });
+    const { application } = await (await worker.api.post(`/api/commissions/${c.id}/apply`, { data: {} })).json();
+    expect((await poster.api.post(`/api/applications/${application.id}/accept`)).ok()).toBeTruthy();
+    return { poster, worker, c, application };
+  }
+
+  test("both parties accept a versioned agreement; only then does work start, and it's all logged", async () => {
+    const { poster, worker, c } = await hire();
+    const db = testDb();
+    expect((await db.commission.findUniqueOrThrow({ where: { id: c.id } })).status).toBe("AGREEMENT_PENDING");
+
+    const stranger = await newUser("Stranger");
+    expect((await stranger.api.post(`/api/commissions/${c.id}/agreement`)).status()).toBe(403);
+
+    const first = await poster.api.post(`/api/commissions/${c.id}/agreement`);
+    expect(first.ok(), await first.text()).toBeTruthy();
+    expect((await poster.api.post(`/api/commissions/${c.id}/agreement`)).status()).toBe(409);
+    expect((await db.commission.findUniqueOrThrow({ where: { id: c.id } })).status).toBe("AGREEMENT_PENDING");
+
+    const res = await worker.api.post(`/api/commissions/${c.id}/agreement`);
+    expect((await res.json()).started).toBe(true);
+    expect((await db.commission.findUniqueOrThrow({ where: { id: c.id } })).status).toBe("IN_PROGRESS");
+
+    const acceptances = await db.agreementAcceptance.findMany({ where: { commissionId: c.id } });
+    expect(acceptances.map((a) => a.userId).sort()).toEqual([poster.id, worker.id].sort());
+    expect(acceptances[0].version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(acceptances[0].terms).toMatchObject({ fare: "₱500–800", deadline: "2026-12-01" });
+    expect(await db.auditLog.count({ where: { action: "AGREEMENT_ACCEPTED", target: c.id } })).toBe(2);
+    expect(await db.auditLog.count({ where: { action: "COMMISSION_STATUS", target: c.id, after: { equals: { status: "IN_PROGRESS" } } } })).toBe(1);
+    await db.$disconnect();
+  });
+
+  test("the database refuses to start a commission without both acceptances", async () => {
+    const { poster, c } = await hire();
+    expect((await poster.api.post(`/api/commissions/${c.id}/agreement`)).ok()).toBeTruthy();
+    const db = testDb();
+    await expect(db.commission.update({ where: { id: c.id }, data: { status: "IN_PROGRESS" } })).rejects.toThrow(/both parties accept the agreement/);
+    await db.$disconnect();
+  });
+
+  test("declining reopens the commission for applications", async () => {
+    const { worker, c, application } = await hire();
+    expect((await worker.api.delete(`/api/commissions/${c.id}/agreement`, { data: { reason: "Deadline is too tight for me." } })).ok()).toBeTruthy();
+    const db = testDb();
+    const after = await db.commission.findUniqueOrThrow({ where: { id: c.id } });
+    expect(after.status).toBe("OPEN");
+    expect(after.awardedToId).toBeNull();
+    expect((await db.application.findUniqueOrThrow({ where: { id: application.id } })).status).toBe("WITHDRAWN");
+    expect(await db.auditLog.count({ where: { action: "AGREEMENT_DECLINED", target: c.id } })).toBe(1);
+    await db.$disconnect();
   });
 });
