@@ -1,89 +1,177 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, ClipboardList, Code2, ShoppingCart } from "lucide-react";
+import { ArrowRight, BadgeCheck, MessageSquareOff, ShieldCheck, Star, UserX, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { CATEGORY_LABEL } from "@/lib/labels";
+import { categoryStyle } from "@/components/ui/category";
+import { ChalkCheck, ChalkUnderline } from "@/components/ui/chalk";
+import { Tisa } from "@/components/illustrations/tisa";
+import { CATEGORY_ART, DeliverArt, HireArt, PostArt, RateArt } from "@/components/illustrations/scenes";
+import { HeroBoard, type BoardSlip, type BoardStats } from "./hero-board";
 
 const CATEGORIES = [
-  { value: "ACADEMIC", name: "Academic", description: "Tutoring and study help", icon: BookOpen },
-  { value: "TECHNICAL", name: "Technical", description: "Programming, design, tech", icon: Code2 },
-  { value: "GENERAL_ERRANDS", name: "General Errands", description: "Deliveries, purchases, campus tasks", icon: ShoppingCart },
-  { value: "ADMINISTRATIVE", name: "Administrative", description: "Documents, data entry, events", icon: ClipboardList },
+  { value: "ACADEMIC", blurb: "Tutoring and study help: explaining, never doing someone's graded work." },
+  { value: "TECHNICAL", blurb: "Code, design, websites, fixing laptops and phones." },
+  { value: "GENERAL_ERRANDS", blurb: "Pick-ups, printing, deliveries and campus runs." },
+  { value: "ADMINISTRATIVE", blurb: "Encoding, documents, forms and event help." },
 ];
 
-// The commission lifecycle is the product; the hero shows it instead of a stock illustration.
 const STEPS = [
-  { title: "Post what you need", desc: "A title, a fare and a deadline. Students see it right away." },
-  { title: "Hire an applicant", desc: "Compare cover letters, ratings and finished work." },
-  { title: "Review the delivery", desc: "Approve it or ask for a revision, all in one place." },
-  { title: "Complete and rate", desc: "Both sides rate each other, so reputations are earned." },
+  { art: PostArt, title: "Post what you need", text: "A title, a fare in pesos and a deadline. Classmates see it on the board right away." },
+  { art: HireArt, title: "Hire, then agree", text: "Compare applicants' ratings and work, pick one, and both accept a short agreement." },
+  { art: DeliverArt, title: "Get the delivery", text: "They upload the work. Approve it, or ask for a revision, all in one place." },
+  { art: RateArt, title: "Complete and rate", text: "You both rate each other, so good reputations are earned and kept." },
 ];
 
-/** Home page sections. `latest` is the grid of real open commissions, composed by the page. */
-export function LandingContent({ latest }: { latest: React.ReactNode }) {
+const THEM = [
+  { icon: UserX, text: "Anyone can comment, including people who aren't students." },
+  { icon: MessageSquareOff, text: "Deals get buried in comments and DMs, with no record." },
+  { icon: X, text: "Ghosting costs nothing, and scammers just make a new account." },
+];
+const US = [
+  "Only @carsu.edu.ph accounts, and only CCIS-verified students can take work.",
+  "A written agreement on scope, fare and deadline before work starts.",
+  "Two-way ratings that stay with each person, and reports that admins review.",
+];
+
+/** The landing page below the header. Every number and commission on it is real data. */
+export function LandingContent({ slips, stats, openByCategory }: { slips: BoardSlip[]; stats: BoardStats; openByCategory: Record<string, number> }) {
   return (
     <>
-      <section className="border-b border-line bg-surface">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2 lg:items-center">
+      <section className="paper-dots border-b border-line">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pb-12 pt-10 sm:px-6 lg:grid-cols-hero lg:gap-14 lg:pb-20 lg:pt-16">
           <div>
-            <p className="text-sm font-semibold text-brand-700">For students of CSU Main</p>
-            <h1 className="mt-3 text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-              Get it done by a fellow CSU Main student.
+            <h1 className="display text-4xl sm:text-5xl lg:text-6xl">
+              Get it done by a{" "}
+              <span className="relative inline-block text-brand-600">
+                fellow
+                <ChalkUnderline className="absolute -bottom-2 left-0 h-3.5 w-full text-gold-500" delay={300} />
+              </span>{" "}
+              CSU Main student.
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-muted">
-              Post a task, hire a classmate who&apos;s good at it, and pay what you agreed. Tutoring, tech work, errands and paperwork, all inside campus.
+            <p className="mt-6 max-w-prose text-lg text-muted">
+              Post a task, hire a classmate who&apos;s good at it, and pay what you both agreed. Tutoring, tech work, errands and paperwork, all inside campus.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/browse" className="btn-primary">
-                Browse commissions <ArrowRight className="h-4 w-4" />
+              <Link href="/hiring/post" className="btn-primary px-6 py-3 text-base">Post a commission</Link>
+              <Link href="/browse" className="btn-secondary px-6 py-3 text-base">
+                Browse the board <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/hiring/post" className="btn-secondary">Post a commission</Link>
             </div>
+            <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-muted">
+              <li className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-brand-600" /> @carsu.edu.ph accounts only</li>
+              <li className="flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-brand-600" /> CCIS-verified sellers</li>
+              <li className="flex items-center gap-1.5"><Star className="h-4 w-4 text-gold-600" /> Ratings both ways</li>
+            </ul>
           </div>
-
-          <ol id="how-it-works" aria-label="How it works" className="scroll-mt-20 rounded-xl border border-line bg-canvas p-2">
-            {STEPS.map((s, i) => (
-              <li key={s.title} className="flex gap-4 rounded-lg p-4">
-                <span className="tabular grid h-8 w-8 shrink-0 place-items-center rounded-full border border-brand-200 bg-surface text-sm font-semibold text-brand-700">
-                  {i + 1}
-                </span>
-                <div>
-                  <p className="font-semibold">{s.title}</p>
-                  <p className="text-sm text-muted">{s.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <HeroBoard slips={slips} stats={stats} />
         </div>
       </section>
 
-      <section aria-labelledby="categories" className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-        <h2 id="categories" className="mb-5 text-2xl font-semibold tracking-tight">Browse by category</h2>
-        <div className="grid overflow-hidden rounded-xl border border-line bg-surface sm:grid-cols-2 lg:grid-cols-4">
-          {CATEGORIES.map(({ value, name, description, icon: Icon }) => (
-            <Link
-              key={value}
-              href={`/browse?category=${value}`}
-              className="group flex items-start gap-3 border-b border-line p-5 transition-colors hover:bg-sunken sm:border-r lg:border-b-0"
-            >
-              <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
-              <span>
-                <span className="block font-semibold group-hover:text-brand-700">{name}</span>
-                <span className="block text-sm text-muted">{description}</span>
+      <section id="how-it-works" aria-labelledby="how" className="reveal mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6 lg:py-24">
+        <h2 id="how" className="display max-w-xl text-3xl sm:text-4xl">From a slip on the board to a job well done</h2>
+        <ol className="relative mt-10 grid grid-cols-1 gap-10 lg:grid-cols-4 lg:gap-6">
+          {/* The dashed path that connects the steps: across on desktop, down on phones. */}
+          <span aria-hidden className="absolute left-12 top-4 hidden h-0 w-3/4 border-t-4 border-dashed border-line-strong lg:block" />
+          <span aria-hidden className="absolute bottom-10 left-12 top-10 w-0 border-l-4 border-dashed border-line-strong lg:hidden" />
+          {STEPS.map((s, i) => (
+            <li key={s.title} className="relative flex gap-5 lg:flex-col lg:gap-4">
+              <span className="relative z-10 grid h-24 w-24 shrink-0 place-items-center rounded-3xl border-2 border-line bg-surface shadow-card lg:h-28 lg:w-28">
+                <s.art className="h-16 w-20 lg:h-20 lg:w-24" />
+                <span className="absolute -right-2 -top-2 grid h-8 w-8 place-items-center rounded-full bg-gold-400 font-display text-sm font-extrabold text-on-gold shadow-soft">{i + 1}</span>
               </span>
-            </Link>
+              <div>
+                <h3 className="font-display text-xl font-bold">{s.title}</h3>
+                <p className="mt-1 text-muted">{s.text}</p>
+              </div>
+            </li>
           ))}
+        </ol>
+      </section>
+
+      <section aria-labelledby="categories" className="reveal border-y border-line bg-sunken/60">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
+          <h2 id="categories" className="display text-3xl sm:text-4xl">What classmates are posting</h2>
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {CATEGORIES.map(({ value, blurb }) => {
+              const Art = CATEGORY_ART[value];
+              const s = categoryStyle(value);
+              const open = openByCategory[value] ?? 0;
+              return (
+                <Link key={value} href={`/browse?category=${value}`} className="lift group flex flex-col overflow-hidden rounded-3xl border-2 border-line bg-surface">
+                  <span className={cn("flex h-36 items-center justify-center", s.tile)}>
+                    <Art className="h-28 w-36 transition-transform duration-300 ease-out group-hover:-rotate-2 group-hover:scale-105" />
+                  </span>
+                  <span className="flex flex-1 flex-col p-5">
+                    <span className={cn("font-display text-xl font-bold", s.text)}>{CATEGORY_LABEL[value]}</span>
+                    <span className="mt-1 flex-1 text-sm text-muted">{blurb}</span>
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-ink">
+                      {open > 0 ? `${open} open now` : "Be the first to post"} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      <section aria-labelledby="latest" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 id="latest" className="text-2xl font-semibold tracking-tight">Open now</h2>
-            <p className="mt-1 text-muted">The newest commissions waiting for someone.</p>
+      <section aria-labelledby="facebook" className="reveal mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-24">
+        <h2 id="facebook" className="display max-w-2xl text-3xl sm:text-4xl">Why not just post in a Facebook group?</h2>
+        <div className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <div className="rounded-3xl border-2 border-dashed border-line-strong bg-surface p-6 sm:p-8">
+            <p className="font-display text-lg font-bold text-muted">A post in a group chat or page</p>
+            <ul className="mt-4 space-y-3">
+              {THEM.map((t) => (
+                <li key={t.text} className="flex gap-3 text-muted">
+                  <t.icon aria-hidden className="mt-0.5 h-5 w-5 shrink-0 text-coral-500" />
+                  {t.text}
+                </li>
+              ))}
+            </ul>
           </div>
-          <Link href="/browse" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline">
-            See all <ArrowRight className="h-4 w-4" />
-          </Link>
+          <div className="board rounded-3xl border-4 border-board-deep p-6 sm:p-8">
+            <p className="font-display text-lg font-bold text-board-chalk">A slip on CarSUComits</p>
+            <ul className="mt-4 space-y-3">
+              {US.map((t, i) => (
+                <li key={t} className="flex gap-3 text-board-chalk">
+                  <ChalkCheck className="mt-0.5 h-6 w-6 shrink-0 text-gold-400" delay={200 + i * 180} />
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-        {latest}
+      </section>
+
+      <section aria-labelledby="integrity" className="reveal mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:pb-24">
+        <div className="relative flex flex-col items-center gap-6 rounded-3xl border-2 border-gold-300 bg-gold-50 p-6 text-center shadow-card sm:flex-row sm:p-10 sm:text-left">
+          <Tisa pose="hold" className="h-32 w-32" />
+          <div>
+            <h2 id="integrity" className="display text-2xl text-ink sm:text-3xl">Tutoring, yes. Doing someone&apos;s graded work, no.</h2>
+            <p className="mt-2 max-w-prose text-ink">
+              Explaining a lesson or reviewing your own draft is welcome. Writing a thesis, capstone, research paper or taking an exam for someone isn&apos;t,
+              and posts that ask for it go to admins for review.
+            </p>
+            <Link href="/terms#academic-work" className="mt-3 inline-flex items-center gap-1 font-semibold text-brand-700 underline">
+              Read the academic work rule <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="start" className="board border-y-4 border-board-deep">
+        <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <Tisa pose="wave" className="h-24 w-24" />
+            <h2 id="start" className="display text-3xl text-board-chalk sm:text-4xl">Got a task? Put it on the board.</h2>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/hiring/post" className="btn bg-gold-400 px-6 py-3 text-base text-on-gold shadow-soft hover:bg-gold-300 focus-visible:ring-gold-400 focus-visible:ring-offset-board">
+              Post a commission
+            </Link>
+            <Link href="/browse" className="btn-chalk px-6 py-3 text-base">Find work</Link>
+          </div>
+        </div>
       </section>
     </>
   );

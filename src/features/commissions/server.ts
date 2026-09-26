@@ -138,3 +138,14 @@ export async function getMyListings(userId: string, statuses?: CommissionStatus[
     take,
   });
 }
+
+/** Real numbers for the landing page: open and completed commissions, members, open per category. */
+export async function getBoardStats() {
+  const [open, completed, members, byCategory] = await Promise.all([
+    prisma.commission.count({ where: { status: "OPEN", heldForReview: false } }),
+    prisma.commission.count({ where: { status: "COMPLETED" } }),
+    prisma.user.count({ where: { role: { not: "ADMIN" }, status: { not: "BANNED" } } }),
+    prisma.commission.groupBy({ by: ["category"], where: { status: "OPEN", heldForReview: false }, _count: true }),
+  ]);
+  return { open, completed, members, openByCategory: Object.fromEntries(byCategory.map((c) => [c.category, c._count])) as Record<string, number> };
+}

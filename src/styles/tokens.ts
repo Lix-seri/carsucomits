@@ -30,6 +30,9 @@ export const colors = {
   errand: scale("errand", [50, 100, 200, 500, 600, 700]),
   admin: scale("admin", [50, 100, 200, 500, 600, 700]),
   board: { DEFAULT: v("board"), deep: v("board-deep"), chalk: v("chalk"), dust: v("chalk-dust") },
+  // Text on gold surfaces (dark in both themes) and illustration outlines (chalk on the dark board).
+  "on-gold": v("on-gold"),
+  "art-line": v("art-line"),
   ink: v("ink"),
   muted: v("muted"),
   faint: v("faint"),

@@ -80,6 +80,8 @@
   --c-board-deep: 23 63 49;
   --c-chalk: 246 242 230;
   --c-chalk-dust: 207 221 211;
+  --c-art-line: 23 63 49;
+  --c-on-gold: 23 63 49;
   --c-ink: 29 38 33;
   --c-muted: 87 97 90;
   --c-faint: 152 161 154;
@@ -172,6 +174,8 @@
     --c-board-deep: 19 53 40;
     --c-chalk: 244 240 227;
     --c-chalk-dust: 198 214 203;
+    --c-art-line: 233 228 212;
+    --c-on-gold: 26 46 36;
     --c-ink: 237 234 223;
     --c-muted: 169 180 172;
     --c-faint: 114 128 119;

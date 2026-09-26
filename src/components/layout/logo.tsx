@@ -26,7 +26,7 @@ export function Wordmark({ onDark = false, size = "md", className }: { onDark?: 
     <span className={cn("inline-flex items-center gap-2", className)}>
       <LogoMark variant={onDark ? "on-dark" : "color"} className={mark} />
       <span className={cn("font-display font-extrabold tracking-display", text, onDark ? "text-board-chalk" : "text-ink")}>
-        CarSU<span className={onDark ? "text-gold-400" : "text-brand-600"}>Comits</span>
+        CarSU<span className={onDark ? "text-gold-400" : "text-brand-700"}>Comits</span>
       </span>
     </span>
   );

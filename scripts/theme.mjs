@@ -14,7 +14,7 @@ const light = {
   info: { 50: "#EEF5FE", 100: "#D9E8FC", 200: "#B4D0F8", 500: "#3B82F6", 600: "#2563EB", 700: "#1D4ED8", 800: "#1E40AF" },
   warning: { 50: "#FFF8E6", 100: "#FEEDC2", 200: "#FDDB8A", 400: "#F8B93A", 500: "#EA9A0C", 600: "#B06A05", 700: "#8A5307", 800: "#6B3F08" },
   danger: { 50: "#FEF1F1", 100: "#FDE0E0", 200: "#FBC2C2", 500: "#E5484D", 600: "#C42B32", 700: "#9E2228" },
-  board: "#1F5C45", "board-deep": "#173F31", chalk: "#F6F2E6", "chalk-dust": "#CFDDD3",
+  board: "#1F5C45", "board-deep": "#173F31", chalk: "#F6F2E6", "chalk-dust": "#CFDDD3", "art-line": "#173F31", "on-gold": "#173F31",
   ink: "#1D2621", muted: "#57615A", faint: "#98A19A",
   line: "#E7DFCC", "line-strong": "#D3C7AA", sunken: "#F4EEDF", canvas: "#FBF6EA", surface: "#FFFDF8",
   shadow: "#4A3A18",
@@ -32,7 +32,7 @@ const dark = {
   info: { 50: "#172A45", 100: "#1D3558", 200: "#284B7D", 500: "#6FA5F8", 600: "#93BCFA", 700: "#B6D2FB", 800: "#D3E4FD" },
   warning: { 50: "#392A0C", 100: "#48350F", 200: "#6D5015", 400: "#E3A93A", 500: "#F4BE55", 600: "#F7CD7A", 700: "#F9DCA0", 800: "#FCEBC9" },
   danger: { 50: "#3D1A1C", 100: "#4E2023", 200: "#763033", 500: "#F07A7E", 600: "#C9373E", 700: "#F7B1B3" },
-  board: "#1F5C45", "board-deep": "#133528", chalk: "#F4F0E3", "chalk-dust": "#C6D6CB",
+  board: "#1F5C45", "board-deep": "#133528", chalk: "#F4F0E3", "chalk-dust": "#C6D6CB", "art-line": "#E9E4D4", "on-gold": "#1A2E24",
   ink: "#EDEADF", muted: "#A9B4AC", faint: "#728077",
   line: "#2B3C33", "line-strong": "#3B5046", sunken: "#1F2D26", canvas: "#131C18", surface: "#18241E",
   shadow: "#000000",
@@ -73,12 +73,17 @@ const pairs = [
   ...["academic", "technical", "errand", "admin"].map((s) => [`${s}-700`, "surface", 4.5]),
   ["brand-700", "canvas", 4.5], ["brand-700", "surface", 4.5], ["danger-700", "surface", 4.5], ["warning-800", "warning-50", 4.5],
 ];
+const onGold = [["on-gold", "gold-400"]];
 const onFill = [["#FFFFFF", "brand-500"], ["#FFFFFF", "brand-600"], ["#FFFFFF", "danger-600"], ["#FFFFFF", "board"]];
 let failed = 0;
 for (const [name, t] of [["light", light], ["dark", dark]]) {
   for (const [fg, bg, min] of pairs) {
     const r = ratio(get(t, fg), get(t, bg));
     if (r < min) { failed++; console.log(`FAIL ${name}: ${fg} on ${bg} = ${r.toFixed(2)} (needs ${min})`); }
+  }
+  for (const [fg, bg] of onGold) {
+    const r = ratio(get(t, fg), get(t, bg));
+    if (r < 4.5) { failed++; console.log(`FAIL ${name}: ${fg} on ${bg} = ${r.toFixed(2)}`); }
   }
   for (const [fg, bg] of onFill) {
     const r = ratio(fg, get(t, bg));

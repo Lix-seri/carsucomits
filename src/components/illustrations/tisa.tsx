@@ -5,7 +5,9 @@ import { cn } from "@/lib/utils";
 
 export type TisaPose = "wave" | "hold" | "sleep" | "cheer" | "lost" | "search";
 
-const INK = "rgb(var(--c-board-deep))";
+// Limbs and outline follow the theme (chalk on the dark board); the face stays dark on her chalk body.
+const INK = "rgb(var(--c-art-line))";
+const FACE = "rgb(var(--c-board-deep))";
 const CHALK = "rgb(var(--c-chalk))";
 const PAPER = "rgb(var(--c-surface))";
 const CHEEK = "rgb(var(--c-coral-300))";
@@ -22,22 +24,22 @@ function Face({ pose }: { pose: TisaPose }) {
   if (pose === "sleep") {
     return (
       <g>
-        <path d="M68 72q4 4 8 0M84 72q4 4 8 0" {...line} strokeWidth={3} />
-        <circle cx="80" cy="86" r="3" fill={INK} />
+        <path d="M68 72q4 4 8 0M84 72q4 4 8 0" {...line} stroke={FACE} strokeWidth={3} />
+        <circle cx="80" cy="86" r="3" fill={FACE} />
       </g>
     );
   }
   const look = pose === "lost" ? -2 : 0;
   return (
     <g>
-      <circle cx={72 + look} cy={71 + look} r="3.8" fill={INK} />
-      <circle cx={88 + look} cy={71 + look} r="3.8" fill={INK} />
+      <circle cx={72 + look} cy={71 + look} r="3.8" fill={FACE} />
+      <circle cx={88 + look} cy={71 + look} r="3.8" fill={FACE} />
       {pose === "cheer" ? (
-        <path d="M71 81q9 11 18 0Z" fill={INK} />
+        <path d="M71 81q9 11 18 0Z" fill={FACE} />
       ) : pose === "lost" ? (
-        <path d="M74 87q6-3 12 0" {...line} strokeWidth={3} />
+        <path d="M74 87q6-3 12 0" {...line} stroke={FACE} strokeWidth={3} />
       ) : (
-        <path d="M73 83q7 7 14 0" {...line} strokeWidth={3} />
+        <path d="M73 83q7 7 14 0" {...line} stroke={FACE} strokeWidth={3} />
       )}
       <circle cx="65" cy="81" r="4" fill={CHEEK} opacity=".85" />
       <circle cx="95" cy="81" r="4" fill={CHEEK} opacity=".85" />

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 // Flat, outlined illustrations in the Pisara world: one per category and one per lifecycle
 // step. Outlines use the board-deep green; fills use theme variables, so dark mode works.
 
-const INK = "rgb(var(--c-board-deep))";
+const INK = "rgb(var(--c-art-line))";
 const PAPER = "rgb(var(--c-surface))";
 const o = { stroke: INK, strokeWidth: 3.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
 const svg = (className?: string) => ({ viewBox: "0 0 160 120", "aria-hidden": true, className: cn("shrink-0", className) });
