@@ -33,7 +33,7 @@ test.describe("flows through the UI", () => {
     await page.goto("/");
     await shot(page, "visitor-home");
     await page.getByRole("region", { name: "What classmates are posting" }).getByRole("link", { name: /General Errands/ }).click();
-    await expect(page.getByRole("button", { name: "General Errands" })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("button", { name: "General Errands", exact: true })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("heading", { name: c.title }).waitFor();
     await shot(page, "visitor-browse-filtered");
     await page.goto(`/commission/${c.id}`);

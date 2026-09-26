@@ -148,12 +148,12 @@ test.describe("audit fixes: mobile layout", () => {
     const me = await newUser("Phone");
     await signInPage(page, { email: me.email, password: "password123" });
     await page.goto("/dashboard");
-    const hubLink = page.getByRole("link", { name: "My hub" });
+    const hubLink = page.locator("#app-sidebar").getByRole("link", { name: "My hub" });
     await expect(hubLink).not.toBeInViewport();
     await page.getByRole("button", { name: "Open menu" }).click();
     await expect(hubLink).toBeInViewport();
     await hubLink.click();
     await expect(page).toHaveURL(/\/hub$/);
-    await expect(page.getByRole("link", { name: "My hub" })).not.toBeInViewport();
+    await expect(page.locator("#app-sidebar").getByRole("link", { name: "My hub" })).not.toBeInViewport();
   });
 });

@@ -115,7 +115,7 @@ test.describe("items 6 and 11: verification through the UI", () => {
     await page.reload();
     await expect(page.getByText("You're verified")).toBeVisible();
     await page.goto("/profile");
-    await expect(page.getByText("CCIS verified")).toBeVisible();
+    await expect(page.getByText("CCIS verified").first()).toBeVisible();
   });
 });
 
