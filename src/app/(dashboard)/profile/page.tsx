@@ -12,7 +12,7 @@ export default async function ProfilePage() {
   return (
     <ProfileView
       isSelf
-      user={{ fullName: session.fullName, avatarUrl: session.avatarUrl, role: session.role, email: session.email, verified: session.verified }}
+      user={{ id: session.userId, fullName: session.fullName, avatarUrl: session.avatarUrl, role: session.role, email: session.email, verified: session.verified }}
       stats={stats}
       skills={skills}
       reviews={reviews}

@@ -71,7 +71,7 @@ export function AvatarUploader({
           disabled={busy}
           className="text-xs font-semibold text-brand-600 hover:underline disabled:opacity-50"
         >
-          {busy ? "Uploading…" : url ? "Change Photo" : "Upload Photo"}
+          {busy ? "Uploading…" : url ? "Change photo" : "Add a photo"}
         </button>
         {url && !busy && (
           <button

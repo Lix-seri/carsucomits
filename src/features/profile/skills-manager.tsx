@@ -3,7 +3,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { LEVEL_LABEL } from "@/lib/labels";
-import { LevelBadge } from "@/components/ui/badge";
+import { Tisa } from "@/components/illustrations/tisa";
+import { SkillTag } from "./profile-parts";
 
 const LEVELS = ["BEGINNER", "INTERMEDIATE", "ADVANCED", "EXPERT"] as const;
 type Skill = { id: string; name: string; level: string };
@@ -53,32 +54,35 @@ export function SkillsManager({ initialSkills }: { initialSkills: Skill[] }) {
   return (
     <div>
       {skills.length === 0 ? (
-        <p className="mb-4 rounded-lg bg-sunken px-4 py-6 text-center text-sm text-muted">
-          No skills yet. Add your first one below; people hiring will see it on your profile.
-        </p>
-      ) : (
-        <div className="mb-4 grid gap-3 sm:grid-cols-2">
-          {skills.map((s) => (
-            <div key={s.id} className="flex items-center justify-between rounded-lg border border-line p-3">
-              <div>
-                <p className="text-sm font-medium">{s.name}</p>
-                <div className="mt-1"><LevelBadge level={s.level} /></div>
-              </div>
-              <button
-                onClick={() => remove(s.id)}
-                disabled={busy}
-                className="rounded-md p-1.5 text-muted hover:bg-danger-50 hover:text-danger-600 disabled:opacity-50"
-                aria-label={`Remove ${s.name}`}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
+        <div className="mb-4 flex items-center gap-4 rounded-2xl border-2 border-dashed border-line-strong p-4">
+          <Tisa pose="hold" className="h-20 w-20" />
+          <p className="text-sm text-muted">
+            <span className="block font-display text-base font-bold text-ink">No skills yet</span>
+            Add what you&apos;re good at. Posters see these on your profile and applications.
+          </p>
         </div>
+      ) : (
+        <ul className="mb-4 flex flex-wrap gap-2">
+          {skills.map((s, i) => (
+            <li key={s.id}>
+              <SkillTag name={s.name} level={s.level} index={i}>
+                <button
+                  type="button"
+                  onClick={() => remove(s.id)}
+                  disabled={busy}
+                  className="rounded-full p-0.5 opacity-70 hover:bg-surface hover:opacity-100 disabled:opacity-40"
+                  aria-label={`Remove ${s.name}`}
+                >
+                  <X aria-hidden className="h-3.5 w-3.5" />
+                </button>
+              </SkillTag>
+            </li>
+          ))}
+        </ul>
       )}
 
-      <form onSubmit={add} className="rounded-lg border border-dashed border-line-strong bg-sunken p-4">
-        <p className="mb-3 text-sm font-semibold">Add a new skill</p>
+      <form onSubmit={add} className="rounded-2xl bg-sunken p-4">
+        <p className="mb-3 text-sm font-semibold">Add a skill</p>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-field-select-action">
           <input
             value={name}
