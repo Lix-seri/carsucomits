@@ -15,7 +15,7 @@ All endpoints are Next.js route handlers under `src/app/api/`.
 |---|---|---|---|
 | `POST /api/auth/register` | `fullName, email, password` | `auth.register` | `@carsu.edu.ph` only, 8+ character password; signs in |
 | `POST /api/auth/login` | `email, password, expectedRole, mfaCode?` | `auth.login` | Returns `{ ok: false, mfaRequired: true }` when a code is needed |
-| `POST /api/auth/logout` · `GET /api/auth/logout` | — | — | Clears the cookie; GET redirects to `/login` |
+| `POST /api/auth/logout` | — | — | Clears the cookie. POST only, so a link on another site can't sign anyone out |
 | `POST /api/auth/mfa/setup` | — | `auth.startMfaSetup` | Returns secret + QR data URL |
 | `POST /api/auth/mfa/enable` | `code` | `auth.enableMfa` | Returns one-time backup codes |
 | `POST /api/auth/mfa/disable` | `password` | `auth.disableMfa` | |

@@ -1,6 +1,6 @@
 # Architecture
 
-CarsuComits is a commission marketplace for Caraga State University students. A user posts a paid task (a *commission*), others apply, the poster hires one, work is delivered and reviewed, and both sides rate each other.
+CarsuComits is a commission marketplace for Caraga State University – Main Campus students. A user posts a paid task (a *commission*), others apply, the poster hires one, work is delivered and reviewed, and both sides rate each other.
 
 - **Data model:** [DATA_MODEL.md](DATA_MODEL.md)
 - **Endpoints:** [API.md](API.md)
@@ -49,7 +49,7 @@ claude/                      # human-readable record: prompts, audits, decisions
 | `applications` | apply, accept, decline, withdraw, applicant lists |
 | `deliverables` | upload, approve / request revision, the job-workspace section |
 | `ratings` | complete-with-rating, retroactive rating, rating the commissioner, low-rating auto-flag, trust tiers, rating dialogs |
-| `hub` | read-only aggregations for `/dashboard`, `/hub`, `/commissioner` |
+| `hub` | read-only aggregations for `/dashboard`, `/hub`, `/hiring` |
 | `messages` | threads, conversation, send; the messages view |
 | `notifications` | `notify()`, list, mark read; the bell popover |
 | `reports` | file a report, my reports, admin report actions |

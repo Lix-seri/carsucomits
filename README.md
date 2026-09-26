@@ -1,6 +1,6 @@
 # CarsuComits
 
-A commission marketplace for Caraga State University students. Students post paid tasks, others apply, the poster hires one, and both sides rate each other after the work is delivered.
+A commission marketplace for Caraga State University – Main Campus students. Students post paid tasks, others apply, the poster hires one, and both sides rate each other after the work is delivered.
 
 Built with Next.js 15, React 19, TypeScript, Tailwind CSS, Prisma and PostgreSQL, and deployed on Vercel.
 
