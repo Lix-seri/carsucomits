@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Megaphone, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { pageSession } from "@/lib/session";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -19,7 +19,9 @@ export default async function ListingsPage() {
         actions={<Link href="/hiring/post" className="btn-primary"><Plus className="h-4 w-4" /> Post a commission</Link>}
       />
       {listings.length === 0 ? (
-        <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/hiring/post" className="btn-secondary">Post a commission</Link>} />
+        <EmptyState pose="hold" title="Nothing posted yet" action={<Link href="/hiring/post" className="btn-primary">Post a commission</Link>}>
+          Your commissions show up here with their applicants and progress.
+        </EmptyState>
       ) : (
         <div className="rounded-xl border border-line bg-surface px-4 sm:px-5">
           <ListingsTable listings={listings} />

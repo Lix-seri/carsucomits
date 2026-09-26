@@ -92,12 +92,12 @@ test.describe("flows through the UI", () => {
     const applyDialog = worker.getByRole("dialog", { name: "Apply to this commission" });
     // A click that lands before hydration does nothing; retry until the dialog opens.
     await expect(async () => {
-      await worker.getByRole("button", { name: /Apply Now/ }).click();
+      await worker.getByRole("button", { name: /Apply now/i }).click();
       await expect(applyDialog).toBeVisible({ timeout: 2_000 });
     }).toPass();
     await applyDialog.getByLabel(/Cover letter/).fill("I design posters for three orgs.");
     await shot(worker, "apply-dialog");
-    await applyDialog.getByRole("button", { name: "Submit Application" }).click();
+    await applyDialog.getByRole("button", { name: "Send application" }).click();
     await expect(worker).toHaveURL(/\/hub$/);
     await expect(worker.getByRole("link", { name: title })).toBeVisible();
 

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Bookmark } from "lucide-react";
 import { pageSession } from "@/lib/session";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -16,8 +15,8 @@ export default async function SavedPage() {
     <div className="mx-auto max-w-7xl">
       <PageHeader title="Saved" description="Commissions you bookmarked. Unsave from the commission page." />
       {saved.length === 0 ? (
-        <EmptyState icon={Bookmark} title="Nothing saved yet" action={<Link href="/browse" className="btn-primary">Browse commissions</Link>}>
-          Use the bookmark on any commission to keep it here for later.
+        <EmptyState pose="search" title="Nothing saved yet" action={<Link href="/browse" className="btn-primary">Browse the board</Link>}>
+          Tap the heart on any commission to keep it here for later.
         </EmptyState>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

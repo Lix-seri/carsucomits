@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { FileText, Flag, ShieldCheck } from "lucide-react";
+import { Flag } from "lucide-react";
 import { api } from "@/lib/api";
 import { REPORT_REASONS } from "@/lib/labels";
 import { ReportStatusBadge } from "@/components/ui/badge";
@@ -77,7 +77,7 @@ export function ReportsView() {
       <section aria-labelledby="about-you">
         <h2 id="about-you" className="mb-3 text-lg font-semibold">About you</h2>
         {loading ? loadingList : aboutMe.length === 0 ? (
-          <EmptyState icon={ShieldCheck} title="No one has reported you" />
+          <EmptyState compact pose="cheer" title="No one has reported you">Keep being a good classmate.</EmptyState>
         ) : (
           <ReportItems reports={aboutMe} headline={() => "A student reported you"} />
         )}
@@ -86,7 +86,7 @@ export function ReportsView() {
       <section aria-labelledby="you-filed">
         <h2 id="you-filed" className="mb-3 text-lg font-semibold">You filed</h2>
         {loading ? loadingList : filed.length === 0 ? (
-          <EmptyState icon={FileText} title="You haven't filed any reports">Reports you file show up here with their status.</EmptyState>
+          <EmptyState compact pose="wave" title="You haven't filed any reports">If something goes wrong, reports you file show up here with their status.</EmptyState>
         ) : (
           <ReportItems reports={filed} headline={(r) => `You reported ${(r as FiledReport).reportee.fullName}`} />
         )}

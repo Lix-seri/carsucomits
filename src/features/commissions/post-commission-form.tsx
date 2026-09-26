@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ShieldAlert } from "lucide-react";
 import { CATEGORY_OPTIONS, LEVEL_OPTIONS } from "@/lib/labels";
 import { api } from "@/lib/api";
+import { celebrate, toast } from "@/components/ui/toast";
 import { Field, FormError } from "@/components/ui/form";
 
 const FIELDS = ["title", "category", "requiredLevel", "subcategory", "deadline", "fareMin", "fareMax", "fareUnit", "description"];
@@ -34,7 +35,7 @@ export function PostCommissionForm() {
     };
 
     setSubmitting(true);
-    const res = await api<{ commission: { id: string } }>("/api/commissions", { json: payload });
+    const res = await api<{ commission: { id: string; heldForReview: boolean } }>("/api/commissions", { json: payload });
     if (!res.ok) {
       setSubmitting(false);
       return setError({ field: res.field, message: res.error });
@@ -45,13 +46,15 @@ export function PostCommissionForm() {
       fd.append("file", cover);
       await api(`/api/commissions/${res.data.commission.id}/cover`, { form: fd }); // can be retried from the commission page
     }
+    if (res.data.commission.heldForReview) toast("Posted. An admin will give it a quick look first.", { tone: "info" });
+    else celebrate("Nasa board na!", "Your commission is posted. Classmates can apply now.");
     router.replace(`/commission/${res.data.commission.id}`);
     router.refresh();
   }
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-1 text-2xl font-bold">Post a Commission</h1>
+      <h1 className="display mb-1 text-3xl">Post a commission</h1>
       <p className="mb-6 text-sm text-muted">Describe the task you need done and pick a fair fare.</p>
 
       <div className="mb-5 flex gap-3 rounded-xl border border-warning-200 bg-warning-50 p-4 text-sm text-warning-800">
@@ -118,7 +121,7 @@ export function PostCommissionForm() {
         <div className="flex gap-3">
           <button type="button" onClick={() => router.back()} className="flex-1 rounded-lg border border-line py-2.5 text-sm font-medium hover:bg-sunken">Cancel</button>
           <button type="submit" disabled={submitting} className="btn-primary flex-1">
-            {submitting ? "Posting…" : "Post Commission"}
+            {submitting ? "Posting…" : "Post commission"}
           </button>
         </div>
       </form>

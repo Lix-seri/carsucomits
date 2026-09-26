@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Users } from "lucide-react";
 import { pageSession } from "@/lib/session";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -30,8 +29,8 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: P
         }
       />
       {applications.length === 0 ? (
-        <EmptyState icon={Users} title="No applications yet">
-          When students apply, you&apos;ll see their rating and cover letter here, and accept one to start the work.
+        <EmptyState pose="sleep" title="No applicants yet" action={<Link href="/browse" className="btn-secondary">See what others posted</Link>}>
+          When classmates apply, you&apos;ll see their rating, skills and cover letter here. Hire one to start the agreement.
         </EmptyState>
       ) : (
         <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">

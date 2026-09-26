@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { Dialog } from "@/components/ui/dialog";
 import { Field, FormError } from "@/components/ui/form";
 
-export function ApplyButton({ commissionId, disabled, label = "Apply Now" }: { commissionId: string; disabled?: boolean; label?: string }) {
+export function ApplyButton({ commissionId, disabled, label = "Apply now" }: { commissionId: string; disabled?: boolean; label?: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
@@ -26,7 +26,7 @@ export function ApplyButton({ commissionId, disabled, label = "Apply Now" }: { c
 
   if (disabled) {
     return (
-      <button disabled className="btn-secondary">
+      <button disabled className="btn-secondary w-full">
         {label}
       </button>
     );
@@ -34,8 +34,8 @@ export function ApplyButton({ commissionId, disabled, label = "Apply Now" }: { c
 
   return (
     <>
-      <button onClick={() => { setError(null); setOpen(true); }} className="btn-primary">
-        {label} <ArrowRight className="h-3.5 w-3.5" />
+      <button onClick={() => { setError(null); setOpen(true); }} className="btn-primary w-full">
+        {label} <ArrowRight aria-hidden className="h-4 w-4" />
       </button>
       <Dialog open={open} onClose={() => !busy && setOpen(false)} title="Apply to this commission" description="The commissioner sees your profile, ratings and this note.">
         <form noValidate onSubmit={submit} className="space-y-4">
@@ -51,7 +51,7 @@ export function ApplyButton({ commissionId, disabled, label = "Apply Now" }: { c
           <FormError message={error} />
           <div className="flex gap-3">
             <button type="button" onClick={() => setOpen(false)} className="btn-ghost">Cancel</button>
-            <button type="submit" disabled={busy} className="btn-primary flex-1">{busy ? "Submitting…" : "Submit Application"}</button>
+            <button type="submit" disabled={busy} className="btn-primary flex-1">{busy ? "Submitting…" : "Send application"}</button>
           </div>
         </form>
       </Dialog>

@@ -121,10 +121,10 @@ test.describe("item 3: limits UI", () => {
       await w.goto(`/commission/${second.id}`);
       const dialog = w.getByRole("dialog", { name: "Apply to this commission" });
       await expect(async () => {
-        await w.getByRole("button", { name: /Apply Now/ }).click();
+        await w.getByRole("button", { name: /Apply now/i }).click();
         await expect(dialog).toBeVisible({ timeout: 2_000 });
       }).toPass();
-      await dialog.getByRole("button", { name: "Submit Application" }).click();
+      await dialog.getByRole("button", { name: "Send application" }).click();
       await expect(dialog.getByRole("alert")).toContainText("1 application waiting for a decision");
       await ctx.close();
     } finally {

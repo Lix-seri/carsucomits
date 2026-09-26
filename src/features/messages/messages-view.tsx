@@ -1,7 +1,8 @@
 "use client";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Send, ArrowLeft, MessageCircle } from "lucide-react";
+import { Send, ArrowLeft } from "lucide-react";
+import { Tisa } from "@/components/illustrations/tisa";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -164,9 +165,9 @@ function MessagesViewInner() {
             <div className="space-y-2 p-4"><Skeleton className="h-14" /><Skeleton className="h-14" /><Skeleton className="h-14" /></div>
           ) : threads.length === 0 ? (
             <div className="p-6 text-center text-sm text-muted">
-              <MessageCircle className="mx-auto mb-2 h-8 w-8 text-faint" />
-              <p className="font-semibold text-ink">No conversations yet</p>
-              <p className="mt-1">Open someone&apos;s profile and choose Message to start one.</p>
+              <Tisa pose="wave" className="mx-auto h-24 w-24" />
+              <p className="font-display text-base font-bold text-ink">No conversations yet</p>
+              <p className="mt-1">Open someone&apos;s profile and choose Message to say hi.</p>
             </div>
           ) : (
             <ul>
@@ -208,8 +209,9 @@ function MessagesViewInner() {
         {!activeId ? (
           <div className="grid flex-1 place-items-center px-6 text-center">
             <div>
-              <MessageCircle className="mx-auto mb-2 h-10 w-10 text-faint" />
-              <p className="text-sm text-muted">Select a conversation to start chatting.</p>
+              <Tisa pose="hold" className="mx-auto h-28 w-28" />
+              <p className="font-display text-lg font-bold">Pick a conversation</p>
+              <p className="text-sm text-muted">Your chats with posters and helpers show up on the left.</p>
             </div>
           </div>
         ) : !other ? (
