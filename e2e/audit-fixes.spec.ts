@@ -114,7 +114,7 @@ test.describe("audit fixes: links", () => {
   test("M2: unknown pages show the 404 page, and header/footer links all resolve", async ({ page }) => {
     const res = await page.goto("/this-page-does-not-exist");
     expect(res?.status()).toBe(404);
-    await expect(page.getByRole("heading", { name: "We couldn't find that page" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "This slip fell off the board" })).toBeVisible();
 
     await page.goto("/");
     const hrefs = await page.locator("header a[href^='/'], footer a[href^='/']").evaluateAll((as) =>

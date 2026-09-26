@@ -62,7 +62,27 @@ export async function getAdminDashboard(session: Session) {
     flaggedUsers(10),
     prisma.report.findMany({ where: { status: "PENDING" }, orderBy: { createdAt: "desc" }, include: reportParties, take: 10 }),
   ]);
-  return { totalUsers, activeListings, pendingReports, flaggedAccounts, ...flagged, latestReports };
+  const since = new Date(Date.now() - 14 * 86_400_000);
+  const [newUsers, newCommissions, pendingFlags, pendingVerifications] = await Promise.all([
+    prisma.user.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
+    prisma.commission.findMany({ where: { createdAt: { gte: since } }, select: { createdAt: true } }),
+    prisma.flaggedContent.count({ where: { status: "PENDING" } }),
+    prisma.studentVerification.count({ where: { status: "PENDING" } }),
+  ]);
+  return {
+    totalUsers, activeListings, pendingReports, flaggedAccounts, pendingFlags, pendingVerifications, ...flagged, latestReports,
+    signups: dailyCounts(newUsers.map((u) => u.createdAt)),
+    commissionsPosted: dailyCounts(newCommissions.map((c) => c.createdAt)),
+  };
+}
+
+/** Counts per Manila day for the last 14 days, oldest first. */
+function dailyCounts(dates: Date[]) {
+  const day = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila" }).format(d);
+  const days = Array.from({ length: 14 }, (_, i) => day(new Date(Date.now() - (13 - i) * 86_400_000)));
+  const counts = new Map(days.map((d) => [d, 0]));
+  for (const d of dates) { const k = day(d); if (counts.has(k)) counts.set(k, counts.get(k)! + 1); }
+  return days.map((d) => ({ day: d, count: counts.get(d)! }));
 }
 
 export async function getReportsOverview(session: Session) {

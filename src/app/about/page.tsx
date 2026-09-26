@@ -19,7 +19,7 @@ export default function AboutPage() {
       <main id="main" className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <h1 className="text-4xl font-bold tracking-tight">About CarSUComits</h1>
         <p className="mt-4 text-lg text-muted">
-          The official, secure commission marketplace of Caraga State University – Main Campus.
+          A student-built commission marketplace for Caraga State University – Main Campus. Not an official university site.
         </p>
 
         <section aria-labelledby="mission" className="mt-12">
