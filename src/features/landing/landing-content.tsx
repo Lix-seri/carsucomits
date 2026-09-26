@@ -71,8 +71,8 @@ export function LandingContent({ slips, stats, openByCategory }: { slips: BoardS
         <h2 id="how" className="display max-w-xl text-3xl sm:text-4xl">From a slip on the board to a job well done</h2>
         <ol className="relative mt-10 grid grid-cols-1 gap-10 lg:grid-cols-4 lg:gap-6">
           {/* The dashed path that connects the steps: across on desktop, down on phones. */}
-          <span aria-hidden className="absolute left-12 top-4 hidden h-0 w-3/4 border-t-4 border-dashed border-line-strong lg:block" />
-          <span aria-hidden className="absolute bottom-10 left-12 top-10 w-0 border-l-4 border-dashed border-line-strong lg:hidden" />
+          <span aria-hidden className="absolute left-12 top-4 hidden h-0 w-3/4 border-t-2 border-dashed border-line-strong lg:block" />
+          <span aria-hidden className="absolute bottom-10 left-12 top-10 w-0 border-l-2 border-dashed border-line-strong lg:hidden" />
           {STEPS.map((s, i) => (
             <li key={s.title} className="relative flex gap-5 lg:flex-col lg:gap-4">
               <span className="relative z-10 grid h-24 w-24 shrink-0 place-items-center rounded-3xl border-2 border-line bg-surface shadow-card lg:h-28 lg:w-28">

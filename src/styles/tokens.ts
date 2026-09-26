@@ -97,4 +97,4 @@ export const minHeight = { hero: "min(100dvh, 56rem)" };
 export const maxWidth = { bubble: "70%", popover: "calc(100vw - 2rem)", prose: "65ch" };
 export const maxHeight = { popover: "min(28rem, calc(100dvh - 6rem))", palette: "min(32rem, calc(100dvh - 8rem))" };
 export const rotate = { "1.5": "1.5deg", "-1.5": "-1.5deg", "2.5": "2.5deg", "-2.5": "-2.5deg" };
-export const transitionTimingFunction = { out: "cubic-bezier(0.16, 1, 0.3, 1)", spring: "cubic-bezier(0.34, 1.56, 0.64, 1)" };
+export const transitionTimingFunction = { out: "cubic-bezier(0.16, 1, 0.3, 1)" };

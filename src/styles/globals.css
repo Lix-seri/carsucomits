@@ -98,7 +98,7 @@
     animation: chalk-draw 520ms cubic-bezier(0.16, 1, 0.3, 1) var(--chalk-delay, 120ms) forwards;
   }
   .lift { @apply transition duration-200 ease-out hover:-translate-y-1 hover:shadow-lift; }
-  .pop { animation: pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .pop { animation: pop 320ms cubic-bezier(0.16, 1, 0.3, 1); }
   /* Sections rise in as they scroll into view, where the browser supports scroll timelines.
      Content is visible by default everywhere else. */
   /* Only when motion is welcome, and only as a gentle rise: content never starts hidden. */

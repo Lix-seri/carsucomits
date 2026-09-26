@@ -1,0 +1,38 @@
+{
+  "world": "Pisara, the class board",
+  "seed": "d86000c2",
+  "themes": [
+    "light (manila paper)",
+    "dark (the board), prefers-color-scheme"
+  ],
+  "tokens": "src/styles/tokens.ts",
+  "themeGenerator": "scripts/theme.mjs",
+  "fonts": {
+    "display": "Bricolage Grotesque 800",
+    "body": "Geist",
+    "chalk": "Kalam 700"
+  },
+  "components": [
+    "board",
+    "slip",
+    "Magnet",
+    "ChalkUnderline",
+    "ChalkCircle",
+    "ChalkCheck",
+    "ChalkStar",
+    "Badge(sticker)",
+    "CategoryIcon",
+    "CategoryBadge",
+    "LevelPips",
+    "CommissionProgress",
+    "Tisa",
+    "EmptyState",
+    "toast/celebrate",
+    "BottomNav",
+    "CommandPalette"
+  ],
+  "motion": {
+    "signature": "chalk-draw 520ms ease-out",
+    "reducedMotion": "all animation off"
+  }
+}
