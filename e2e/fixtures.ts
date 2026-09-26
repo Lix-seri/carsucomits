@@ -1,4 +1,4 @@
-import { test as base, type Page } from "@playwright/test";
+import { test as base, type BrowserContext, type Page } from "@playwright/test";
 
 /**
  * Makes page.goto and page.reload wait until React has hydrated (the app sets
@@ -13,7 +13,24 @@ export function waitForHydration(page: Page) {
   return page;
 }
 
-export const test = base.extend({
+export const test = base.extend<{ closeExtraContexts: void }>({
   page: async ({ page }, provide) => { await provide(waitForHydration(page)); },
+  // Every context a test opens is closed when it ends, pass or fail. Left open, their pages keep
+  // polling notifications and messages and slow the server down for every later test.
+  closeExtraContexts: [
+    async ({ browser }, provide) => {
+      const opened: BrowserContext[] = [];
+      const newContext = browser.newContext.bind(browser);
+      browser.newContext = async (...args) => {
+        const ctx = await newContext(...args);
+        opened.push(ctx);
+        return ctx;
+      };
+      await provide();
+      browser.newContext = newContext;
+      await Promise.all(opened.map((c) => c.close().catch(() => {})));
+    },
+    { auto: true },
+  ],
 });
 export { expect } from "@playwright/test";

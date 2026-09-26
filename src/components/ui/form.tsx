@@ -4,26 +4,29 @@ import { Children, cloneElement, isValidElement, useEffect, useId, useState } fr
 /**
  * A labelled form control with an inline error. Wires the label to the control and
  * the error to aria-describedby, so screen readers announce both, and focuses the
- * control when an error appears. Editing the control hides its error until the next submit.
+ * control when an error appears. Editing the control hides the error it's showing; the next
+ * submit can show it again.
  */
 export function Field({
   label, error, hint, children,
 }: { label: React.ReactNode; error?: string | null; hint?: React.ReactNode; children: React.ReactElement<Record<string, unknown>> }) {
   const id = useId();
-  const [edited, setEdited] = useState(false);
-  if (edited) error = null;
+  // The message the person has started fixing. Only an edit made while an error is showing
+  // dismisses it, so typing before submitting never hides a fresh error.
+  const [dismissed, setDismissed] = useState<string | null>(null);
+  if (error && error === dismissed) error = null;
   const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
   const control = Children.only(children);
   // A new submit may bring the same message back, so show errors again on every submit.
   useEffect(() => {
     const form = document.getElementById(id)?.closest("form");
-    const reset = () => setEdited(false);
+    const reset = () => setDismissed(null);
     form?.addEventListener("submit", reset);
     return () => form?.removeEventListener("submit", reset);
   }, [id]);
   const onChange = (e: unknown) => {
     (control.props.onChange as ((e: unknown) => void) | undefined)?.(e);
-    setEdited(true);
+    if (error) setDismissed(error);
   };
   // Take the user to the problem: focusing also scrolls the field into view.
   useEffect(() => {
