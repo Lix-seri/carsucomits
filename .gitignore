@@ -12,3 +12,9 @@ prisma/dev.db-journal
 tsconfig.tsbuildinfo
 test-results
 playwright-report
+
+# Impeccable design review captures (regenerated, not source)
+.impeccable/review/
+.impeccable/build/
+.impeccable/questions/
+.impeccable/hook.cache.json

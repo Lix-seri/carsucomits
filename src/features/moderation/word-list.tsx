@@ -36,7 +36,7 @@ export function WordList({ words }: { words: Word[] }) {
 
   return (
     <div className="space-y-4">
-      <form noValidate onSubmit={add} className="grid grid-cols-1 gap-3 rounded-xl border border-line bg-white p-4 sm:grid-cols-field-select-action sm:items-end">
+      <form noValidate onSubmit={add} className="grid grid-cols-1 gap-3 rounded-xl border border-line bg-surface p-4 sm:grid-cols-field-select-action sm:items-end">
         <Field label="Word or phrase" error={error?.field === "term" ? error.message : null} hint="Matching ignores case, spacing, symbols and look-alike numbers.">
           <input value={term} onChange={(e) => setTerm(e.target.value)} className="input" maxLength={60} />
         </Field>
@@ -54,7 +54,7 @@ export function WordList({ words }: { words: Word[] }) {
           <h3 id={`words-${cat}`} className="mb-2 text-sm font-semibold">{CATEGORY_LABEL[cat]}</h3>
           <ul className="flex flex-wrap gap-2">
             {words.filter((w) => w.category === cat).map((w) => (
-              <li key={w.id} className="inline-flex items-center gap-1 rounded-md border border-line bg-white py-1 pl-2.5 pr-1 text-sm">
+              <li key={w.id} className="inline-flex items-center gap-1 rounded-md border border-line bg-surface py-1 pl-2.5 pr-1 text-sm">
                 {w.term}
                 <button type="button" onClick={() => remove(w.id)} aria-label={`Remove ${w.term}`} className="rounded p-0.5 text-muted hover:bg-sunken hover:text-ink">
                   <X className="h-3.5 w-3.5" />

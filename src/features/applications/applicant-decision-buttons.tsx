@@ -30,7 +30,7 @@ export function ApplicantDecisionButtons({ applicationId, applicantName }: { app
         confirmLabel="Decline"
         danger
         onConfirm={() => decide("decline")}
-        className="rounded-lg border border-danger-100 bg-white px-4 py-1.5 text-sm font-semibold text-danger-600 hover:bg-danger-50"
+        className="rounded-lg border border-danger-100 bg-surface px-4 py-1.5 text-sm font-semibold text-danger-600 hover:bg-danger-50"
       >
         Decline
       </ConfirmButton>

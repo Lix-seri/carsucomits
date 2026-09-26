@@ -34,7 +34,7 @@ export function AppShell({ sidebar, header, children }: { sidebar: React.ReactNo
         {sidebar}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-brand-100 bg-white px-3 py-3 sm:px-6">
+        <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-brand-100 bg-surface px-3 py-3 sm:px-6">
           <button
             type="button"
             onClick={() => setOpen(true)}

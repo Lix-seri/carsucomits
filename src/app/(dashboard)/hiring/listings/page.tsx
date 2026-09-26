@@ -21,7 +21,7 @@ export default async function ListingsPage() {
       {listings.length === 0 ? (
         <EmptyState icon={Megaphone} title="You haven't posted anything" action={<Link href="/hiring/post" className="btn-secondary">Post a commission</Link>} />
       ) : (
-        <div className="rounded-xl border border-line bg-white px-4 sm:px-5">
+        <div className="rounded-xl border border-line bg-surface px-4 sm:px-5">
           <ListingsTable listings={listings} />
         </div>
       )}

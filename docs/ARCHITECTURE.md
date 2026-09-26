@@ -1,6 +1,6 @@
 # Architecture
 
-CarsuComits is a commission marketplace for Caraga State University – Main Campus students. A user posts a paid task (a *commission*), others apply, the poster hires one, work is delivered and reviewed, and both sides rate each other.
+CarSUComits is a commission marketplace for Caraga State University – Main Campus students. A user posts a paid task (a *commission*), others apply, the poster hires one, work is delivered and reviewed, and both sides rate each other.
 
 - **Data model:** [DATA_MODEL.md](DATA_MODEL.md)
 - **Endpoints:** [API.md](API.md)

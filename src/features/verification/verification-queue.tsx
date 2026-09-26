@@ -40,7 +40,7 @@ export function VerificationQueue({ requests }: { requests: Request[] }) {
 
   return (
     <>
-      <ul className="divide-y divide-line rounded-xl border border-line bg-white">
+      <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
         {requests.map((r) => (
           <li key={r.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 text-sm">

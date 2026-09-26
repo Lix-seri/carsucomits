@@ -13,7 +13,7 @@ const day = (d: Date) => d.toLocaleDateString("en-PH", { dateStyle: "medium", ti
 export function TransactionsTable({ transactions, meId, empty }: { transactions: Transaction[]; meId?: string; empty: React.ReactNode }) {
   if (transactions.length === 0) return <EmptyState icon={Receipt} title="No transactions yet">{empty}</EmptyState>;
   return (
-    <div className="rounded-xl border border-line bg-white px-4 sm:px-5">
+    <div className="rounded-xl border border-line bg-surface px-4 sm:px-5">
       <table className="table-stack">
         <thead>
           <tr className="border-b border-line">

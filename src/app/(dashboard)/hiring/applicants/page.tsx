@@ -34,7 +34,7 @@ export default async function ApplicantsPage({ searchParams }: { searchParams: P
           When students apply, you&apos;ll see their rating and cover letter here, and accept one to start the work.
         </EmptyState>
       ) : (
-        <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+        <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
           {applications.map((a) => (
             <ApplicantRow key={a.id} a={a} avg={avgRating.get(a.applicantId)} activeJobs={activeJobs.get(a.applicantId)} showCommission={!commissionId} />
           ))}

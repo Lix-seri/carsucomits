@@ -1,11 +1,11 @@
 // The work agreement both parties accept before a commission starts (decision 0013).
 // Changing any clause means bumping AGREEMENT_VERSION; stored acceptances keep the version they saw.
 
-export const AGREEMENT_VERSION = "2026-09-26";
+export const AGREEMENT_VERSION = "2026-09-26.2"; // .2: brand spelled CarSUComits
 
 export const AGREEMENT_CLAUSES = [
   "The work is what the description says. Anything extra is agreed in Messages first.",
-  "The fare below is the price. The two of you settle payment directly; CarsuComits doesn't handle money.",
+  "The fare below is the price. The two of you settle payment directly; CarSUComits doesn't handle money.",
   "The deadline below is when the work is due, unless you both agree to change it.",
   "No academic work done for someone else: no thesis, capstone, research paper, graded assignment, quiz or exam. Tutoring and feedback on your own work are fine.",
   "Either of you can report a problem. Admins can see this agreement and the activity on the commission.",

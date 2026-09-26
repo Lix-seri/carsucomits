@@ -4,7 +4,7 @@ _Last updated: 2026-09-26, after Phase 2._
 
 ## What this is
 
-CarsuComits is a commission marketplace for **Caraga State University – Main Campus** students. Users post paid tasks (commissions), others apply, the poster hires one, and deliverables are reviewed. Completion requires a rating, and the student rates back. There's also messaging, notifications, reports and an admin panel.
+CarSUComits is a commission marketplace for **Caraga State University – Main Campus** students. Users post paid tasks (commissions), others apply, the poster hires one, and deliverables are reviewed. Completion requires a rating, and the student rates back. There's also messaging, notifications, reports and an admin panel.
 
 - **Owner / repo:** `Lix-seri/carsucomits`. Commits go directly to `main` as `KurtIsrael12`.
 - **Deploys:** pushes don't deploy. The owner has no deploy access, so the production Vercel/Neon setup is someone else's.

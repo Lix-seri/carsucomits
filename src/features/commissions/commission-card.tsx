@@ -22,7 +22,7 @@ export function CommissionCard({ c }: { c: CommissionCardData }) {
   return (
     <Link
       href={`/commission/${c.id}`}
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-white transition hover:border-brand-300 hover:shadow-card focus-visible:ring-2 focus-visible:ring-brand-500"
+      className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface transition hover:border-brand-300 hover:shadow-card focus-visible:ring-2 focus-visible:ring-brand-500"
     >
       {c.coverImageUrl && (
         // eslint-disable-next-line @next/next/no-img-element

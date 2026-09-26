@@ -51,7 +51,7 @@ export default async function CommissionDetail({ params }: Props) {
     <div className="mx-auto max-w-4xl">
       <BackButton fallback="/browse" label="Back" />
 
-      <article className="mt-4 overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+      <article className="mt-4 overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
         {commission.coverImageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={commission.coverImageUrl} alt="" className="aspect-video max-h-72 w-full object-cover" />

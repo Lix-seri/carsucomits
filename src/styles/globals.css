@@ -1,3 +1,4 @@
+@import "./theme.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,42 +10,69 @@
     scroll-behavior: smooth;
   }
   body { @apply bg-canvas; }
-  ::selection { @apply bg-brand-200 text-ink; }
-  :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white; }
+  ::selection { @apply bg-gold-300 text-ink; }
+  :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-canvas; }
+  input, textarea { caret-color: rgb(var(--c-brand-600)); }
   h1, h2, h3 { text-wrap: balance; }
+  h1, h2 { font-family: var(--font-display), var(--font-sans), sans-serif; letter-spacing: -0.02em; }
   p { text-wrap: pretty; }
+  a { text-underline-offset: 3px; }
   /* Numbers that line up in lists, fares and counts. */
   table, .tabular { font-variant-numeric: tabular-nums; }
-  * { scrollbar-color: theme("colors.line.strong") transparent; }
+  * { scrollbar-color: rgb(var(--c-line-strong)) transparent; }
   /* Native file pickers get the secondary-button look instead of the browser default. */
   input[type="file"]::file-selector-button {
-    @apply mr-3 cursor-pointer rounded-lg border border-line-strong bg-white px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-sunken;
+    @apply mr-3 cursor-pointer rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition-colors hover:bg-sunken;
   }
 }
 
 @layer components {
-  /* Buttons: one shape, four roles. Focus rings only for keyboard users. */
+  /* Buttons: one shape, four roles. They press in slightly; focus rings are for keyboards only. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors duration-150
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:translate-y-px disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition duration-150 ease-out
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas
+      active:scale-95 disabled:pointer-events-none disabled:opacity-50;
   }
-  .btn-primary { @apply btn bg-brand-500 text-white hover:bg-brand-600 focus-visible:ring-brand-500; }
-  .btn-secondary { @apply btn border border-line-strong bg-white text-ink hover:bg-sunken focus-visible:ring-brand-500; }
-  .btn-outline { @apply btn border border-brand-500 bg-white text-brand-700 hover:bg-brand-50 focus-visible:ring-brand-500; }
+  .btn-primary { @apply btn bg-brand-500 text-white shadow-soft hover:bg-brand-600 focus-visible:ring-brand-500; }
+  .btn-secondary { @apply btn border border-line-strong bg-surface text-ink hover:border-brand-300 hover:bg-sunken focus-visible:ring-brand-500; }
+  .btn-outline { @apply btn border border-brand-500 bg-surface text-brand-700 hover:bg-brand-50 focus-visible:ring-brand-500; }
   .btn-ghost { @apply btn px-4 font-medium text-ink hover:bg-sunken focus-visible:ring-brand-500; }
   .btn-danger { @apply btn bg-danger-600 text-white hover:bg-danger-700 focus-visible:ring-danger-600; }
-  .btn-sm { @apply px-3 py-1.5 text-xs; }
+  .btn-chalk { @apply btn border-2 border-board-chalk/70 text-board-chalk hover:bg-board-chalk/10 focus-visible:ring-gold-400 focus-visible:ring-offset-board; }
+  .btn-sm { @apply rounded-lg px-3 py-1.5 text-xs; }
 
   .input {
-    @apply w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-faint
+    @apply w-full rounded-xl border border-line-strong bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-faint
       focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100
       file:mr-3 file:rounded-md file:border-0 file:bg-sunken file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-ink;
   }
   /* An invalid field must not look fine: red border and ring, even while focused. */
   .input[aria-invalid="true"] { @apply border-danger-600 focus:border-danger-600 focus:ring-danger-100; }
   .label { @apply mb-1.5 block text-sm font-semibold text-ink; }
-  .card { @apply rounded-xl border border-line bg-white p-5 shadow-card; }
+  .card { @apply rounded-2xl border border-line bg-surface p-5 shadow-card; }
   .pill { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+
+  /* Display type: Bricolage, tight tracking, balanced. */
+  .display { @apply font-display font-extrabold tracking-display; }
+
+  /* The greenboard: slate green with a faint haze of chalk dust (world: Pisara). */
+  .board {
+    @apply bg-board text-board-chalk;
+    background-image:
+      radial-gradient(120% 80% at 15% 10%, rgb(var(--c-chalk) / 0.07), transparent 60%),
+      radial-gradient(90% 70% at 90% 100%, rgb(var(--c-chalk) / 0.05), transparent 55%),
+      radial-gradient(rgb(var(--c-chalk) / 0.05) 1px, transparent 1.5px);
+    background-size: auto, auto, 5px 5px;
+  }
+  /* Pad-paper ground: faint dot grid on the manila canvas. */
+  .paper-dots {
+    background-image: radial-gradient(rgb(var(--c-line-strong) / 0.7) 1px, transparent 1.2px);
+    background-size: 22px 22px;
+  }
+  /* A paper slip pinned to the board. Tilt comes from rotate-* utilities on the element. */
+  .slip { @apply relative rounded-xl bg-surface text-ink shadow-slip; }
+  /* Sticker badge: a tilted, outlined label, like a teacher's star sticker. */
+  .sticker { @apply inline-flex items-center gap-1 rounded-lg border-2 px-2 py-0.5 text-xs font-bold shadow-soft; }
 
   /* Tables that become labelled rows on phones. Give each <td> a data-label. */
   .table-stack { @apply w-full text-sm; }
@@ -59,5 +87,36 @@
     .table-stack td[data-label=""] { @apply justify-start text-left; }
   }
 
-  .skip-link { @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:shadow-soft; }
+  .skip-link { @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-surface focus:px-4 focus:py-2 focus:shadow-soft; }
+}
+
+@layer utilities {
+  /* The signature motion: a chalk stroke drawing itself on. SVG paths need pathLength="1". */
+  .chalk-draw path, .chalk-draw line, .chalk-draw polyline, .chalk-draw circle, .chalk-draw ellipse {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: chalk-draw 520ms cubic-bezier(0.16, 1, 0.3, 1) var(--chalk-delay, 120ms) forwards;
+  }
+  .lift { @apply transition duration-200 ease-out hover:-translate-y-1 hover:shadow-lift; }
+  .pop { animation: pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1); }
+  /* Sections rise in as they scroll into view, where the browser supports scroll timelines.
+     Content is visible by default everywhere else. */
+  @supports (animation-timeline: view()) {
+    .reveal { animation: rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+  }
+}
+
+@keyframes chalk-draw { to { stroke-dashoffset: 0; } }
+@keyframes pop { 0% { transform: scale(1); } 45% { transform: scale(1.28); } 100% { transform: scale(1); } }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes dust { from { opacity: 1; transform: translate(0, 0) scale(1); } to { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.4); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

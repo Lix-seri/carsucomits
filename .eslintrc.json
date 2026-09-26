@@ -38,6 +38,14 @@
       {
         "selector": "TemplateElement[value.raw=/\\b[a-z]+(-[a-z]+)*-\\[[^\\]]+\\]/]",
         "message": "Arbitrary Tailwind value: add it to src/styles/tokens.ts instead."
+      },
+      {
+        "selector": "Literal[value=/\\b(bg|border|ring-offset|divide)-(white|black)\\b/]",
+        "message": "bg-white and friends don't follow dark mode: use bg-surface, border-line or ring-offset-canvas."
+      },
+      {
+        "selector": "TemplateElement[value.raw=/\\b(bg|border|ring-offset|divide)-(white|black)\\b/]",
+        "message": "bg-white and friends don't follow dark mode: use bg-surface, border-line or ring-offset-canvas."
       }
     ]
   },

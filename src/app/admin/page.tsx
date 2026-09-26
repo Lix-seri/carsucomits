@@ -17,8 +17,8 @@ export default async function AdminDashboard() {
   ];
   return (
     <div className="mx-auto max-w-6xl space-y-10">
-      <PageHeader title="Overview" description="What needs attention across CarsuComits." />
-      <dl className="grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-white lg:grid-cols-4">
+      <PageHeader title="Overview" description="What needs attention across CarSUComits." />
+      <dl className="grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-surface lg:grid-cols-4">
         {numbers.map(([label, value, href]) => (
           <Link key={label} href={href} className="border-b border-r border-line px-4 py-4 transition-colors hover:bg-sunken lg:border-b-0">
             <dt className="text-xs font-semibold text-muted">{label}</dt>

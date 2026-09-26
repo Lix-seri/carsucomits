@@ -35,11 +35,11 @@ export function DashboardSidebar({ user }: { user: { fullName: string; avatarUrl
   const isActive = (href: string) => pathname === href || pathname?.startsWith(href + "/");
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-line bg-white">
+    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-line bg-surface">
       <Link href="/dashboard" className="flex items-center gap-2.5 border-b border-line px-5 py-4">
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-brand-500 text-sm font-bold text-white">CC</span>
         <span>
-          <span className="block text-sm font-semibold leading-tight">CarsuComits</span>
+          <span className="block text-sm font-semibold leading-tight">CarSUComits</span>
           <span className="block text-xs text-muted">CSU Main marketplace</span>
         </span>
       </Link>

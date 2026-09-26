@@ -14,7 +14,7 @@ export default async function AdminSecurityPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <PageHeader title="Security" description="Protect your admin account with a second step at sign-in." />
-      <section aria-labelledby="mfa" className="rounded-xl border border-line bg-white p-5 sm:p-6">
+      <section aria-labelledby="mfa" className="rounded-xl border border-line bg-surface p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 id="mfa" className="text-lg font-semibold">Two-factor sign-in</h2>
           {on ? (

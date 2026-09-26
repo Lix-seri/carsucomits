@@ -17,7 +17,7 @@ export default function AboutPage() {
     <>
       <SiteHeader />
       <main id="main" className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-        <h1 className="text-4xl font-bold tracking-tight">About CarsuComits</h1>
+        <h1 className="text-4xl font-bold tracking-tight">About CarSUComits</h1>
         <p className="mt-4 text-lg text-muted">
           The official, secure commission marketplace of Caraga State University – Main Campus.
         </p>
@@ -27,7 +27,7 @@ export default function AboutPage() {
           <p className="leading-7">
             Many CSU Main students have valuable, marketable skills: graphic design, programming, tutoring and more.
             But there&apos;s no formal place to offer them safely. Random Facebook posts and word of mouth lead to
-            scams, ghosting and lost opportunities. CarsuComits centralizes the commissioning process in one
+            scams, ghosting and lost opportunities. CarSUComits centralizes the commissioning process in one
             dashboard, requires a @carsu.edu.ph email for every account, and standardizes skill levels and fair fares, so
             students can build reputation and income in a trusted, university-exclusive environment.
           </p>
@@ -35,7 +35,7 @@ export default function AboutPage() {
 
         <section aria-labelledby="different" className="mt-12">
           <h2 id="different" className="mb-5 text-2xl font-semibold tracking-tight">What makes us different</h2>
-          <dl className="divide-y divide-line rounded-xl border border-line bg-white">
+          <dl className="divide-y divide-line rounded-xl border border-line bg-surface">
             {VALUES.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex gap-4 p-5">
                 <Icon className="mt-0.5 h-5 w-5 shrink-0 text-brand-600" />
@@ -48,7 +48,7 @@ export default function AboutPage() {
           </dl>
         </section>
 
-        <section aria-labelledby="join" className="mt-12 rounded-xl border border-line bg-white p-6">
+        <section aria-labelledby="join" className="mt-12 rounded-xl border border-line bg-surface p-6">
           <h2 id="join" className="text-xl font-semibold">Ready to join?</h2>
           <p className="mt-1 text-muted">Sign up with your @carsu.edu.ph email and start posting or applying for commissions.</p>
           <div className="mt-5 flex flex-wrap gap-3">

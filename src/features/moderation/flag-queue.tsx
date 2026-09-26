@@ -44,7 +44,7 @@ export function FlagQueue({ flags }: { flags: Flag[] }) {
   if (flags.length === 0) return <EmptyState icon={ShieldCheck} title="Nothing to review">Posts, messages, cover letters and skills that match the word list appear here.</EmptyState>;
 
   return (
-    <ul className="divide-y divide-line rounded-xl border border-line bg-white">
+    <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
       {flags.map((f) => (
         <li key={f.id} className="space-y-3 p-4">
           <div className="flex flex-wrap items-center gap-2 text-sm">

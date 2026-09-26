@@ -25,7 +25,7 @@ export function Dialog({
       aria-labelledby={titleId}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
-      className="w-11/12 max-w-md rounded-2xl bg-white p-0 text-ink shadow-soft backdrop:bg-ink/40"
+      className="w-11/12 max-w-md rounded-2xl bg-surface p-0 text-ink shadow-soft backdrop:bg-ink/40"
     >
       {open && (
         <div className="p-5">

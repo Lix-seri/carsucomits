@@ -35,14 +35,14 @@ export default async function AdminListings({ searchParams }: { searchParams: Pr
                 key={value || "all"}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={cn("rounded-full border px-3 py-1.5 text-xs font-semibold", active ? "border-brand-500 bg-brand-500 text-white" : "border-line bg-white hover:border-brand-300")}
+                className={cn("rounded-full border px-3 py-1.5 text-xs font-semibold", active ? "border-brand-500 bg-brand-500 text-white" : "border-line bg-surface hover:border-brand-300")}
               >
                 {label} <span className={cn("tabular", active ? "text-white/80" : "text-muted")}>{count}</span>
               </Link>
             );
           })}
         </nav>
-        <form className="flex w-full items-center gap-2 rounded-lg border border-line bg-white px-3 sm:w-72">
+        <form className="flex w-full items-center gap-2 rounded-lg border border-line bg-surface px-3 sm:w-72">
           {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
           <Search className="h-4 w-4 text-faint" />
           <input name="q" defaultValue={search} placeholder="Title or description" aria-label="Search commissions" className="w-full bg-transparent py-2 text-sm outline-none" />
@@ -52,7 +52,7 @@ export default async function AdminListings({ searchParams }: { searchParams: Pr
       {listings.length === 0 ? (
         <EmptyState icon={ClipboardList} title={search || statusFilter ? "No commissions match" : "No commissions yet"} />
       ) : (
-        <div className="rounded-xl border border-line bg-white px-4 sm:px-5">
+        <div className="rounded-xl border border-line bg-surface px-4 sm:px-5">
           <table className="table-stack">
             <thead>
               <tr className="border-b border-line">

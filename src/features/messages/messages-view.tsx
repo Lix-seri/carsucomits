@@ -155,7 +155,7 @@ function MessagesViewInner() {
   return (
     <div className="grid h-conversation gap-4 lg:grid-cols-aside-content">
       {/* On phones, one pane at a time: the list, or the open conversation. */}
-      <aside className={`${activeId ? "hidden lg:flex" : "flex"} flex-col overflow-hidden rounded-2xl border border-line bg-white`}>
+      <aside className={`${activeId ? "hidden lg:flex" : "flex"} flex-col overflow-hidden rounded-2xl border border-line bg-surface`}>
         <div className="border-b border-line p-4">
           <h1 className="text-lg font-semibold">Messages</h1>
         </div>
@@ -204,7 +204,7 @@ function MessagesViewInner() {
         </div>
       </aside>
 
-      <section className={`${activeId ? "flex" : "hidden lg:flex"} flex-col overflow-hidden rounded-2xl border border-line bg-white`}>
+      <section className={`${activeId ? "flex" : "hidden lg:flex"} flex-col overflow-hidden rounded-2xl border border-line bg-surface`}>
         {!activeId ? (
           <div className="grid flex-1 place-items-center px-6 text-center">
             <div>

@@ -8,7 +8,7 @@ import type { fileReportSchema, reportCommissionSchema } from "./schemas";
 
 export async function fileReport(session: Session, { reporteeEmail, reason, details }: z.infer<typeof fileReportSchema>) {
   const reportee = await prisma.user.findFirst({ where: { email: { equals: reporteeEmail, mode: "insensitive" } } });
-  if (!reportee) throw new HttpError(404, "That user doesn't exist on CarsuComits.");
+  if (!reportee) throw new HttpError(404, "That user doesn't exist on CarSUComits.");
   if (reportee.id === session.userId) throw new HttpError(400, "You can't report yourself.");
 
   const report = await prisma.report.create({

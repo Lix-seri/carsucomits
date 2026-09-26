@@ -68,7 +68,7 @@ export default async function AdminLogs({ searchParams }: { searchParams: Promis
       {logs.length === 0 ? (
         <EmptyState icon={ScrollText} title="Nothing recorded yet">Sign-ins, moderation, status changes and approvals appear here.</EmptyState>
       ) : (
-        <ol className="divide-y divide-line rounded-xl border border-line bg-white">
+        <ol className="divide-y divide-line rounded-xl border border-line bg-surface">
           {logs.map((l) => {
             const meta = parseMeta(l.meta);
             const target = l.target ? targetMap.get(l.target) ?? null : null;

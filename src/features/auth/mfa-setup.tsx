@@ -81,7 +81,7 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
         <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
           <ShieldCheck className="mr-1 inline h-4 w-4" /> MFA is active for <strong>{email}</strong>.
         </p>
-        <button onClick={() => setStep("disable")} className="rounded-lg border border-danger-200 bg-white px-4 py-2 text-sm font-semibold text-danger-600 hover:bg-danger-50">
+        <button onClick={() => setStep("disable")} className="rounded-lg border border-danger-200 bg-surface px-4 py-2 text-sm font-semibold text-danger-600 hover:bg-danger-50">
           <ShieldOff className="mr-1 inline h-4 w-4" /> Disable MFA
         </button>
       </div>
@@ -121,7 +121,7 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
           <strong> Save them somewhere safe — they won&apos;t be shown again.</strong>
         </p>
         <ul className="grid grid-cols-2 gap-2 rounded-lg bg-sunken p-4 font-mono text-sm">
-          {backupCodes.map((c) => (<li key={c} className="rounded bg-white px-3 py-1.5 text-center">{c}</li>))}
+          {backupCodes.map((c) => (<li key={c} className="rounded bg-surface px-3 py-1.5 text-center">{c}</li>))}
         </ul>
         <button
           onClick={() => navigator.clipboard.writeText(backupCodes.join("\n"))}
@@ -141,7 +141,7 @@ export function MfaSetup({ initiallyEnabled, email }: { initiallyEnabled: boolea
           <li>Open your authenticator app (Google Authenticator, Authy, 1Password, etc.).</li>
           <li>Tap &quot;Add account&quot; and scan this QR code:</li>
         </ol>
-        <div className="grid place-items-center rounded-xl bg-white p-4">
+        <div className="grid place-items-center rounded-xl bg-surface p-4">
           <img src={qr} alt="MFA QR code" className="h-48 w-48" />
         </div>
         <details className="rounded-lg bg-sunken px-3 py-2 text-xs text-muted">

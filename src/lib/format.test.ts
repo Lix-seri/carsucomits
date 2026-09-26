@@ -12,3 +12,15 @@ test("fares show a range only when there is a max", () => {
   assert.equal(formatFare({ fareMin: 500, fareMax: null, fareUnit: null }), "₱500");
   assert.equal(formatFare({ fareMin: 500, fareMax: 800, fareUnit: "/hr" }), "₱500–800/hr");
 });
+
+test("deadlines read as a human countdown in Manila days", async () => {
+  const { dueLabel } = await import("./format");
+  const now = new Date("2026-09-26T10:00:00+08:00");
+  assert.equal(dueLabel(null, now), "No deadline");
+  assert.equal(dueLabel("2026-09-26T23:00:00+08:00", now), "Due today");
+  assert.equal(dueLabel("2026-09-27", now), "Due tomorrow");
+  assert.equal(dueLabel("2026-09-29", now), "Due in 3 days");
+  assert.equal(dueLabel("2026-10-17", now), "Due in 3 weeks");
+  assert.equal(dueLabel("2026-09-24", now), "2 days overdue");
+  assert.equal(dueLabel("2026-09-25", now), "1 day overdue");
+});

@@ -46,7 +46,7 @@ export function NotificationsPopover({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div ref={ref} role="dialog" aria-label="Notifications" className="absolute right-0 top-12 z-50 max-h-popover w-80 max-w-popover overflow-y-auto rounded-xl border border-line bg-white p-3 shadow-card">
+    <div ref={ref} role="dialog" aria-label="Notifications" className="absolute right-0 top-12 z-50 max-h-popover w-80 max-w-popover overflow-y-auto rounded-xl border border-line bg-surface p-3 shadow-card">
       <div className="mb-2 flex items-center justify-between px-1 py-1">
         <p className="text-sm font-semibold">Notifications</p>
         <div className="flex items-center gap-2">

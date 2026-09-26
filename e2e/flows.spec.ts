@@ -135,7 +135,7 @@ test.describe("flows through the UI", () => {
     await rate.getByRole("button", { name: "Submit rating & complete" }).click();
     await expect(rate).toBeHidden();
     await poster.goto(commissionUrl);
-    await expect(poster.getByText("Completed", { exact: true })).toBeVisible();
+    await expect(poster.getByText("Completed", { exact: true }).first()).toBeVisible();
 
     // Worker rates the commissioner back.
     await worker.goto("/hub");

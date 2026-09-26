@@ -1,4 +1,4 @@
-# CarsuComits
+# CarSUComits
 
 A commission marketplace for Caraga State University – Main Campus students. Students post paid tasks, others apply, the poster hires one, and both sides rate each other after the work is delivered.
 

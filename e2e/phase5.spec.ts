@@ -166,7 +166,7 @@ test.describe("item 10: agreement before work starts", () => {
 
     const acceptances = await db.agreementAcceptance.findMany({ where: { commissionId: c.id } });
     expect(acceptances.map((a) => a.userId).sort()).toEqual([poster.id, worker.id].sort());
-    expect(acceptances[0].version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(acceptances[0].version).toMatch(/^\d{4}-\d{2}-\d{2}(\.\d+)?$/);
     expect(acceptances[0].terms).toMatchObject({ fare: "₱500–800", deadline: "2026-12-01" });
     expect(await db.auditLog.count({ where: { action: "AGREEMENT_ACCEPTED", target: c.id } })).toBe(2);
     expect(await db.auditLog.count({ where: { action: "COMMISSION_STATUS", target: c.id, after: { equals: { status: "IN_PROGRESS" } } } })).toBe(1);

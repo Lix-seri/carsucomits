@@ -119,7 +119,7 @@ export function DeliverableSection({
       ) : (
         <ul className="space-y-3">
           {initialDeliverables.map((d) => (
-            <li key={d.id} className="rounded-xl border border-line bg-white p-4">
+            <li key={d.id} className="rounded-xl border border-line bg-surface p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
                   <Avatar name={d.submitter.fullName} src={d.submitter.avatarUrl} size="sm" />

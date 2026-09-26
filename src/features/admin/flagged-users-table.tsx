@@ -22,7 +22,7 @@ export function FlaggedUsersTable({ users, avgMap, emptyText }: { users: Flagged
       {users.length === 0 ? (
         <EmptyState icon={ShieldCheck} title={emptyText} />
       ) : (
-        <div className="rounded-xl border border-line bg-white px-4 sm:px-5">
+        <div className="rounded-xl border border-line bg-surface px-4 sm:px-5">
           <table className="table-stack">
             <thead>
               <tr className="border-b border-line">

@@ -79,7 +79,7 @@ export function LoginForm() {
       </Link>
 
       <div className="grid flex-1 place-items-center px-4 pb-10">
-        <div className="w-full max-w-md rounded-xl border border-line bg-white p-6 shadow-card sm:p-8">
+        <div className="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-card sm:p-8">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
             <h1 className="mt-5 text-2xl font-bold">{needMfa ? "Two-factor sign-in" : "Sign in"}</h1>
@@ -124,7 +124,7 @@ export function LoginForm() {
                   onClick={() => setRole("STUDENT")}
                   className={cn(
                     "flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-semibold transition",
-                    role === "STUDENT" ? "bg-white text-ink shadow-card" : "text-muted hover:text-ink",
+                    role === "STUDENT" ? "bg-surface text-ink shadow-card" : "text-muted hover:text-ink",
                   )}
                 >
                   <GraduationCap className="h-4 w-4" /> Student
@@ -135,7 +135,7 @@ export function LoginForm() {
                   onClick={() => setRole("ADMIN")}
                   className={cn(
                     "flex items-center justify-center gap-1.5 rounded-md py-2 text-sm font-semibold transition",
-                    role === "ADMIN" ? "bg-white text-ink shadow-card" : "text-muted hover:text-ink",
+                    role === "ADMIN" ? "bg-surface text-ink shadow-card" : "text-muted hover:text-ink",
                   )}
                 >
                   <Shield className="h-4 w-4" /> Admin
@@ -175,7 +175,7 @@ export function LoginForm() {
 
               {role === "STUDENT" && (
                 <p className="mt-6 text-center text-sm text-muted">
-                  New to CarsuComits? <Link href="/register" className="font-semibold text-brand-700 hover:underline">Create an account</Link>
+                  New to CarSUComits? <Link href="/register" className="font-semibold text-brand-700 hover:underline">Create an account</Link>
                 </p>
               )}
             </>
@@ -183,7 +183,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <p className="pb-6 text-center text-xs text-muted">CarsuComits · Caraga State University – Main Campus</p>
+      <p className="pb-6 text-center text-xs text-muted">CarSUComits · Caraga State University – Main Campus</p>
     </main>
   );
 }

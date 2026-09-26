@@ -17,7 +17,7 @@ const date = (iso: string) => new Date(iso).toLocaleDateString("en-PH", { dateSt
 
 function ReportItems({ reports, headline }: { reports: Report[]; headline: (r: Report) => string }) {
   return (
-    <ul className="divide-y divide-line rounded-xl border border-line bg-white">
+    <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
       {reports.map((r) => (
         <li key={r.id} className="flex items-start justify-between gap-3 p-4">
           <div className="min-w-0 text-sm">

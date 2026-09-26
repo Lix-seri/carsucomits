@@ -22,7 +22,7 @@ export function ReportList({ title, reports, emptyText }: { title: string; repor
       {reports.length === 0 ? (
         <EmptyState icon={Flag} title={emptyText} />
       ) : (
-        <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+        <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
           {reports.map((r) => (
             <li key={r.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">

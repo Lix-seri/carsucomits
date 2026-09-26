@@ -45,7 +45,7 @@ export default async function HubPage() {
           <p className="mt-1 text-sm text-warning-800">Ratings are how students here decide who to trust.</p>
           <ul className="mt-4 space-y-2">
             {unratedCompleted.map((c) => (
-              <li key={c.id} className="flex flex-col gap-3 rounded-lg bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+              <li key={c.id} className="flex flex-col gap-3 rounded-lg bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <Link href={`/commission/${c.id}`} className="font-semibold hover:text-brand-700">{c.title}</Link>
                   <p className="text-sm text-muted">Done by {c.awardedToId ? (awardedMap.get(c.awardedToId) ?? "the student") : "the student"}</p>
@@ -54,7 +54,7 @@ export default async function HubPage() {
               </li>
             ))}
             {completedAsStudent.map((c) => (
-              <li key={c.id} className="flex flex-col gap-3 rounded-lg bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+              <li key={c.id} className="flex flex-col gap-3 rounded-lg bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <Link href={`/commission/${c.id}`} className="font-semibold hover:text-brand-700">{c.title}</Link>
                   <p className="text-sm text-muted">Posted by {c.commissioner.fullName}</p>
@@ -74,7 +74,7 @@ export default async function HubPage() {
         ) : (
           <ul className="space-y-3">
             {doing.map((t) => (
-              <li key={t.id} className="rounded-xl border border-line bg-white p-5">
+              <li key={t.id} className="rounded-xl border border-line bg-surface p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <Link href={`/commission/${t.id}`} className="font-semibold hover:text-brand-700">{t.title}</Link>
@@ -101,7 +101,7 @@ export default async function HubPage() {
         ) : (
           <ul className="space-y-3">
             {posted.map((t) => (
-              <li key={t.id} className="rounded-xl border border-line bg-white p-5">
+              <li key={t.id} className="rounded-xl border border-line bg-surface p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="mb-1"><CommissionStatusBadge status={t.status} /></div>
@@ -139,7 +139,7 @@ export default async function HubPage() {
             Apply to open commissions from Browse; you can withdraw while they&apos;re pending.
           </EmptyState>
         ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+          <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
             {applications.map((a) => (
               <li key={a.id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <Link href={`/commission/${a.commission.id}`} className="min-w-0 font-medium hover:text-brand-700">{a.commission.title}</Link>

@@ -19,7 +19,7 @@ export default async function VerifyPage() {
         description="Only verified CCIS students can apply to and work on commissions. Anyone can browse and post."
       />
       {verifiedAt ? (
-        <section className="flex gap-3 rounded-xl border border-line bg-white p-5">
+        <section className="flex gap-3 rounded-xl border border-line bg-surface p-5">
           <BadgeCheck className="h-6 w-6 shrink-0 text-brand-600" />
           <div>
             <p className="font-semibold">You&apos;re verified</p>
@@ -28,7 +28,7 @@ export default async function VerifyPage() {
           </div>
         </section>
       ) : latest?.status === "PENDING" ? (
-        <section className="flex gap-3 rounded-xl border border-line bg-white p-5">
+        <section className="flex gap-3 rounded-xl border border-line bg-surface p-5">
           <Clock className="h-6 w-6 shrink-0 text-warning-600" />
           <div>
             <p className="font-semibold">Waiting for review</p>

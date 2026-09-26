@@ -17,7 +17,12 @@ test("no other form of the university's name appears in the app or the seed", ()
   const offenders: string[] = [];
   for (const file of [...sourceFiles("src"), "prisma/seed.mjs"]) {
     readFileSync(file, "utf8").split("\n").forEach((line, i) => {
-      const cleaned = line.replaceAll("Caraga State University – Main Campus", "").replaceAll("CSU Main", "");
+      // The brand name CarSUComits (also drawn split in two colours by the wordmark) isn't the university's name.
+      const cleaned = line
+        .replaceAll("Caraga State University – Main Campus", "")
+        .replaceAll("CSU Main", "")
+        .replaceAll("CarSUComits", "")
+        .replaceAll("CarSU<span", "");
       if (/Caraga State University|\bCSU\b|\bCarSU\b/.test(cleaned)) offenders.push(`${file}:${i + 1}: ${line.trim()}`);
     });
   }

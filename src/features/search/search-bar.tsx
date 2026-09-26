@@ -95,7 +95,7 @@ export function SearchBar() {
 
   return (
     <div ref={ref} className="relative flex-1">
-      <form onSubmit={submit} className="flex items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 focus-within:border-brand-500">
+      <form onSubmit={submit} className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-2 focus-within:border-brand-500">
         <Search className="h-4 w-4 text-muted" />
         <input
           value={q}
@@ -114,7 +114,7 @@ export function SearchBar() {
       </form>
 
       {open && q.trim() && (
-        <div className="absolute left-0 right-0 top-12 z-50 max-h-96 overflow-y-auto rounded-xl border border-line bg-white p-1.5 shadow-card">
+        <div className="absolute left-0 right-0 top-12 z-50 max-h-96 overflow-y-auto rounded-xl border border-line bg-surface p-1.5 shadow-card">
           {totalResults === 0 ? (
             <p className="px-4 py-6 text-center text-sm text-muted">
               No matches for <strong>&quot;{q}&quot;</strong>. Try a different keyword.

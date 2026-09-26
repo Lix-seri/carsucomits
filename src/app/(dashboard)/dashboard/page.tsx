@@ -49,7 +49,7 @@ export default async function DashboardHome() {
         <section aria-labelledby="your-work">
           <h2 id="your-work" className="mb-3 text-lg font-semibold">Your work</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="flex flex-col rounded-xl border border-line bg-white p-5">
+            <div className="flex flex-col rounded-xl border border-line bg-surface p-5">
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted"><Briefcase className="h-4 w-4" /> Doing</p>
               {doingTask ? (
                 <>
@@ -69,7 +69,7 @@ export default async function DashboardHome() {
               )}
             </div>
 
-            <div className="flex flex-col rounded-xl border border-line bg-white p-5">
+            <div className="flex flex-col rounded-xl border border-line bg-surface p-5">
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted"><Megaphone className="h-4 w-4" /> Hiring</p>
               {postedTask ? (
                 <>
@@ -114,7 +114,7 @@ export default async function DashboardHome() {
           {featured.length === 0 ? (
             <EmptyState icon={Search} title="No open commissions right now" action={<Link href="/hiring/post" className="btn-secondary">Post the first one</Link>} />
           ) : (
-            <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+            <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
               {featured.map((f) => (
                 <li key={f.id}>
                   <Link href={`/commission/${f.id}`} className="flex flex-col gap-3 p-4 transition-colors hover:bg-sunken sm:flex-row sm:items-center sm:justify-between">

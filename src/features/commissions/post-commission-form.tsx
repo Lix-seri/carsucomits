@@ -63,7 +63,7 @@ export function PostCommissionForm() {
         </p>
       </div>
 
-      <form noValidate onSubmit={submit} className="space-y-5 rounded-2xl border border-line bg-white p-6 shadow-card">
+      <form noValidate onSubmit={submit} className="space-y-5 rounded-2xl border border-line bg-surface p-6 shadow-card">
         <Field label="Title" error={errorFor("title")}>
           <input name="title" className="input" placeholder="e.g. Logo design for student org" maxLength={120} />
         </Field>

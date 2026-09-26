@@ -19,7 +19,7 @@ export default async function AdminTransactions({ searchParams }: Props) {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader title="Transactions" description={`Every hired commission. Completed work in this view: from ₱${completedFrom.toLocaleString("en-PH")}.`} />
-      <form className="mb-4 grid grid-cols-1 gap-3 rounded-xl border border-line bg-white p-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
+      <form className="mb-4 grid grid-cols-1 gap-3 rounded-xl border border-line bg-surface p-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end">
         <label className="text-sm">
           <span className="label">Person</span>
           <input name="q" defaultValue={filter.q ?? ""} placeholder="Name or email" className="input" />

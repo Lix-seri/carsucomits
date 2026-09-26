@@ -40,7 +40,7 @@ export function ProfileView({
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {notice}
-      <article className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+      <article className="overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
         <div className="h-20 bg-brand-600" />
         <div className="px-5 pb-6 sm:px-8">
           <div className="-mt-12 flex flex-wrap items-end justify-between gap-4">
@@ -81,13 +81,13 @@ export function ProfileView({
       </article>
 
       {user.bio && (
-        <section className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+        <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
           <h2 className="mb-2 font-semibold">About</h2>
           <p className="max-w-prose whitespace-pre-line text-sm text-ink">{user.bio}</p>
         </section>
       )}
 
-      <section className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="mb-4 font-semibold">Skills</h2>
         {skillsEditor ??
           (skills.length === 0 ? (
@@ -104,7 +104,7 @@ export function ProfileView({
           ))}
       </section>
 
-      <section className="rounded-2xl border border-line bg-white p-5 sm:p-6">
+      <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
         <h2 className="mb-4 font-semibold">Reviews</h2>
         {reviews.length === 0 ? (
           <EmptyState icon={Star} title="No reviews yet">

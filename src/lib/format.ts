@@ -44,3 +44,24 @@ export function greeting(d = new Date()) {
   if (h < 18) return "Good afternoon";
   return "Good evening";
 }
+
+/** Calendar days from today to a date, counted in Manila, so "today" means the campus day. */
+function daysUntil(deadline: Date, now: Date) {
+  const day = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: CAMPUS_TZ }).format(d); // YYYY-MM-DD
+  return Math.round((Date.parse(day(deadline)) - Date.parse(day(now))) / 86_400_000);
+}
+
+/** A human countdown for a deadline: "Due in 3 days", "Due today", "2 days overdue", "No deadline". */
+export function dueLabel(deadline: Date | string | null | undefined, now = new Date()) {
+  if (!deadline) return "No deadline";
+  const days = daysUntil(new Date(deadline), now);
+  if (days === 0) return "Due today";
+  if (days === 1) return "Due tomorrow";
+  if (days < 0) return `${-days} day${days === -1 ? "" : "s"} overdue`;
+  if (days < 14) return `Due in ${days} days`;
+  if (days < 60) return `Due in ${Math.round(days / 7)} weeks`;
+  return `Due ${new Date(deadline).toLocaleDateString("en-PH", { month: "short", day: "numeric", timeZone: CAMPUS_TZ })}`;
+}
+
+/** "₱1,250" for totals; fares keep formatFare. */
+export const peso = (n: number) => `₱${n.toLocaleString("en-PH")}`;

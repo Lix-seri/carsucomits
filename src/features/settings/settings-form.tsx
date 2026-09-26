@@ -30,7 +30,7 @@ export function SettingsForm({ limits }: { limits: Limits }) {
   }
 
   return (
-    <form noValidate onSubmit={submit} className="space-y-5 rounded-xl border border-line bg-white p-5 sm:p-6">
+    <form noValidate onSubmit={submit} className="space-y-5 rounded-xl border border-line bg-surface p-5 sm:p-6">
       {KEYS.map((k) => (
         <Field key={k} label={SETTINGS[k].label} hint={`${SETTINGS[k].hint} Default ${SETTINGS[k].default}.`} error={error?.field === k ? error.message : null}>
           <input

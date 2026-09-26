@@ -11,7 +11,7 @@ const LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-line bg-white">
+    <footer className="border-t border-line bg-surface">
       <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row md:justify-between">
         <div className="max-w-sm space-y-3">
           <Logo size="sm" />
@@ -28,7 +28,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="mx-auto max-w-7xl border-t border-line px-4 py-5 text-xs text-muted sm:px-6">
-        © {new Date().getFullYear()} CarsuComits · Built by CSU Main students · v{process.env.APP_VERSION}
+        © {new Date().getFullYear()} CarSUComits · Built by CSU Main students · v{process.env.APP_VERSION}
       </p>
     </footer>
   );

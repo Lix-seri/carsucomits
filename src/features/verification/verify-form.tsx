@@ -24,7 +24,7 @@ export function VerifyForm() {
   }
 
   return (
-    <form noValidate onSubmit={submit} className="space-y-4 rounded-xl border border-line bg-white p-5 sm:p-6">
+    <form noValidate onSubmit={submit} className="space-y-4 rounded-xl border border-line bg-surface p-5 sm:p-6">
       <Field label="Student ID number" error={errorFor("studentIdNumber")} hint="As printed on your student ID.">
         <input name="studentIdNumber" inputMode="numeric" autoComplete="off" className="input sm:w-64" />
       </Field>

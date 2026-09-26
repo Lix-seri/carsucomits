@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Terms of use" };
 const SECTIONS: { id: string; title: string; body: React.ReactNode }[] = [
   {
     id: "who",
-    title: "Who can use CarsuComits",
+    title: "Who can use CarSUComits",
     body: (
       <p>
         Students, faculty and staff of Caraga State University – Main Campus with an official <strong>@carsu.edu.ph</strong> email address. One
@@ -22,7 +22,7 @@ const SECTIONS: { id: string; title: string; body: React.ReactNode }[] = [
     body: (
       <>
         <p>
-          CarsuComits is for legitimate services: tutoring that helps someone learn, design, programming, errands, events and
+          CarSUComits is for legitimate services: tutoring that helps someone learn, design, programming, errands, events and
           administrative help. <strong>It is not a place to buy or sell graded academic work.</strong> The following are not allowed,
           whether you post them or take them on:
         </p>
@@ -56,7 +56,7 @@ const SECTIONS: { id: string; title: string; body: React.ReactNode }[] = [
     title: "Payments",
     body: (
       <p>
-        CarsuComits does not process payments. The fare on a commission is agreed between the two people involved, who are
+        CarSUComits does not process payments. The fare on a commission is agreed between the two people involved, who are
         responsible for settling it.
       </p>
     ),
@@ -80,7 +80,7 @@ export default function TermsPage() {
       <main id="main" className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="text-4xl font-bold">Terms of Use</h1>
         <p className="mt-3 text-muted">
-          The rules for using CarsuComits. By creating an account you agree to them. Questions go to the admins through{" "}
+          The rules for using CarSUComits. By creating an account you agree to them. Questions go to the admins through{" "}
           <Link href="/reports" className="font-semibold text-brand-600 hover:underline">Reports</Link>.
         </p>
         <div className="mt-10 space-y-10">

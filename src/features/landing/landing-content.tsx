@@ -20,7 +20,7 @@ const STEPS = [
 export function LandingContent({ latest }: { latest: React.ReactNode }) {
   return (
     <>
-      <section className="border-b border-line bg-white">
+      <section className="border-b border-line bg-surface">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:py-24 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="text-sm font-semibold text-brand-700">For students of CSU Main</p>
@@ -41,7 +41,7 @@ export function LandingContent({ latest }: { latest: React.ReactNode }) {
           <ol id="how-it-works" aria-label="How it works" className="scroll-mt-20 rounded-xl border border-line bg-canvas p-2">
             {STEPS.map((s, i) => (
               <li key={s.title} className="flex gap-4 rounded-lg p-4">
-                <span className="tabular grid h-8 w-8 shrink-0 place-items-center rounded-full border border-brand-200 bg-white text-sm font-semibold text-brand-700">
+                <span className="tabular grid h-8 w-8 shrink-0 place-items-center rounded-full border border-brand-200 bg-surface text-sm font-semibold text-brand-700">
                   {i + 1}
                 </span>
                 <div>
@@ -56,7 +56,7 @@ export function LandingContent({ latest }: { latest: React.ReactNode }) {
 
       <section aria-labelledby="categories" className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <h2 id="categories" className="mb-5 text-2xl font-semibold tracking-tight">Browse by category</h2>
-        <div className="grid overflow-hidden rounded-xl border border-line bg-white sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid overflow-hidden rounded-xl border border-line bg-surface sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORIES.map(({ value, name, description, icon: Icon }) => (
             <Link
               key={value}

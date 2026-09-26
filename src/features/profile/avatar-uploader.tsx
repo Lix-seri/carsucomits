@@ -50,7 +50,7 @@ export function AvatarUploader({
         <button
           onClick={() => fileRef.current?.click()}
           disabled={busy}
-          className="absolute bottom-0 right-0 grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-brand-500 text-white shadow transition hover:bg-brand-600 disabled:opacity-50"
+          className="absolute bottom-0 right-0 grid h-9 w-9 place-items-center rounded-full border-2 border-surface bg-brand-500 text-white shadow transition hover:bg-brand-600 disabled:opacity-50"
           aria-label="Upload profile picture"
           type="button"
         >

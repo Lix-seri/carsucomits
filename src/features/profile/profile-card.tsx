@@ -15,7 +15,7 @@ export function ProfileCard({
 }) {
   return (
     <div className="space-y-4">
-      <section className="rounded-xl border border-line bg-white p-5 text-center">
+      <section className="rounded-xl border border-line bg-surface p-5 text-center">
         <div className="mx-auto w-fit"><Avatar name={user.fullName} src={user.avatarUrl} size="lg" /></div>
         <p className="mt-3 font-semibold">{user.fullName}</p>
         <p className="text-xs text-muted">{user.role}</p>
@@ -36,7 +36,7 @@ export function ProfileCard({
         <Link href="/profile" className="btn-secondary mt-4 w-full">View profile</Link>
       </section>
 
-      <section className="rounded-xl border border-line bg-white p-5">
+      <section className="rounded-xl border border-line bg-surface p-5">
         <h2 className="mb-3 text-sm font-semibold">Your skills</h2>
         {skills.length === 0 ? (
           <p className="text-sm text-muted">

@@ -22,7 +22,7 @@ export function Avatar({
   className?: string;
 }) {
   const dim = SIZE_CLASS[size];
-  const ring = ringed ? "border-4 border-white shadow" : "";
+  const ring = ringed ? "border-4 border-surface shadow" : "";
 
   if (src) {
     return (

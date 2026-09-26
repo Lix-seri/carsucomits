@@ -22,7 +22,7 @@ export default async function HiringHome() {
         actions={<Link href="/hiring/post" className="btn-primary"><Plus className="h-4 w-4" /> Post a commission</Link>}
       />
 
-      <dl className="grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-white">
+      <dl className="grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-surface">
         {numbers.map(([label, value]) => (
           <div key={label} className="px-4 py-4">
             <dt className="text-xs font-semibold text-muted">{label}</dt>
@@ -43,7 +43,7 @@ export default async function HiringHome() {
             New applicants show up here, with their rating and cover letter.
           </EmptyState>
         ) : (
-          <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-white">
+          <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-surface">
             {recentApplicants.map((a) => (
               <ApplicantRow key={a.id} a={a} avg={ratingMap.get(a.applicantId)} activeJobs={jobsMap.get(a.applicantId)} />
             ))}
@@ -63,7 +63,7 @@ export default async function HiringHome() {
             Post what you need done; students apply and you pick one.
           </EmptyState>
         ) : (
-          <div className="rounded-xl border border-line bg-white px-4 sm:px-5">
+          <div className="rounded-xl border border-line bg-surface px-4 sm:px-5">
             <ListingsTable listings={listings} />
           </div>
         )}

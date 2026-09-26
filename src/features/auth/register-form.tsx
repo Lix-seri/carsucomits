@@ -38,7 +38,7 @@ export function RegisterForm() {
       </Link>
 
       <div className="grid flex-1 place-items-center px-4 pb-10">
-        <div className="w-full max-w-md rounded-xl border border-line bg-white p-6 shadow-card sm:p-8">
+        <div className="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-card sm:p-8">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
             <h1 className="mt-5 text-2xl font-bold">Create your account</h1>
@@ -73,7 +73,7 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <p className="pb-6 text-center text-xs text-muted">CarsuComits · Caraga State University – Main Campus</p>
+      <p className="pb-6 text-center text-xs text-muted">CarSUComits · Caraga State University – Main Campus</p>
     </main>
   );
 }

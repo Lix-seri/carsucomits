@@ -3,7 +3,7 @@
 
 import { Secret, TOTP } from "otpauth";
 
-const ISSUER = "CarsuComits";
+const ISSUER = "CarSUComits";
 
 export function newSecret() {
   return new Secret({ size: 20 }).base32;

@@ -32,11 +32,11 @@ export function AdminSidebar({ adminName, variant = "admin" }: { adminName: stri
   const nav = variant === "used" ? USED_NAV : NAV;
   const isActive = (href: string) => pathname === href || (href !== home && pathname?.startsWith(href));
   return (
-    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-line bg-white">
+    <aside className="flex h-screen w-60 shrink-0 flex-col border-r border-line bg-surface">
       <Link href={home} className="flex items-center gap-2.5 border-b border-line px-5 py-4">
         <span className="grid h-9 w-9 place-items-center rounded-lg bg-ink text-sm font-bold text-white">CC</span>
         <span>
-          <span className="block text-sm font-semibold leading-tight">CarsuComits</span>
+          <span className="block text-sm font-semibold leading-tight">CarSUComits</span>
           <span className="block text-xs text-muted">{variant === "used" ? "USED office" : "Admin panel"}</span>
         </span>
       </Link>
