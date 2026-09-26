@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { formatFare } from "@/lib/format";
-import { CategoryBadge, LevelBadge } from "@/components/ui/badge";
+import { Clock, Users } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { dueLabel, formatFare } from "@/lib/format";
+import { Avatar } from "@/components/ui/avatar";
+import { CategoryBadge, CategoryIcon, LevelPips, categoryStyle } from "@/components/ui/category";
 
 export type CommissionCardData = {
   id: string;
@@ -12,38 +15,55 @@ export type CommissionCardData = {
   fareMin: number;
   fareMax: number | null;
   fareUnit: string | null;
+  deadline?: Date | string | null;
   coverImageUrl: string | null;
-  commissioner: { fullName: string };
+  commissioner: { fullName: string; avatarUrl?: string | null };
   _count: { applications: number };
 };
 
-/** A listing card, used on the home page and on Browse. The whole card is the link. */
+/** A slip on the board: used on Browse and Saved. The whole card is the link. */
 export function CommissionCard({ c }: { c: CommissionCardData }) {
+  const s = categoryStyle(c.category);
+  const due = dueLabel(c.deadline);
+  const soon = due === "Due today" || due === "Due tomorrow" || due.endsWith("overdue");
+  const applicants = c._count.applications;
   return (
     <Link
       href={`/commission/${c.id}`}
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface transition hover:border-brand-300 hover:shadow-card focus-visible:ring-2 focus-visible:ring-brand-500"
+      className="lift group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-card focus-visible:ring-2 focus-visible:ring-brand-500"
     >
+      <span aria-hidden className={cn("h-1.5 w-full", s.strip)} />
       {c.coverImageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={c.coverImageUrl} alt="" className="aspect-video w-full object-cover" />
+        <img src={c.coverImageUrl} alt="" loading="lazy" className="aspect-video w-full object-cover" />
       )}
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex flex-wrap gap-1.5">
-          <CategoryBadge category={c.category} />
-          <LevelBadge level={c.requiredLevel} />
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-center gap-3">
+          <CategoryIcon category={c.category} size="sm" />
+          <div className="min-w-0 flex-1">
+            <CategoryBadge category={c.category} icon={false} />
+            {c.subcategory && <p className="truncate text-xs text-muted">{c.subcategory}</p>}
+          </div>
+          <LevelPips level={c.requiredLevel} />
         </div>
-        <div>
-          <h3 className="line-clamp-2 font-semibold leading-snug group-hover:text-brand-700">{c.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-muted">{c.description}</p>
+        <h3 className="mt-3 line-clamp-2 break-words font-display text-lg font-bold leading-snug group-hover:text-brand-700">{c.title}</h3>
+        <p className="mt-1 line-clamp-2 text-sm text-muted">{c.description}</p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+          <span className={cn("inline-flex items-center gap-1", soon && "font-semibold text-coral-600")}>
+            <Clock aria-hidden className="h-3.5 w-3.5" /> {due}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Users aria-hidden className="h-3.5 w-3.5" /> {applicants === 0 ? "No applicants yet" : `${applicants} applicant${applicants === 1 ? "" : "s"}`}
+          </span>
         </div>
-        <div className="mt-auto flex items-end justify-between gap-3 border-t border-line pt-3">
-          <p className="text-xs text-muted">
-            {c.commissioner.fullName}
-            <br />
-            {c._count.applications} applicant{c._count.applications === 1 ? "" : "s"}
-          </p>
-          <p className="tabular text-lg font-semibold text-brand-700">{formatFare(c)}</p>
+
+        <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+          <span className="flex min-w-0 items-center gap-2 text-sm">
+            <Avatar name={c.commissioner.fullName} src={c.commissioner.avatarUrl ?? null} size="xs" />
+            <span className="truncate font-medium">{c.commissioner.fullName}</span>
+          </span>
+          <span className="shrink-0 rounded-xl bg-brand-50 px-3 py-1 font-display text-lg font-extrabold tabular text-brand-700">{formatFare(c)}</span>
         </div>
       </div>
     </Link>

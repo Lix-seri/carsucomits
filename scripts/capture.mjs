@@ -33,6 +33,8 @@ for (const scheme of darkToo ? ["light", "dark"] : ["light"]) {
       await page.goto(BASE + p, { waitUntil: "networkidle" }).catch(() => {});
       await page.waitForSelector("html[data-hydrated]", { state: "attached", timeout: 15000 }).catch(() => {});
       await page.evaluate(() => document.fonts.ready);
+      // Client-loaded lists: wait for their skeletons to be replaced.
+      await page.waitForFunction(() => !document.querySelector(".animate-pulse"), null, { timeout: 15000 }).catch(() => {});
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       const name = p === "/" ? "home" : p.slice(1).replace(/[/?=&]/g, "_");
       await page.screenshot({ path: `${out}/${name}-${width}-${scheme}.png`, fullPage: true, caret: "initial" });

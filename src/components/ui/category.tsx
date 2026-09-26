@@ -53,12 +53,12 @@ export function CategoryIcon({ category, size = "md" }: { category: string; size
   );
 }
 
-/** Category as a label: coloured icon and name. */
-export function CategoryBadge({ category }: { category: string }) {
+/** Category as a label: coloured name, with its icon unless a CategoryIcon tile already shows it. */
+export function CategoryBadge({ category, icon = true }: { category: string; icon?: boolean }) {
   const s = categoryStyle(category);
   return (
     <span className={cn("inline-flex items-center gap-1 whitespace-nowrap text-xs font-bold", s.text)}>
-      <s.icon className="h-3.5 w-3.5" strokeWidth={2.4} />
+      {icon && <s.icon aria-hidden className="h-3.5 w-3.5" strokeWidth={2.4} />}
       {CATEGORY_LABEL[category] ?? category}
     </span>
   );

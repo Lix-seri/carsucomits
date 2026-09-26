@@ -135,7 +135,7 @@ test.describe("audit fixes: home page", () => {
     await expect(page.getByText(c.title)).toBeVisible();
     await expect(page.getByText("Research Paper Writing")).toHaveCount(0);
 
-    await page.getByRole("link", { name: /Technical/ }).first().click();
+    await page.getByRole("region", { name: "What classmates are posting" }).getByRole("link", { name: /Technical/ }).click();
     await expect(page).toHaveURL(/\/browse\?category=TECHNICAL$/);
     await expect(page.getByRole("heading", { name: c.title })).toBeVisible();
   });

@@ -32,7 +32,7 @@ test.describe("flows through the UI", () => {
     const c = await postCommission(poster.api, { title: `Visitor flow ${Date.now()}`, category: "GENERAL_ERRANDS" });
     await page.goto("/");
     await shot(page, "visitor-home");
-    await page.getByRole("link", { name: /General Errands/ }).first().click();
+    await page.getByRole("region", { name: "What classmates are posting" }).getByRole("link", { name: /General Errands/ }).click();
     await expect(page.getByRole("button", { name: "General Errands" })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("heading", { name: c.title }).waitFor();
     await shot(page, "visitor-browse-filtered");

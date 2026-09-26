@@ -1,22 +1,17 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Heart } from "lucide-react";
 import { api } from "@/lib/api";
-import { Bookmark } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/toast";
 
-export function BookmarkButton({
-  commissionId,
-  initialSaved,
-  size = "md",
-}: {
-  commissionId: string;
-  initialSaved: boolean;
-  size?: "sm" | "md";
-}) {
+/** Save a commission for later: a heart that pops when it's filled. */
+export function BookmarkButton({ commissionId, initialSaved }: { commissionId: string; initialSaved: boolean }) {
   const router = useRouter();
   const [saved, setSaved] = useState(initialSaved);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [popped, setPopped] = useState(0);
 
   async function toggle(e: React.MouseEvent) {
     e.preventDefault();
@@ -25,28 +20,32 @@ export function BookmarkButton({
     setBusy(true);
     const next = !saved;
     setSaved(next); // optimistic
-    setError(null);
+    if (next) setPopped((n) => n + 1);
     const res = await api(`/api/saved/${commissionId}`, { method: "POST" });
     setBusy(false);
-    if (res.ok) return router.refresh();
+    if (res.ok) {
+      toast(next ? "Saved for later" : "Removed from Saved", { tone: "info" });
+      return router.refresh();
+    }
     setSaved(!next); // rollback
     if (res.status === 401) router.push(`/login?next=${encodeURIComponent(location.pathname)}`);
-    else setError(res.error);
+    else toast(res.error, { tone: "error" });
   }
 
-  const iconSize = size === "sm" ? "h-4 w-4" : "h-5 w-5";
   return (
-    <span className="relative inline-flex">
     <button
+      type="button"
       onClick={toggle}
       disabled={busy}
-      aria-label={saved ? "Remove bookmark" : "Save commission"}
-      title={saved ? "Saved — click to remove" : "Save for later"}
-      className={`rounded-lg border ${saved ? "border-brand-500 bg-brand-50 text-brand-600" : "border-line bg-surface text-muted"} p-2 transition hover:bg-sunken disabled:opacity-50`}
+      aria-pressed={saved}
+      aria-label={saved ? "Remove from Saved" : "Save for later"}
+      className={cn(
+        "btn border-2 px-3",
+        saved ? "border-coral-300 bg-coral-50 text-coral-700" : "border-line-strong bg-surface text-muted hover:border-coral-300 hover:text-coral-600",
+      )}
     >
-      <Bookmark className={`${iconSize} ${saved ? "fill-brand-500" : ""}`} />
+      <Heart key={popped} aria-hidden className={cn("h-5 w-5", saved && "pop fill-coral-500 text-coral-500")} />
+      <span className="text-sm">{saved ? "Saved" : "Save"}</span>
     </button>
-    {error && <span role="alert" className="absolute right-0 top-full mt-1 w-48 rounded-md bg-surface p-2 text-xs text-danger-600 shadow-card">{error}</span>}
-    </span>
   );
 }
