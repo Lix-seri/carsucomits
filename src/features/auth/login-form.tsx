@@ -6,6 +6,7 @@ import { ArrowLeft, GraduationCap, Shield } from "lucide-react";
 import { Field, FormError } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Logo } from "@/components/layout/logo";
+import { AuthAside } from "./auth-aside";
 import { cn } from "@/lib/utils";
 import { homeFor, safeNextPath } from "@/lib/redirect";
 
@@ -78,11 +79,12 @@ export function LoginForm() {
         <ArrowLeft className="h-4 w-4" /> Home
       </Link>
 
-      <div className="grid flex-1 place-items-center px-4 pb-10">
-        <div className="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-card sm:p-8">
+      <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-6 px-4 pb-10 lg:grid-cols-auth lg:items-stretch">
+        <AuthAside title="Welcome back sa board." />
+        <div className="w-full self-center rounded-3xl border-2 border-line bg-surface p-6 shadow-card sm:p-8 lg:max-w-md lg:justify-self-center">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
-            <h1 className="mt-5 text-2xl font-bold">{needMfa ? "Two-factor sign-in" : "Sign in"}</h1>
+            <h1 className="display mt-5 text-3xl">{needMfa ? "Two-factor sign-in" : "Sign in"}</h1>
             <p className="mt-1 text-sm text-muted">
               {needMfa
                 ? "Enter the 6-digit code from your authenticator app."

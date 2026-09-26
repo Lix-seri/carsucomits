@@ -57,7 +57,8 @@ test.describe("flows through the UI", () => {
     await shot(page, "register-errors");
     await page.getByLabel("Confirm Password").fill("password123");
     await page.getByRole("button", { name: "Create Account" }).click();
-    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page).toHaveURL(/\/dashboard\?welcome=1$/);
+    await expect(page.getByText(/Welcome to the board/)).toBeVisible();
   });
 
   test("post → apply → accept → complete with rating → rate back → message → report", async ({ browser, page }) => {

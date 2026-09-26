@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { Field, FormError } from "@/components/ui/form";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Logo } from "@/components/layout/logo";
+import { AuthAside } from "./auth-aside";
 
 export function RegisterForm() {
   const [name, setName] = useState("");
@@ -28,7 +29,7 @@ export function RegisterForm() {
     const res = await api("/api/auth/register", { json: { fullName: name, email, password } });
     setLoading(false);
     if (!res.ok) return setError({ field: res.field, message: res.error });
-    window.location.assign("/dashboard"); // full load: the new session changes every page
+    window.location.assign("/dashboard?welcome=1"); // full load: the new session changes every page
   }
 
   return (
@@ -37,11 +38,12 @@ export function RegisterForm() {
         <ArrowLeft className="h-4 w-4" /> Home
       </Link>
 
-      <div className="grid flex-1 place-items-center px-4 pb-10">
-        <div className="w-full max-w-md rounded-xl border border-line bg-surface p-6 shadow-card sm:p-8">
+      <div className="mx-auto grid w-full max-w-6xl flex-1 grid-cols-1 gap-6 px-4 pb-10 lg:grid-cols-auth lg:items-stretch">
+        <AuthAside title="Join the board. Help, get helped." />
+        <div className="w-full self-center rounded-3xl border-2 border-line bg-surface p-6 shadow-card sm:p-8 lg:max-w-md lg:justify-self-center">
           <div className="mb-6 flex flex-col items-center text-center">
             <Logo />
-            <h1 className="mt-5 text-2xl font-bold">Create your account</h1>
+            <h1 className="display mt-5 text-3xl">Create your account</h1>
             <p className="mt-1 text-sm text-muted">For CSU Main students with an @carsu.edu.ph email.</p>
           </div>
 
@@ -49,7 +51,7 @@ export function RegisterForm() {
             <Field label="Full name" error={errorFor("fullName")}>
               <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Juan Dela Cruz" autoComplete="name" className="input" />
             </Field>
-            <Field label="Email (@carsu.edu.ph)" error={errorFor("email")}>
+            <Field label="Email (@carsu.edu.ph)" error={errorFor("email")} hint="Your school email. Other addresses can't sign up.">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname@carsu.edu.ph" autoComplete="email" className="input" />
             </Field>
             <Field label="Password" error={errorFor("password")} hint="At least 8 characters.">

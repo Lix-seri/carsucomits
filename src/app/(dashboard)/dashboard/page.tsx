@@ -6,6 +6,7 @@ import { CommissionStatusBadge } from "@/components/ui/badge";
 import { CategoryIcon, LevelPips } from "@/components/ui/category";
 import { EmptyState } from "@/components/ui/empty-state";
 import { DayArt } from "@/components/illustrations/day";
+import { Tisa } from "@/components/illustrations/tisa";
 import { getDashboard } from "@/features/hub/server";
 import { ProfileProgress } from "@/features/profile/profile-progress";
 import { MarkCompleteButton } from "@/features/ratings/mark-complete-button";
@@ -22,7 +23,8 @@ function WorkCard({ icon: Icon, label, children }: { icon: typeof Briefcase; lab
   );
 }
 
-export default async function DashboardHome() {
+export default async function DashboardHome({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+  const welcome = (await searchParams).welcome === "1";
   const session = await pageSession();
   const firstName = session.fullName.split(" ")[0];
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: CAMPUS_TZ });
@@ -46,6 +48,19 @@ export default async function DashboardHome() {
   return (
     <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 xl:grid-cols-content-aside">
       <div className="min-w-0 space-y-8">
+        {welcome && (
+          <section aria-label="Welcome" className="board flex flex-col items-start gap-4 rounded-3xl border-4 border-board-deep p-5 sm:flex-row sm:items-center">
+            <Tisa pose="cheer" className="h-24 w-24 shrink-0" />
+            <div>
+              <p className="display text-2xl text-board-chalk">Welcome to the board, {firstName}!</p>
+              <p className="mt-1 text-board-dust">Start by getting CCIS-verified so you can take on work, or post what you need done.</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href="/verify" className="btn bg-gold-400 text-on-gold hover:bg-gold-300">Get verified</Link>
+                <Link href="/hiring/post" className="btn-chalk">Post a commission</Link>
+              </div>
+            </div>
+          </section>
+        )}
         <header className="flex items-center gap-5">
           <DayArt part={partOfDay()} className="hidden h-20 w-32 sm:block" />
           <div>
